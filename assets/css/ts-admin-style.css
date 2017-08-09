@@ -1,0 +1,119 @@
+body.custom-user {
+	font-family: 'Omnes-Regular';
+}
+body.custom-user .btn {
+	font-family: 'Omnes-Semibold';
+}
+body.custom-user #wpadminbar {
+    height: 38px;
+}
+body.custom-user #wpadminbar * {
+    line-height: 38px;
+}
+.entry-summary .tour-city,
+.custom-user #menu-posts-ts_tour,
+.custom-user #tourstops-list_length,
+.custom-user #entries-list_length,
+.custom-user #wp-admin-bar-gform-forms,
+.custom-user #screen-meta-links,
+.custom-user #screen-meta,
+.custom-user.users-php .subsubsub li.all,
+.custom-user.users-php .subsubsub li.administrator,
+.custom-user .row-actions span.view,
+.custom-user #message a,
+.custom-user .user-first-name-wrap,
+.custom-user .user-last-name-wrap,
+.custom-user .user-url-wrap,
+.custom-user .user-display-name-wrap,
+.custom-user .user-nickname-wrap {
+    display: none;
+}
+#profile-page h2 {
+	font-size: 18px;
+    font-weight: bold;
+    margin: 25px 0 0;	
+}
+#profile-page h3 {
+	font-size: 17px;
+    font-weight: bold;
+    margin: 25px 0 0;	
+}
+#wp-admin-bar-site-logo a {
+    background: transparent !important;
+    display: block !important;
+    width: 146px;
+    line-height: 38px !important;
+    height: 38px !important;
+    vertical-align: middle;
+}
+#wp-admin-bar-site-logo img {
+	max-height: 88%;
+}
+#tourstops-list tr:hover {
+    background-color: #ccc;
+}
+.custom-user table .btn {
+    padding: 5px 15px !important;
+}
+.ts-admin-wrapper {
+    margin-bottom: 50px;
+}
+.custom-user h1.admin-page-title,
+.custom-user h2.admin-sub-title {
+     font-family: "Oswald", sans-serif;
+}
+h1.admin-page-title {
+    font-size: 24px !important;
+    text-transform: uppercase;
+    font-weight: 900 !important;
+    padding: 20px 20px 25px 0 !important;
+    border-bottom: 1px solid #e9e9e9;
+    margin-bottom: 30px !important;
+}
+h2.admin-sub-title {
+    font-size: 20px !important;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    margin-top: 25px;
+}
+.new-registration-form {
+    padding: 30px 20px;
+    border: 1px solid #e9e9e9;
+}
+.new-registration-form select {
+    height: 40px;
+    min-width: 280px;
+    margin: 0 10px;
+    padding: 0 10px;  
+    font-size: 16px;
+    font-weight: bold;      
+}
+.new-registration-form button {
+    padding: 14px 40px !important;
+    letter-spacing: 1px;
+    font-size: 18px !important;
+}
+table.dataTable thead th {
+    font-size: 16px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e9e9e9;
+}
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting {
+    background-image: none !important;
+}
+tr.acf-field[data-name="invitees"],
+tr.acf-field[data-name="email"] {
+    display: none;
+}
+.row-pad {
+    padding: 0 12px;
+}
+#view-entry-page .entry-status {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+#view-entry-page .table-container {
+    margin: 0 12px;
+}
