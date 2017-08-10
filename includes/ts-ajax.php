@@ -427,7 +427,9 @@ function ajax_studio_registration() {
 
 	            if(isset($temp_data['workshop']['tour_city'])) {
 	            	$date_from 	= get_post_meta($temp_data['workshop']['tour_city'], 'date_from', true);
+                    $date_to =  get_post_meta($temp_data['workshop']['tour_city'], 'date_to', true);
 	            	update_post_meta($entry_id, 'tour_date', $date_from);
+                    update_post_meta($entry_id, 'tour_end_date', $date_to);
 	            }
 
 				$eid = $updated;
@@ -967,7 +969,9 @@ function ajax_individual_registration() {
 
 	            if(isset($temp_data['workshop']['tour_city'])) {
 	            	$date_from 	= get_post_meta($temp_data['workshop']['tour_city'], 'date_from', true);
-	            	update_post_meta($entry_id, 'tour_date', $date_from);
+                    $date_to =  get_post_meta($temp_data['workshop']['tour_city'], 'date_to', true);
+                    update_post_meta($entry_id, 'tour_date', $date_from);
+                    update_post_meta($entry_id, 'tour_end_date', $date_to);
 	            }
 
 				$eid = $updated;

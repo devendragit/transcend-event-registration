@@ -71,11 +71,13 @@ function ts_create_tour_posts() {
 
 				$date_from 	= date_format(date_create($t['date_from']),'Y/m/d');
 				$date_to 	= date_format(date_create($t['date_to']),'Y/m/d');
+				$cron_timestamp = ts_get_local_timestamp(date('Y/m/d', strtotime($date_to . "+1 days")));
 
 				update_post_meta($updated, 'date_from', $date_from);
 				update_post_meta($updated, 'date_to', $date_to);
 				update_post_meta($updated, 'venue', $t['venue']);
 				update_post_meta($updated, 'city', $t['city']);
+				wp_schedule_single_event($cron_timestamp, 'ts_cron_jobs', array( $date_to ) );
 			}
 		}
 	}
@@ -170,7 +172,9 @@ function ts_update_entries() {
             $tour_city 		= $workshop['tour_city'];
             if(isset($tour_city)) {
             	$date_from 	= get_post_meta($tour_city, 'date_from', true);
+				$date_to 	= get_post_meta($tour_city, 'date_to', true);
             	update_post_meta($entry_id, 'tour_date', date_format(date_create($date_from),'Y/m/d'));
+				update_post_meta($entry_id, 'tour_date', date_format(date_create($date_to),'Y/m/d'));
             }
             $status = get_post_status($entry_id);
             if($status=='paid' || $status=='paidcheck'){
@@ -1412,7 +1416,6 @@ function ts_remove_medialibrary_tab($strings) {
         return $strings;
     }
 }
-add_filter('media_view_strings','ts_remove_medialibrary_tab');
 
 function ts_restrict_non_Admins(){
 
@@ -1431,4 +1434,13 @@ function ts_redirect_after_logout() {
     }
     wp_safe_redirect($redirect_url);
     exit;
+}
+
+function ts_get_local_timestamp($date) {
+	$timestamp = mysql2date( 'U', $date );
+	return $timestamp;
+}
+
+function ts_delete_attachment($id,$force_delete=false) {
+	wp_delete_attachment( $id, $force_delete );
 }

@@ -37,6 +37,7 @@ require_once(TS_INCLUDES . 'ts-ajax.php');
 require_once(TS_INCLUDES . 'ts-pages.php');
 require_once(TS_INCLUDES . 'ts-acf-fields.php');
 require_once(TS_INCLUDES . 'ts-notifications.php');
+require_once(TS_INCLUDES . 'ts-cron-jobs.php');
 
 if (! function_exists('wp_new_user_notification') ) {
 

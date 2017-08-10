@@ -4,7 +4,7 @@ function ts_register_custom_post_types() {
 	register_post_type('ts_tour', array(
 		'label' => 'Tours',
 		'description' => '',
-		'public' => false,
+		'public' => true,
 		'menu_position' => 7,
 		'exclude_from_search' => true,
 		'publicly_queryable' => false,
@@ -37,7 +37,7 @@ function ts_register_custom_post_types() {
 	register_post_type('ts_event', array(
 		'label' => 'Events',
 		'description' => '',
-		'public' => false,
+		'public' => true,
 		'menu_position' => 7,
 		'exclude_from_search' => true,
 		'publicly_queryable' => false,
@@ -70,7 +70,7 @@ function ts_register_custom_post_types() {
 	register_post_type('ts_entry', array(
 		'label' => 'Entries',
 		'description' => '',
-		'public' => false,
+		'public' => true,
 		'menu_position' => 6,
 		'exclude_from_search' => true,
 		'publicly_queryable' => false,
@@ -103,7 +103,7 @@ function ts_register_custom_post_types() {
 	register_post_type('ts_coupon', array(
 		'label' => 'Coupons',
 		'description' => '',
-		'public' => false,
+		'public' => true,
 		'menu_position' => 11,
 		'exclude_from_search' => true,
 		'publicly_queryable' => false,
@@ -136,7 +136,7 @@ function ts_register_custom_post_types() {
 	register_post_type('ts_studio_roster', array(
 		'label' => 'Studio Rosters',
 		'description' => '',
-		'public' => false,
+		'public' => true,
 		'menu_position' => 101,
 		'capability_type' => array('studio_roster','studio_rosters'),
 		'map_meta_cap' => true,
@@ -167,7 +167,7 @@ function ts_register_custom_post_types() {
 	register_post_type('ts_sibling', array(
 		'label' => 'Siblings',
 		'description' => '',
-		'public' => false,
+		'public' => true,
 		'menu_position' => 103,
 		'capability_type' => array('indiv_sibling', 'indiv_siblings'),
 		'map_meta_cap' => true,
@@ -198,7 +198,7 @@ function ts_register_custom_post_types() {
 	register_post_type('ts_routine', array(
 		'label' => 'Routines',
 		'description' => '',
-		'public' => false,
+		'public' => true,
 		'menu_position' => 102,
 		'capability_type' => array('routine','routines'),
 		'map_meta_cap' => true,

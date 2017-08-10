@@ -30,6 +30,7 @@ add_action('admin_bar_menu', 'ts_modify_admin_bar', 999);
 add_action('wp_logout', 'ts_redirect_after_logout');
 add_action('wp_ajax_query-attachments','ts_restrict_non_Admins',1);
 add_action('wp_ajax_nopriv_query-attachments','ts_restrict_non_Admins',1);
+
 /* Temp */
 //add_action('init', 'ts_import_studios');
 //add_action('init', 'ts_import_individual');
@@ -51,6 +52,7 @@ add_action('registration_completed', 'ts_set_entry_meta', 10, 1);
 add_action('registration_edited', 'ts_reg_edited_notification', 10, 2);
 add_action('registration_paid', 'ts_mark_as_paid', 10, 3);
 add_action('registration_paid', 'ts_save_paid_amount', 10, 4);
+add_action('ts_cron_jobs', 'ts_auto_delete_music_cron', 10, 1);
 
 /* Remove */
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
@@ -69,6 +71,7 @@ add_filter('login_headerurl', 'ts_login_logo_url');
 add_filter('login_headertitle', 'ts_login_logo_url_title');
 add_filter('media_upload_default_tab', 'ts_media_library_default_tab', 99);
 add_filter('gettext', 'ts_forgot_username_text', 1, 3);
+add_filter('media_view_strings','ts_remove_medialibrary_tab');
 
 /** Front-end **/
 add_action('wp_footer', 'ts_footer_scripts');
@@ -88,6 +91,10 @@ function ts_plugin_activate() {
 	ts_create_terms();
 	ts_create_tour_posts();
 	flush_rewrite_rules();
+}
+
+function ts_plugin_deactivate() {
+    ts_remove_cron_jobs();
 }
 
 function ts_remove_roles() {
@@ -322,7 +329,7 @@ function ts_remove_default_menus() {
 	}
 
 	/* ts_event, ts_tour, hidden for now */
-	$post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon');
+	/*$post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon');
 
 	foreach ($post_types  as $p) {
 		if(current_user_can('is_custom_user')) { 
@@ -330,7 +337,7 @@ function ts_remove_default_menus() {
 			remove_submenu_page('edit.php?post_type='. $p, 'post-new.php?post_type='. $p);	
 			remove_submenu_page('edit.php?post_type='. $p, 'edit.php?post_type='. $p);
 		}	
-	}
+	}*/
 }
 
 function ts_register_custom_menu_pages() {
@@ -381,6 +388,8 @@ function ajax_post_init() {
     add_action('wp_ajax_delete_all', 'ajax_delete_all');
 }
 
-if (! wp_next_scheduled('ts_hourly_sched')) {
+/* Commented Out. Reason: I believe we are not using this function yet.
+ if (! wp_next_scheduled('ts_hourly_sched')) {
 	wp_schedule_event(time(), 'hourly', 'ts_hourly_sched');
 }
+*/
