@@ -26,6 +26,9 @@ define('TS_ORGANIZER_DASHBOARD', admin_url('admin.php?page=ts-entries'));
 define('TS_STUDIO_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 define('TS_INDIVIDUAL_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 
+/* API */ /*NOT SURE IF IT'S SAFE TO ADD IT HERE, PLEASE ADVISE*/
+define('MC_API_KEY', 'ec0fc565f994c790d14bc6f9d783defe-us15');
+
 require_once(TS_INCLUDES . 'ts-main.php');
 require_once(TS_INCLUDES . 'ts-post-types.php');
 require_once(TS_INCLUDES . 'ts-taxonomies.php');

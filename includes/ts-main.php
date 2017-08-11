@@ -49,6 +49,7 @@ add_action('registration_comfirmed', 'ts_confirm_registration', 10, 1);
 add_action('registration_completed', 'ts_new_entry_admin_notification', 10, 3);
 add_action('registration_completed', 'ts_new_entry_user_notification', 10, 2);
 add_action('registration_completed', 'ts_set_entry_meta', 10, 1);
+add_action('registration_completed', 'ts_addto_mailchimp_list', 10, 2);
 add_action('registration_edited', 'ts_reg_edited_notification', 10, 2);
 add_action('registration_paid', 'ts_mark_as_paid', 10, 3);
 add_action('registration_paid', 'ts_save_paid_amount', 10, 4);

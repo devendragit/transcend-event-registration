@@ -1168,7 +1168,6 @@ function ts_mark_as_paid($entry_id, $user_id, $payment_method='stripe_payment') 
 
 function ts_save_paid_amount($entry_id, $user_id, $payment_method='stripe_payment', $grand_total) {
 
-
 	$entry_data = ts_get_entry_data_from_post($entry_id, $user_id);
 	$competition_fee = ts_get_total_competition_fee($entry_id, $entry_data);
 
@@ -1178,6 +1177,26 @@ function ts_save_paid_amount($entry_id, $user_id, $payment_method='stripe_paymen
 
 function ts_set_entry_meta($entry_id) {
 	update_post_meta($entry_id, 'completed', true);
+}
+
+function ts_addto_mailchimp_list($entry_id, $user_id) {
+
+	$workshop 	= get_post_meta($entry_id, 'workshop', true);
+	$tour_city 	= $workshop['tour_city'];
+	$list_id 	= get_post_meta($tour_city, 'list_id', true);
+
+	$user_meta 	= get_userdata($user_id);
+	$email 		= $user_meta->user_email;
+	$user_roles = $user_meta->roles;
+
+	if(in_array('studio', $user_roles)) {
+		$name = get_field('studio', 'user_'. $user_id);
+	}
+	else if(in_array('individual', $user_roles)){
+		$name = get_field('name', 'user_'. $user_id);
+	}
+
+	$result = ts_add_mailchimp_subscribers($list_id, $email, $name);
 }
 
 function ts_confirm_registration($entry_id) {
