@@ -258,3 +258,54 @@ function ts_export_individual() {
 	
 	fclose($output);
 }
+
+/* Mailchimp */
+
+function ts_add_mailchimp_subscribers($list_id, $email, $fname='', $lname='') {
+
+	$fields = array(
+		'email_address' => $email,
+		'status'        => 'subscribed',
+		'merge_fields'  => array(
+		    'FNAME'     => $fname,
+		    'LNAME'     => $lname,
+		)
+	);	
+
+	$member_id = md5(strtolower($email));
+	$endpoint = '/lists/'. $list_id .'/members/'. $member_id;
+	$result = ts_mailchimp_curl_submit($endpoint, $fields, 'PUT');    
+    
+    return $result;
+}
+
+function ts_mailchimp_curl_submit($endpoint, $fields=array(), $method='GET') {
+
+    $data_center = substr(MC_API_KEY,strpos(MC_API_KEY,'-')+1);
+	$url = 'https://' . $data_center . '.api.mailchimp.com/3.0'. $endpoint;
+
+	$fields = json_encode($fields);
+
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_USERPWD, 'user:' . MC_API_KEY);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);                                                                                                                 
+
+    $result = curl_exec($ch);
+    $result = json_decode($result);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    curl_close($ch);
+    
+    $output = array(
+    	'status'  => $http_code,
+    	'result'  => $result,
+    );
+
+    return $output;
+}
