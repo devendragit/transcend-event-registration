@@ -598,3 +598,53 @@ function ts_post_entry_page() {
 	</div>
 	<?php
 }
+
+function ts_vouchers_page() {
+	?>
+	<div id="vouchers-page" class="wrap">	
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue" href="javascript:void(0);">Add New</a></h1>
+		<div class="ts-admin-wrapper vouchers-wrapper">
+			<table id="vouchers-list" class="ts-data-table" data-length="10" data-sort="asc">
+                <thead>
+                    <tr>
+                        <th style="text-align:center;">Code</th>
+                        <th style="text-align:center;">Discount</th>
+                        <th style="text-align:center;">Workshop</th>
+                        <th style="text-align:center;">Competition</th>
+                        <th style="text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+					<?php
+					$vouchers = ts_get_posts('ts_coupon'); 
+					if($vouchers) {
+						foreach ($vouchers as $voucher) { 
+							$count++;
+							setup_postdata($voucher);
+		                    $voucher_id 	= $voucher->ID;
+		                    $voucher_code = $voucher->post_title;
+		                	?>
+		                    <tr id="item-<?php echo $voucher_id; ?>">
+		                        <td style="text-align:center;"><?php echo $voucher_code; ?></td>
+		                        <td style="text-align:center;"></td>
+		                        <td style="text-align:center;"></td>
+		                        <td style="text-align:center;"></td>
+		                        <td style="text-align:center;">
+		                        	<a title="edit" href="javascript:void(0);" class="btn btn-blue btn-edit-entry" data-id="<?php echo $voucher_id; ?>"><small>Edit</small></a>
+		                        	<a title="delete" href="javascript:void(0);" class="btn btn-red btn-delete" data-id="<?php echo $voucher_id; ?>" data-type="post"><small>Delete</small></a>
+		                        </td>
+		                    </tr>
+		                <?php
+		                }
+		                ?>
+			            <?php
+		            }else{
+		            	echo '<tr><td colspan="5">No Vouchers Found</td></tr>';
+		            }
+		            ?>
+                </tbody>
+			</table>
+		</div>
+	</div>
+	<?php	
+}

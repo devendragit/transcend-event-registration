@@ -101,7 +101,7 @@ function ts_register_custom_post_types() {
 	));	
 
 	register_post_type('ts_coupon', array(
-		'label' => 'Coupons',
+		'label' => 'Vouchers',
 		'description' => '',
 		'public' => true,
 		'menu_position' => 11,
@@ -115,21 +115,21 @@ function ts_register_custom_post_types() {
 		'supports' => array('title'),
 		'taxonomies' => array(),
 		'labels' => array (
-			'name' => 'Coupons',
-			'singular_name' => 'Coupon',
-			'menu_name' => 'Coupons',
-			'all_items' => 'Coupons',
+			'name' => 'Vouchers',
+			'singular_name' => 'Voucher',
+			'menu_name' => 'Vouchers',
+			'all_items' => 'Vouchers',
 			'add_new' => 'Add New',
-			'add_new_item' => 'Add New Coupon',
+			'add_new_item' => 'Add New Voucher',
 			'edit' => 'Edit',
-			'edit_item' => 'Edit Coupon',
-			'new_item' => 'New Coupon',
-			'view' => 'View Coupon',
-			'view_item' => 'View Coupon',
-			'search_items' => 'Search Coupons',
-			'not_found' => 'No Coupons Found',
-			'not_found_in_trash' => 'No Coupons Found in Trash',
-			'parent' => 'Parent Coupon',
+			'edit_item' => 'Edit Voucher',
+			'new_item' => 'New Voucher',
+			'view' => 'View Voucher',
+			'view_item' => 'View Voucher',
+			'search_items' => 'Search Vouchers',
+			'not_found' => 'No Vouchers Found',
+			'not_found_in_trash' => 'No Vouchers Found in Trash',
+			'parent' => 'Parent Voucher',
 		)
 	));
 	
