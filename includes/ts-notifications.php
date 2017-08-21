@@ -105,3 +105,48 @@ function ts_reg_edited_notification($entry_id, $user_id) {
 	 
 	wp_mail($to, $subject, $body, $headers);	
 }
+
+function ts_new_invoice_user_notification($entry_id, $invoice_id) {
+
+    $get_profile = get_post_meta($entry_id, 'profile', true);
+    $get_entry_types = get_the_terms($entry_id, 'ts_entry_type');
+    if ( $get_entry_types && ! is_wp_error( $get_entry_types ) ) {
+        $get_entry_types_pluck = wp_list_pluck($get_entry_types,'name');
+        if ( $get_profile ) {
+            $email_field = in_array('Studio',$get_entry_types_pluck) ? 'studio_email' : in_array('Individual',$get_entry_types_pluck) ? 'email' : '';
+            if( $email_field ){
+                $to = $get_profile[$email_field];
+
+                $invoice_amount = get_post_meta($invoice_id, 'invoice_amount', true);
+                $invoice_note = get_post_meta($invoice_id, 'invoice_note', true);
+                $pay_now_link = '';
+
+                $headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@transcendtour.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>');
+                $subject = 'Invoice #'. $invoice_id .' has been created';
+
+                $body = '
+                        <p style="font-size:1.3em; font-weight:bold;">An invoice has been created.</p>
+                        <p style="font-weight:bold;">Here is the summary:</p>
+                        ';
+                $body .= '
+                        <table cellpadding="1" cellspacing="0" border="0">
+                            <tr>
+                                <td><strong>Amount Due:</strong></td>
+                                <td>'. $invoice_amount .'</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Note:</strong></td>
+                                <td>'. $invoice_note .'</td>
+                            </tr>
+                             <tr>
+                                <td><strong>Pay Now:</strong></td>
+                                <td>'. $pay_now_link .'</td>
+                            </tr>
+                        </table>	
+                    ';
+                wp_mail($to, $subject, $body, $headers);
+            }
+        }
+    }
+
+}

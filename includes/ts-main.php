@@ -30,6 +30,8 @@ add_action('admin_bar_menu', 'ts_modify_admin_bar', 999);
 add_action('wp_logout', 'ts_redirect_after_logout');
 add_action('wp_ajax_query-attachments','ts_restrict_non_Admins',1);
 add_action('wp_ajax_nopriv_query-attachments','ts_restrict_non_Admins',1);
+add_action("add_meta_boxes", "ts_custom_meta_boxes");
+add_action("save_post", "ts_save_custom_meta_box", 10, 3);
 
 /* Temp */
 //add_action('init', 'ts_import_studios');
@@ -54,6 +56,10 @@ add_action('registration_edited', 'ts_reg_edited_notification', 10, 2);
 add_action('registration_paid', 'ts_mark_as_paid', 10, 3);
 add_action('registration_paid', 'ts_save_paid_amount', 10, 4);
 add_action('ts_cron_jobs', 'ts_auto_delete_music_cron', 10, 1);
+add_action('ts_invoice_created', 'ts_new_invoice_user_notification', 10, 2);
+add_action('ts_invoice_created', 'ts_update_meta_after_invoice_creation', 10, 2);
+add_action('invoice_paid', 'ts_mark_as_paid', 10, 3);
+add_action('invoice_paid', 'ts_invoice_mark_as_paid', 10, 5);
 
 /* Remove */
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
@@ -82,6 +88,7 @@ add_filter('body_class', 'ts_frontend_body_class');
 
 /* Shortcodes */
 add_shortcode('ts-event-registration-form', 'ts_event_registration_shortcode');
+add_shortcode('ts-pay-invoice-form', 'ts_pay_invoice_shortcode');
 
 register_activation_hook(__FILE__, 'ts_plugin_activate');
 
@@ -92,10 +99,6 @@ function ts_plugin_activate() {
 	ts_create_terms();
 	ts_create_tour_posts();
 	flush_rewrite_rules();
-}
-
-function ts_plugin_deactivate() {
-    ts_remove_cron_jobs();
 }
 
 function ts_remove_roles() {
@@ -175,6 +178,7 @@ function ts_add_role_caps() {
 			array('indiv_sibling','indiv_siblings'),
 			array('routine','routines'),
 			array('coupon','coupons'),
+            array('invoice','invoices'),
 		);
 
 		foreach ($capability_types  as $type) {
@@ -347,6 +351,7 @@ function ts_register_custom_menu_pages() {
 		add_menu_page('My Dashboard', 'My Dashboard', 'add_ts_entry', 'ts-my-entries', 'ts_my_entries_page', 'dashicons-dashboard', 6);
 		add_menu_page('Add Registration', 'Add Registration', 'add_ts_entry', 'ts-post-entry', 'ts_post_entry_page', '', 101);
 		add_menu_page('Edit Registration', 'Edit Registration', 'add_ts_entry', 'ts-edit-entry', 'ts_post_entry_page', '', 102);
+        add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 104);
 	}
 	else if (current_user_can('is_organizer')) {
 		add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
@@ -387,6 +392,7 @@ function ajax_post_init() {
     add_action('wp_ajax_delete_routine', 'ajax_delete_routine');
     add_action('wp_ajax_delete_item', 'ajax_delete_item');
     add_action('wp_ajax_delete_all', 'ajax_delete_all');
+    add_action('wp_ajax_pay_invoice', 'ajax_pay_invoice');
 }
 
 /* Commented Out. Reason: I believe we are not using this function yet.

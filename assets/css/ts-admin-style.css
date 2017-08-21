@@ -25,8 +25,9 @@ body.custom-user #wpadminbar * {
 .custom-user .user-last-name-wrap,
 .custom-user .user-url-wrap,
 .custom-user .user-display-name-wrap,
-.custom-user .user-nickname-wrap {
-   /* display: none;*/
+.custom-user .user-nickname-wrap,
+.custom-user #toplevel_page_ts-entry-pay-invoice{
+    display: none;
 }
 #profile-page h2 {
 	font-size: 18px;
@@ -116,4 +117,8 @@ tr.acf-field[data-name="email"] {
 }
 #view-entry-page .table-container {
     margin: 0 12px;
+}
+
+.ts-entry-invoice input,.ts-entry-invoice textarea{
+    margin-bottom: 15px;
 }
