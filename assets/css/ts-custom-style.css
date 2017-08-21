@@ -556,7 +556,8 @@ body.ts-event-registration .fl-post-title {
 }
 .form-container-1,       
 .individual-profile-container,
-.studio-profile-container {
+.studio-profile-container,
+.invoice-payment-container{
     max-width: 640px;
     margin: 0 auto;
 }
@@ -701,7 +702,8 @@ body.ts-event-registration .modal {
     margin-right: 5px;
 }
 .boxed-container,
-.payment-form-container {
+.payment-form-container,
+.invoice-payment-container{
     background-color: #e1e1e1;
     padding: 40px;
 }

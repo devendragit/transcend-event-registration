@@ -117,3 +117,7 @@ tr.acf-field[data-name="email"] {
 #view-entry-page .table-container {
     margin: 0 12px;
 }
+
+.ts-entry-invoice input,.ts-entry-invoice textarea{
+    margin-bottom: 15px;
+}

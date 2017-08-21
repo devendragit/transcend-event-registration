@@ -1268,3 +1268,189 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 		<?php
 	}
 }
+
+function ts_pay_invoice_shortcode() {
+
+	ob_start();
+	?>
+	<style type="text/css">
+		body.ts-event-registration .fl-content-full.container {
+			width: 100% !important;
+			max-width: none !important;
+		}
+		body.ts-event-registration .fl-post-header {
+			max-width: 1020px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.ts-loginform-wrapper {
+			max-width: 320px;
+			margin: 0 auto;
+		}
+		.ts-loginform-wrapper .login-submit input {
+			width: auto;
+		}
+	</style>
+	<?php
+	if ( ! is_user_logged_in() ) {
+		$args = array(
+			'echo' => true,
+			'redirect' => get_permalink(ts_get_register_page_id()),
+			'form_id' => 'loginform',
+			'label_username' => __( '' ),
+			'label_password' => __( '' ),
+			'label_remember' => __( 'Remember Me' ),
+			'label_log_in' => __( 'Log In' ),
+			'id_username' => 'user_login',
+			'id_password' => 'user_pass',
+			'id_remember' => 'rememberme',
+			'id_submit' => 'wp-submit',
+			'remember' => false,
+			'value_username' => NULL,
+			'value_remember' => false
+		);
+		?>
+		<div class="ts-loginform-wrapper tml tml-login text-center">
+			<?php wp_login_form( $args ); ?>
+			<div class="LoginLinks">
+				<a href="<?php echo wp_lostpassword_url( get_permalink() ); ?>" title="Forgot Password">Forgot Password?</a>&nbsp;&nbsp;
+				<a href="<?php echo wp_lostpassword_url( get_permalink() ); ?>&forgotusername=1" title="Forgot Username">Forgot Username?</a>
+			</div>
+		</div>
+		<script type="text/javascript">
+			jQuery('#user_login').attr('placeholder', 'Username');
+			jQuery('#user_pass').attr('placeholder', 'Password');
+		</script>
+		<?php
+	}
+	else {
+		if(! is_admin()){
+			?>
+			<a class="logout-url" href="<?php echo wp_logout_url( get_permalink(ts_get_register_page_id()) ); ?>">Logout</a>
+			<?php
+		}
+
+		$user_id 	= get_current_user_id();
+		$entry_id 	= ts_get_entry_id();
+		$evid 		= ts_get_current_evid();
+
+		$login_count = absint(get_user_meta($user_id, 'ts_login_count', true));
+
+		if($login_count > 1 && ! is_admin()) {
+			?>
+			<script type="text/javascript">
+				window.location.replace('<?php echo TS_ADMIN_DASHBOARD; ?>');
+			</script>
+			<?php
+		}
+		else {
+			if( $evid && ( current_user_can('is_studio') || current_user_can('is_individual') ) ) {
+				require_once( TS_INCLUDES . 'shortcodes/pay-invoice.php' );
+				ts_pay_invoice_html( $entry_id, $evid, $user_id );
+			} else {
+				?>
+				<script type="text/javascript">
+					window.location.replace('<?php echo TS_ADMIN_DASHBOARD; ?>');
+				</script>
+				<?php
+			}
+		}
+		?>
+		<div id="popup-refresh" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+					<span class="sr-only">Loading...</span>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	$output = ob_get_contents();
+	ob_end_clean();
+
+	return $output;
+}
+
+function ts_display_invoice_header_html( $entry_id, $invoice_id, $user_id ) {
+    $title = get_the_title( $invoice_id );
+    ?>
+    <div class="steps-btn-container clearfix">
+        <ul class="clearfix">
+            <li class="li-step">
+						<span class="btn-step-outer grad-white">
+							<span class="btn-step-inner grad-ligher-white">
+								<span class="btn-step grad-light-gray">1</span>
+							</span>
+						</span>
+                <span class="step-title-short"><?php echo $title; ?></span>
+            </li>
+        </ul>
+    </div>
+    <?php
+}
+
+function ts_display_invoice_content_html( $entry_id, $invoice_id, $user_id ) {
+    $invoice_title = get_the_title( $invoice_id );
+    $iv_amount = (int) get_post_meta($invoice_id,'invoice_amount',true);
+    $note = get_post_meta($invoice_id,'invoice_note',true);
+
+    $user_info = get_userdata( $user_id );
+    $email = $user_info->user_email;
+    require_once(TS_LIBRARIES .'config.php');
+    if($_POST){
+        $token  = $_POST['stripeToken'];
+
+        try {
+            $charge = \Stripe\Charge::create(array(
+                'description' => $invoice_title.' for '.$email,
+                'amount'   => $iv_amount * 100,
+                'currency' => 'usd',
+                'receipt_email' => $email,
+                'source' => $token
+            ));
+        }
+        catch(\Stripe\Error\Card $e) {
+
+        }
+        do_action('invoice_paid', $entry_id, $user_id, 'stripe_payment', $iv_amount, $invoice_id);
+        ?>
+        <div class="form-container-2 t-center boxed-container">
+            <h4>Thank you! You will be receiving a receipt email shortly.</h4>
+        </div>
+        <script type="text/javascript">
+            setTimeout(function(){
+                window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
+            }, 5000);
+        </script>
+        <?php
+    } else {
+        ?>
+        <div class="invoice-payment-container payment-form-container form-container-1">
+            <div class="row">
+                <div class="col-md-12 t-center">
+                    <h6>Outstanding Amount: $<?php echo $iv_amount;?></h6>
+                    <p>Note: <?php echo $note;?></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 t-center invoice-payment-form-container">
+                    <form action="" method="post" class="invoice-payment-form">
+                        <script src="https://checkout.stripe.com/checkout.js"
+                                class="stripe-button"
+                                data-key="<?php echo $stripe['publishable_key']; ?>"
+                                data-amount="<?php echo $iv_amount * 100; ?>"
+                                data-name="<?php echo get_bloginfo('name'); ?>"
+                                data-billing-address="true"
+                                data-email="<?php echo $email; ?>"
+                                data-description="Outstanding Payment for Entry #<?php echo $entry_id; ?>">
+                        </script>
+                    </form>
+                </div>
+            </div>
+            <p class="foot-note">Registration is not completed until invoice paid.</p>
+        </div>
+        <?php
+    }
+}

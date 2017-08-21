@@ -951,7 +951,7 @@ function ajax_individual_registration() {
 					$updated = wp_update_post(array('ID' => $updated, 'post_title' => 'Entry #'. $updated), true);
 				}
 
-				$entry_type = get_term_by('name', 'Studio', 'ts_entry_type');
+				$entry_type = get_term_by('name', 'Individual', 'ts_entry_type'); // I belive this should be individual.
 				wp_set_object_terms($updated, $entry_type->term_id, 'ts_entry_type');
 
 				$grand_total = ts_grand_total($eid, $temp_data);
@@ -1940,4 +1940,25 @@ function ajax_delete_all() {
 	endif;
 
     die();		
+}
+
+function ajax_pay_invoice() {
+    if($_POST) :
+        check_ajax_referer('ts-default', 'token');
+
+        $eid	= (int)$_POST['eid'];
+        $url	= $_POST['url'];
+
+        $response = array(
+            'success' => false,
+        );
+
+        if(current_user_can('edit_entry', $eid)) {
+            $response['success'] = true;
+            $response['redirect'] = $url;
+        }
+
+        echo json_encode($response);
+    endif;
+    die();
 }
