@@ -131,6 +131,7 @@ jQuery(document).ready(function($) {
 			$('.btn-submitconfirmation').click();
 		}
     });	
+
     $('#add-workshop-participants').on('submit', function(e){
 		e.preventDefault();
 		$(this).find('input[type="submit"]').val('Adding...');
@@ -140,6 +141,19 @@ jQuery(document).ready(function($) {
 		var form = new TSForm(formdata);
 		form.submitForm(callbackAddWorkshopParticipants);
     });
+
+    $('#form-save-voucher').on('submit', function(e){
+		e.preventDefault();
+		if($(this).validationEngine('validate', { scroll: false, showArrowOnRadioAndCheckbox: true })) {
+			$(this).find('input[type="submit"]').val('Saving...');
+			var formdata =  new FormData(this);
+			formdata.append('token', ajax_post_object.tokens.save_item);
+			formdata.append('action', 'save_voucher');
+			var form = new TSForm(formdata);
+			form.submitForm(callbackAddVoucher);
+		}	
+    });
+
     $('.ts-registrationform-wrapper').on('click', '.btn-saveroster', function(e){
 		e.preventDefault();
 		$('#popup-refresh').modal('show');
@@ -209,15 +223,17 @@ jQuery(document).ready(function($) {
     });
     $('.ts-registrationform-wrapper').on('click', '.btn-applycoupon', function(e){
 		e.preventDefault();
-		$('#popup-refresh').modal('show');
-		var eid = $(this).attr('data-eid');
-		var formdata =  new FormData();
-		formdata.append('token', ajax_post_object.tokens.default);
-		formdata.append('action', 'apply_coupon');
-		formdata.append('eid', eid);
-		formdata.append('coupon', $('#discount-coupon').val());
-		var form = new TSForm(formdata);
-		form.submitForm(callbackApplyCoupon);
+		if($('#discount-coupon').val()!='') {
+			$('#popup-refresh').modal('show');
+			var eid = $(this).attr('data-eid');
+			var formdata =  new FormData();
+			formdata.append('token', ajax_post_object.tokens.default);
+			formdata.append('action', 'apply_coupon');
+			formdata.append('eid', eid);
+			formdata.append('coupon', $('#discount-coupon').val());
+			var form = new TSForm(formdata);
+			form.submitForm(callbackApplyCoupon);
+		}	
     });
     $('.ts-registrationform-wrapper').on('click', '.btn-removecoupon', function(e){
 		e.preventDefault();

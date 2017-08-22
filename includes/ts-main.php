@@ -388,6 +388,7 @@ function ajax_post_init() {
     add_action('wp_ajax_delete_routine', 'ajax_delete_routine');
     add_action('wp_ajax_delete_item', 'ajax_delete_item');
     add_action('wp_ajax_delete_all', 'ajax_delete_all');
+    add_action('wp_ajax_save_voucher', 'ajax_save_voucher');
 }
 
 /* Commented Out. Reason: I believe we are not using this function yet.
