@@ -356,6 +356,7 @@ function ts_register_custom_menu_pages() {
 	else if (current_user_can('is_organizer')) {
 		add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
 		add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
+		add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 104);
 	}
 }
 
@@ -392,6 +393,7 @@ function ajax_post_init() {
     add_action('wp_ajax_delete_routine', 'ajax_delete_routine');
     add_action('wp_ajax_delete_item', 'ajax_delete_item');
     add_action('wp_ajax_delete_all', 'ajax_delete_all');
+    add_action('wp_ajax_save_voucher', 'ajax_save_voucher');
     add_action('wp_ajax_pay_invoice', 'ajax_pay_invoice');
 }
 

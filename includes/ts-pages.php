@@ -650,6 +650,87 @@ function ts_post_entry_page() {
 	<?php
 }
 
+function ts_vouchers_page() {
+	?>
+	<div id="vouchers-page" class="wrap">	
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addvoucher" href="javascript:void(0);">Add New</a></h1>
+		<div class="ts-admin-wrapper vouchers-wrapper">
+			<table id="vouchers-list" class="ts-data-table" data-length="10" data-sort="asc">
+                <thead>
+                    <tr>
+                        <th style="text-align:center;">Code</th>
+                        <th style="text-align:center;">Discount</th>
+                        <th style="text-align:center;">Workshop</th>
+                        <th style="text-align:center;">Competition</th>
+                        <th style="text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+					<?php
+					$vouchers = ts_get_posts('ts_coupon'); 
+					if($vouchers) {
+						foreach ($vouchers as $voucher) { 
+							setup_postdata($voucher);
+		                    $voucher_id 			= $voucher->ID;
+		                    $voucher_code 			= $voucher->post_title;
+		                    $voucher_discount 		= get_post_meta($voucher_id, 'discount', true);
+		                    $voucher_workshop 		= get_post_meta($voucher_id, 'workshop', true);
+		                    $voucher_competition 	= get_post_meta($voucher_id, 'competition', true);
+		                	?>
+		                    <tr id="item-<?php echo $voucher_id; ?>">
+		                        <td style="text-align:center;"><?php echo $voucher_code; ?></td>
+		                        <td style="text-align:center;"><?php echo $voucher_discount; ?></td>
+		                        <td style="text-align:center;"><?php echo $voucher_workshop==1 ? 'Enabled' : 'Disabled'; ?></td>
+		                        <td style="text-align:center;"><?php echo $voucher_competition==1 ? 'Enabled' : 'Disabled'; ?></td>
+		                        <td style="text-align:center;">
+		                        	<a title="edit" href="javascript:void(0);" 
+		                        		class="btn btn-blue btn-editvoucher" 
+		                        		data-id="<?php echo $voucher_id; ?>" 
+		                        		data-code="<?php echo $voucher_code; ?>"
+		                        		data-discount="<?php echo $voucher_discount; ?>"
+		                        		data-workshop="<?php echo $voucher_workshop; ?>"
+		                        		data-competition="<?php echo $voucher_competition; ?>"
+		                        		><small>Edit</small></a>
+		                        	<a title="delete" href="javascript:void(0);" 
+		                        		class="btn btn-red btn-delete" 
+		                        		data-id="<?php echo $voucher_id; ?>" 
+		                        		data-type="post"
+		                        		><small>Delete</small></a>
+		                        </td>
+		                    </tr>
+		                <?php
+		                }
+		            }else{
+		            	echo '<tr><td colspan="5">No Vouchers Found</td></tr>';
+		            }
+		            ?>
+                </tbody>
+			</table>
+		</div>
+	</div>
+	<div id="popup-save-voucher" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Add Voucher</h4>
+				</div>
+				<div class="modal-body">
+					<form method="post" action="" id="form-save-voucher" name="form-save-voucher" >
+						<input type="hidden" name="voucher-id" id="voucher-id" value="" />
+						<p>Code <br /><input type="text" name="voucher-code" id="voucher-code" value="" /></p>
+						<p>Discount <br /><input type="text" name="voucher-discount" id="voucher-discount" value="" /></p>
+						<p><label><input type="checkbox" name="voucher-workshop" id="voucher-workshop" value="1" /> Apply to Workshop</label></p>
+						<p><label><input type="checkbox" name="voucher-competition" id="voucher-competition" value="1" /> Apply to Competition</label></p>
+						<input type="submit" value="Save" class="btn btn-blue">
+					</form>	
+				</div>
+			</div>
+		</div>
+	</div>	
+	<?php	
+}
+
 function ts_post_pay_invoice_page() {
 	?>
 	<div id="post-pay-invoice-page" class="wrap">

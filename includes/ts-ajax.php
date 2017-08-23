@@ -414,7 +414,7 @@ function ajax_studio_registration() {
 
 				$grand_total = ts_grand_total($eid, $temp_data);
 				if(isset($temp_data['discount_code'])) {
-					$grand_total = ts_discounted_grand_total($grand_total, $temp_data['discount_code']);
+					$grand_total = ts_discounted_grand_total($grand_total, $temp_data['discount_code'], $entry_id);
 					update_post_meta($updated, 'discount_code', $discount_code);
 				}
 
@@ -956,7 +956,7 @@ function ajax_individual_registration() {
 
 				$grand_total = ts_grand_total($eid, $temp_data);
 				if(isset($temp_data['discount_code'])) {
-					$grand_total = ts_discounted_grand_total($grand_total, $temp_data['discount_code']);
+					$grand_total = ts_discounted_grand_total($grand_total, $temp_data['discount_code'], $entry_id);
 					update_post_meta($updated, 'discount_code', $discount_code);
 				}
 
@@ -1566,9 +1566,9 @@ function ajax_apply_coupon() {
 		$temp_data = $entry_data;
 
 		$grand_total = ts_grand_total($eid, $temp_data);
-		$discounted_grand_total = ts_discounted_grand_total($grand_total, $coupon);
+		$discounted_grand_total = ts_discounted_grand_total($grand_total, $coupon, $eid);
 
-		if($discounted_grand_total) {
+		if($discounted_grand_total && $discounted_grand_total != $grand_total) {
 
 			$button_html = '
 				<input type="hidden" name="discount_code" value="'. $coupon .'" >
@@ -1586,6 +1586,66 @@ function ajax_apply_coupon() {
 			$response['success'] = true;
 		}
 
+		echo json_encode($response);
+
+	endif;
+
+    die();		
+}
+
+function ajax_save_voucher() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-save-item', 'token');
+
+		$id				= $_POST['voucher-id'];
+		$code 			= $_POST['voucher-code'];
+		$discount 		= $_POST['voucher-discount'];
+		$workshop 		= $_POST['voucher-workshop'];
+		$competition 	= $_POST['voucher-competition'];
+
+		$id 			= absint($id);
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+			'id' => $id,
+		);
+
+		$args = array(
+			'post_title' => $code,
+			'post_type' => 'ts_coupon',
+			'post_status' => 'publish',
+		);
+
+		if($id) {
+			$args['ID'] = $id;
+			$voucher_id = wp_update_post($args, true);
+		}
+		else{
+			$args['post_content'] = '';
+			$voucher_id = wp_insert_post($args, true);
+		}
+			
+		if($voucher_id && !is_wp_error($voucher_id)) {
+			update_post_meta($voucher_id, 'discount', $discount);
+			update_post_meta($voucher_id, 'workshop', $workshop);
+			update_post_meta($voucher_id, 'competition', $competition);
+
+			$has_error = false;
+		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['code'] = $code;
+			$response['discount'] = $discount;
+			$response['workshop'] = $workshop==1 ? 'Enabled' : 'Disabled';
+			$response['competition'] = $competition==1 ? 'Enabled' : 'Disabled';
+			$response['success'] = true;
+		}
 		echo json_encode($response);
 
 	endif;

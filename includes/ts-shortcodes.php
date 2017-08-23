@@ -880,6 +880,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 	$workshop_scholarship_discount 	= ts_get_total_scholarship_discount($eid);
 	$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($eid);
 	$competition_fee 				= ts_get_total_competition_fee($eid);
+	//echo ts_discounted_grand_total(1000, 'test2', $entry_id);
 	?>
 	<div class="studio-confirmation-container">
 		<h1 class="heading-title"><?php echo get_the_title($workshop['tour_city']); ?></h1>
@@ -1001,7 +1002,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 			<div class="row">
 				<div class="col-md-12 t-right coupon-container">
 					<?php
-					if(isset($entry_data['discount_code']) && ts_discounted_grand_total($grand_total, $entry_data['discount_code']) ) { ?>
+					if(isset($entry_data['discount_code']) && ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id) ) { ?>
 						<input type="hidden" name="discount_code" value="<?php echo $entry_data['discount_code']; ?>" >
 						Discount Code: <strong><?php echo $entry_data['discount_code']; ?></strong>
 						<button type="button" data-eid="<?php echo $eid; ?>" class="btn btn-blue btn-removecoupon">Remove</button>
@@ -1020,7 +1021,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 					<?php 
 					$grand_total = ts_grand_total($eid, $entry_data);
 					if(isset($entry_data['discount_code'])) {
-						$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code']);
+						$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
 					}
 					?>
 					$<span id="grand-total"><?php echo number_format($grand_total, 2); ?></span>
@@ -1153,7 +1154,7 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 			$grand_total = ts_grand_total($eid, $entry_data);
 
 			if(isset($entry_data['discount_code'])) {
-				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code']);
+				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
 			}
 			$current_user = wp_get_current_user();
 			?>
@@ -1214,7 +1215,7 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 			$grand_total = ts_grand_total($eid, $entry_data);
 			
 			if(isset($entry_data['discount_code'])) {
-				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code']);
+				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
 			}
 
 			$token  = $_POST['stripeToken'];

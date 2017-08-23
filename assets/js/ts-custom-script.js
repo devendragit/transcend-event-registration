@@ -305,6 +305,29 @@ jQuery(document).ready(function($) {
 		}
 	});	
 
+	$('.btn-addvoucher').on('click', function(e) {
+		e.preventDefault();
+		$('#popup-save-voucher').modal('show');
+	});
+
+	$('.btn-editvoucher').on('click', function(e) {
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		var code = $(this).attr('data-code');
+		var discount = $(this).attr('data-discount');
+		var workshop = $(this).attr('data-workshop');
+		var competition = $(this).attr('data-competition');
+		$('#voucher-id').val(id);
+		$('#voucher-code').val(code);
+		$('#voucher-discount').val(discount);
+		if(workshop==1)
+			$('#voucher-workshop').prop('checked',true);
+		if(competition==1)
+			$('#voucher-competition').prop('checked',true);
+		$('#popup-save-voucher .modal-title').text('Edit Voucher');
+		$('#popup-save-voucher').modal('show');
+	});
+
 });
 
 function callback(data) {
@@ -312,6 +335,13 @@ function callback(data) {
 		jQuery('#popup-refresh').modal('hide');
 		if(data.redirect)
 			window.location.href = data.redirect;
+	}
+}
+
+function callbackAddVoucher(data) {
+	if(data.success==true) {
+		//jQuery('#popup-save-voucher').modal('hide');
+		location.reload();
 	}
 }
 
@@ -536,7 +566,8 @@ function callbackApplyCoupon(data) {
 		jQuery('#grand-total').text(new_grand_total.formatMoney(2));
 	}
 	else{
-		jQuery('.coupon-container').prepend('<span style="color:red;">Invalid Discount Code </span>');
+		if(jQuery('.coupon-container .error').length<=0)
+			jQuery('.coupon-container').prepend('<span class="error" style="color:red;">Invalid Discount Code </span>');
 	}
 	jQuery('#popup-refresh').modal('hide');
 }

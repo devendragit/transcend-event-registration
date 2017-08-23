@@ -79,14 +79,6 @@ if (! function_exists('wp_new_user_notification') ) {
 	    $hashed = time() . ':' . $wp_hasher->HashPassword( $key );
 	    $wpdb->update( $wpdb->users, array( 'user_activation_key' => $hashed ), array( 'user_login' => $user->user_login ) );
 
-	    $message = sprintf(__('Username: %s'), $user->user_login) . "\r\n\r\n";
-	    $message .= __('To set your password, visit the following address:') . "\r\n\r\n";
-	    $message .= '<' . network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user->user_login), 'login') . ">\r\n\r\n";
-
-	    $message .= wp_login_url() . "\r\n";
-
-	    //wp_mail($user->user_email, sprintf(__('[%s] Your username and password test'), $blogname), $message);
-
 	    if(in_array('studio', $user->roles) ||  in_array('individual', $user->roles)) {
 
 	      $headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'BCC: Carl D <carld.projects@gmail.com>');
@@ -98,7 +90,7 @@ if (! function_exists('wp_new_user_notification') ) {
 	      <p>Please visit: <a href="'. home_url('register') .'">'. home_url('register') .'</p>
 	      <p>Enter the username and password provided below:</p>
 	      <p><strong>Username: </strong>'. $user->user_login .'</p>
-	      <p><strong>Password: </strong></p>
+	      <p><strong>Password: </strong>to create your password please <a href="'. network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user->user_login), 'login') .'">click here</a></p>
 	      <p>We can’t wait to dance with you!!</p>
 	      ';
 

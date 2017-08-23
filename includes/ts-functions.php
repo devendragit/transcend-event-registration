@@ -188,63 +188,6 @@ function ts_update_entries() {
     }
 }
 
-function ts_post_exists_by_id($post_id) {
-
-	$status = get_post_status($post_id);
-	$check = is_string($status) && $status!='trash' ? $post_id : false;
-	return $check;
-}
-
-function ts_post_exists_by_type($post_id, $post_type='post') {
-
-	$args = array(
-		'posts_per_page'   => 1,
-		'include'          => $post_id,
-		'post_type'        => $post_type,
-		'post_status'      => 'publish',
-	);
-
-	$posts = get_posts($args);
-
-	if($posts && !empty($posts)) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-function ts_post_exists($title, $content = '', $date = '') {
-    global $wpdb;
- 
-    $post_title = wp_unslash(sanitize_post_field('post_title', $title, 0, 'db'));
-    $post_content = wp_unslash(sanitize_post_field('post_content', $content, 0, 'db'));
-    $post_date = wp_unslash(sanitize_post_field('post_date', $date, 0, 'db'));
- 
-    $query = "SELECT ID FROM $wpdb->posts WHERE 1=1";
-    $args = array();
- 
-    if (!empty ($date)) {
-        $query .= ' AND post_date = %s';
-        $args[] = $post_date;
-    }
- 
-    if (!empty ($title)) {
-        $query .= ' AND post_title = %s';
-        $args[] = $post_title;
-    }
- 
-    if (!empty ($content)) {
-        $query .= ' AND post_content = %s';
-        $args[] = $post_content;
-    }
- 
-    if (!empty ($args))
-        return (int) $wpdb->get_var($wpdb->prepare($query, $args));
- 
-    return 0;
-}
-
 function ts_login_logo_url() {
 
     return home_url();
@@ -1152,12 +1095,21 @@ function ts_grand_total($eid, $data=false) {
 	return $grand_total;
 }
 
-function ts_discounted_grand_total($total, $discount_code) {
+function ts_discounted_grand_total($total, $discount_code, $entry_id) {
 
-	$post_id = ts_post_exists($discount_code);
+	$voucher_id  = ts_post_exists($discount_code, '', '', 'ts_coupon');
 
-	if($post_id) {
-		$total = $total-200;
+	if($voucher_id) {
+		$discount 	 = (get_post_meta($voucher_id, 'discount', true));
+		$workshop 	 = get_post_meta($voucher_id, 'workshop', true);
+		$competition = get_post_meta($voucher_id, 'competition', true);
+
+		$data_workshop = get_post_meta($entry_id, 'workshop', true);
+		$data_competition = get_post_meta($entry_id, 'competition', true);
+
+		if( ($workshop && ! empty($data_workshop['participants'])) || ($competition && ! empty($data_competition['routines'])) ) {
+			$total = $total-$discount;
+		}
 	}
 	return $total;
 }
@@ -1280,7 +1232,7 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 	$grand_total        			= ts_grand_total($entry_id, $entry_data);
 
 	if(! empty($discount_code)){
-		$grand_total = ts_discounted_grand_total($grand_total, $discount_code);
+		$grand_total = ts_discounted_grand_total($grand_total, $discount_code, $entry_id);
 	}
 	ob_start();
 	?>
