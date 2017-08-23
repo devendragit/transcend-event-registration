@@ -387,6 +387,21 @@ jQuery(document).ready(function($) {
 		var form = new TSForm(formdata);
 		form.submitForm(callbackReloadPage);
 	});
+	$('#invoices-list').on('click', '.btn-pay-invoice', function(e){
+		e.preventDefault();
+		$(this).html('<small><i class="fa fa-spinner fa-pulse fa-fw"></i></small>');
+		var url = $(this).attr('data-url');
+		var eid = $(this).attr('data-eid');
+		var ivid = $(this).attr('data-ivid');
+		var formdata =  new FormData();
+		formdata.append('token', ajax_post_object.tokens.default);
+		formdata.append('action', 'pay_invoice');
+		formdata.append('url', url);
+		formdata.append('eid', eid);
+		formdata.append('ivid', ivid);
+		var form = new TSForm(formdata);
+		form.submitForm(callback);
+	});
 });
 function TSForm(formdata) {
 	this.formdata = formdata;

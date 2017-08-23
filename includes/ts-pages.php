@@ -20,7 +20,7 @@ function ts_entries_page() {
                 <tbody>
 					<?php
 					$args = array(
-						'post_status' => array('unpaid', 'paid', 'unpaidcheck', 'paidcheck'),
+						'post_status' => array('unpaid', 'paid', 'unpaidcheck', 'paidcheck', 'outstanding_amount'),
 						'meta_key' => 'tour_date',
 						'meta_type' => 'DATE',
 						'orderby' => 'meta_value',
@@ -579,6 +579,57 @@ function ts_my_entries_page() {
                 </tbody>
 			</table>
 		</div>
+		<h2 class="admin-sub-title">Outstanding Invoices</h2>
+		<div class="ts-admin-wrapper entries-wrapper">
+			<table id="invoices-list" class="ts-data-table" data-length="10" data-sort="asc">
+				<thead>
+				<tr>
+					<th style="width:80px; text-align:center; display:none;">#</th>
+					<th>City</th>
+					<th style="text-align:center;">Note</th>
+					<th style="text-align:center;">Amount</th>
+					<th style="text-align:center;">Pay Now</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php
+				$args = array(
+					'post_status' => array('outstanding_amount'),
+					'meta_key' => 'tour_date',
+					'meta_type' => 'DATE',
+					'orderby' => 'meta_value',
+					'order' => 'ASC',
+				);
+				$my_entries = ts_get_user_posts('ts_entry', -1, false, $args);
+				if($my_entries) {
+					?>
+					<?php
+					foreach ($my_entries as $entry) {
+						setup_postdata($entry);
+						$entry_id = $entry->ID;
+						$workshop = get_post_meta($entry_id, 'workshop', true);
+						$invoice_note = get_post_meta($entry_id, 'ts_entry_invoice_note', true);
+						$invoice_amount = get_post_meta($entry_id, 'ts_entry_invoice_amount', true);
+						$invoice_id  = get_post_meta($entry_id, 'invoice_id', true);
+						?>
+						<tr id="item-<?php echo $entry_id; ?>">
+							<td style="text-align:center; display:none;"><?php echo $count; ?></td>
+							<td><?php echo get_the_title($workshop['tour_city']); ?></td>
+							<td style="text-align:center;"><?php echo $invoice_note; ?></td>
+							<td style="text-align:center;"><?php echo '$'. $invoice_amount;?></td>
+							<td style="text-align:center;"><a title="payinvoice" href="javascript:void(0);" class="btn btn-blue btn-pay-invoice" data-ivid="<?php echo $invoice_id; ?>" data-eid="<?php echo $entry_id; ?>" data-url="<?php echo admin_url('admin.php?page=ts-entry-pay-invoice&action=pay_invoice&id='. $entry_id.'&evid='.$invoice_id); ?>"><small>Pay Now</small></a></td>
+						</tr>
+						<?php
+					}
+					?>
+					<?php
+				}else{
+					echo '<tr><td colspan="4">No Invoices Found</td></tr>';
+				}
+				?>
+				</tbody>
+			</table>
+		</div>
 	</div>
 	<div id="popup-refresh" class="modal fade" role="dialog">
 		<div class="modal-dialog">
@@ -678,4 +729,12 @@ function ts_vouchers_page() {
 		</div>
 	</div>	
 	<?php	
+}
+
+function ts_post_pay_invoice_page() {
+	?>
+	<div id="post-pay-invoice-page" class="wrap">
+		<?php echo do_shortcode('[ts-pay-invoice-form]'); ?>
+	</div>
+	<?php
 }

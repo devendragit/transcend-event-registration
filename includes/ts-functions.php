@@ -691,7 +691,9 @@ function ts_change_post_status($post_id, $status) {
     	'ID' => $post_id, 
     	'post_status' => $status, 
    );
+    remove_action('save_post', 'ts_save_custom_meta_box');
     wp_update_post($post);
+    add_action('save_post', 'ts_save_custom_meta_box');
 }
 
 function ts_set_session_entry_data($entry_data, $eid, $user_id=false) {
@@ -756,6 +758,10 @@ function ts_get_entry_id() {
 
 function ts_get_current_eid() {
 	return isset($_GET['id']) && current_user_can('edit_entry', (int)$_GET['id']) ? (int)$_GET['id'] : (isset($_GET['eid']) && $_GET['eid']!='' ? $_GET['eid'] : ts_set_eid());
+}
+
+function ts_get_current_evid() {
+	return isset($_GET['evid']) && current_user_can('edit_entry', (int)$_GET['id']) ? (int)$_GET['evid'] : null;
 }
 
 function ts_get_base_url($entry_id, $eid) {
@@ -1414,4 +1420,75 @@ function ts_get_local_timestamp($date) {
 
 function ts_delete_attachment($id,$force_delete=false) {
 	wp_delete_attachment( $id, $force_delete );
+}
+
+function ts_custom_meta_boxes() {
+	add_meta_box("ts-entry-invoice-meta-box", "Create Invoice", "ts_entry_invoice_box_markup", "ts_entry", "side", "high", null);
+}
+
+function ts_save_custom_meta_box($post_id, $post, $update) {
+
+	if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
+		return $post_id;
+
+	if ( !current_user_can('edit_post', $post_id) )
+		return $post_id;
+
+	if ( ! isset( $_POST['ts-entry-invoice-meta-box-nonce'] ) || ! wp_verify_nonce( $_POST['ts-entry-invoice-meta-box-nonce'], 'ts-entry-meta-box-security' ))
+		return $post_id;
+
+	if( 'ts_entry' === $post->post_type) {
+
+		$ts_entry_invoice_amount = "";
+		$ts_entry_invoice_note = "";
+		$invoice_id = false;
+		if(isset($_POST["ts-entry-invoice-amount"])) {
+			$ts_entry_invoice_amount = intval( $_POST["ts-entry-invoice-amount"] );
+			update_post_meta($post_id, "ts_entry_invoice_amount", $ts_entry_invoice_amount);
+			$invoice_id = wp_insert_post(array (
+				'post_type' => 'ts_invoice',
+				'post_title' => 'Invoice #' . $post_id,
+				'post_status' => 'unpaid',
+				'ping_status' => 'closed',
+			));
+			if ($invoice_id) {
+				update_post_meta($invoice_id, 'invoice_amount', $ts_entry_invoice_amount);
+				do_action('ts_invoice_created', $post_id, $invoice_id);
+			}
+		}
+		if(isset($_POST["ts-entry-invoice-note"])) {
+			$ts_entry_invoice_note = sanitize_textarea_field( $_POST["ts-entry-invoice-note"] );
+			update_post_meta($post_id, "ts_entry_invoice_note", $ts_entry_invoice_note);
+			if ( $invoice_id ) {
+				update_post_meta($invoice_id, 'invoice_note', $ts_entry_invoice_note);
+			}
+		}
+		if(isset($_POST["ts_entry_hidden_post_status"])) {
+			$ts_entry_hidden_post_status = sanitize_textarea_field( $_POST["ts_entry_hidden_post_status"] );
+			update_post_meta($post_id, "ts_entry_hidden_post_status", $ts_entry_hidden_post_status);
+		}
+	}
+
+}
+
+function ts_update_meta_after_invoice_creation($entry_id, $invoice_id) {
+
+	remove_action('save_post', 'ts_save_custom_meta_box');
+	$entry_post = array( 'ID' => $entry_id, 'post_status' => 'outstanding_amount' );
+	wp_update_post($entry_post);
+	add_action('save_post', 'ts_save_custom_meta_box');
+
+	update_post_meta($entry_id, 'invoice_due', true);
+	update_post_meta($entry_id, 'invoice_id', $invoice_id);
+	update_post_meta($invoice_id, 'entry_id', $entry_id);
+
+}
+
+function ts_invoice_mark_as_paid(  $entry_id, $user_id, $payment_method='stripe_payment', $iv_amount, $invoice_id ) {
+    $ts_entry_previous_status = get_post_meta( $entry_id, 'ts_entry_hidden_post_status', true);
+    ts_change_post_status($entry_id, $ts_entry_previous_status );
+
+    update_post_meta($entry_id, 'invoice_due', false);
+    ts_change_post_status($invoice_id, 'paid' );
+
 }

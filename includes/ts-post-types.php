@@ -226,6 +226,38 @@ function ts_register_custom_post_types() {
 		)
 	));
 
+    register_post_type('ts_invoice', array(
+        'label' => 'Invoices',
+        'description' => '',
+        'public' => true,
+        'menu_position' => 7,
+        'exclude_from_search' => true,
+        'publicly_queryable' => false,
+        'capability_type' => array('invoice','invoices'),
+        'map_meta_cap' => true,
+        'hierarchical' => false,
+        'rewrite' => array('slug' => 'invoice', 'with_front' => true),
+        'query_var' => true,
+        'supports' => array('title'),
+        'taxonomies' => array(),
+        'labels' => array (
+            'name' => 'Invoices',
+            'singular_name' => 'Invoice',
+            'menu_name' => 'Invoices',
+            'all_items' => 'Invoices',
+            'add_new' => 'Add New',
+            'add_new_item' => 'Add New Invoice',
+            'edit' => 'Edit',
+            'edit_item' => 'Edit Invoice',
+            'new_item' => 'New Invoice',
+            'view' => 'View Invoice',
+            'view_item' => 'View Invoice',
+            'search_items' => 'Search Invoices',
+            'not_found' => 'No Tours Found',
+            'not_found_in_trash' => 'No Invoices Found in Trash',
+            'parent' => 'Parent Invoice',
+        )
+    ));
 }
 
 function ts_register_custom_post_status() {
@@ -264,7 +296,16 @@ function ts_register_custom_post_status() {
 		'show_in_admin_all_list'    => false,
 		'show_in_admin_status_list' => false,
 		'label_count'               => _n_noop( 'Paid <span class="count">(%s)</span>', 'Paid <span class="count">(%s)</span>' ),
-	) );	
+	) );
+
+    register_post_status( 'outstanding_amount', array(
+        'label'                     => _x( 'Outstanding Amount', 'post' ),
+        'public'                    => true,
+        'exclude_from_search'       => false,
+        'show_in_admin_all_list'    => false,
+        'show_in_admin_status_list' => false,
+        'label_count'               => _n_noop( 'Outstanding Amount <span class="count">(%s)</span>', 'Outstanding Amount <span class="count">(%s)</span>' ),
+    ) );
 
 	register_post_status( 'inactive', array(
 		'label'                     => _x( 'Inactive', 'post' ),
