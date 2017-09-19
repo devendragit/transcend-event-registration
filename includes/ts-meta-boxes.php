@@ -7,9 +7,12 @@ function ts_entry_invoice_box_markup() {
     $status = get_post_status($entry_id);
     $invoice_due = get_post_meta($entry_id, 'invoice_due', true);
     $invoice_id = get_post_meta($entry_id, 'invoice_id', true);
-    $invoice_status = get_post_status($invoice_id);
+    $invoice_status = false;
+    if($invoice_id) {
+        $invoice_status = get_post_status($invoice_id);
+    }
     if ( ( $status === 'paid' || $status === 'paidcheck' )  && $check_entry && 'paid' != $invoice_status ) {
-       ?>
+        ?>
         <div class="ts-entry-invoice">
             <label for="ts-entry-invoice-amount"><?php _e('Invoice Amount'); ?></label>
             <input name="ts-entry-invoice-amount" type="number" value="" placeholder="$0.00">
@@ -22,7 +25,7 @@ function ts_entry_invoice_box_markup() {
     } elseif( $invoice_due ) {
         _e('Invoice has been created. Please check the status here! ');
         echo '<a href="'.get_edit_post_link($invoice_id).'">Click here</a>';
-    } elseif( $invoice_status == 'paid') {
+    } elseif( $invoice_status !== false && $invoice_status === 'paid' ) {
         _e('Invoice has been paid! ');
     } else {
         _e('Please wait until registration & payment is completed!');

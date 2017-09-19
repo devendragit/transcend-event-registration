@@ -125,10 +125,14 @@ tr.acf-field[data-name="email"] {
 .btn-addvoucher {
     margin: -7px 0 0 10px;
 }
-#popup-save-voucher .modal-dialog {
+#popup-save-voucher .modal-dialog,
+#popup-create-invoice .modal-dialog{
     max-width: 360px;
 }
 .ts-entry-invoice input,
 .ts-entry-invoice textarea{
     margin-bottom: 15px;
+}
+.btn-addinvoice{
+    margin: 12px 0 20px 0px;
 }

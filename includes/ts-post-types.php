@@ -253,11 +253,45 @@ function ts_register_custom_post_types() {
             'view' => 'View Invoice',
             'view_item' => 'View Invoice',
             'search_items' => 'Search Invoices',
-            'not_found' => 'No Tours Found',
+            'not_found' => 'No Invoices Found',
             'not_found_in_trash' => 'No Invoices Found in Trash',
             'parent' => 'Parent Invoice',
         )
     ));
+
+    register_post_type('ts_credit', array(
+        'label' => 'My credits',
+        'description' => '',
+        'public' => true,
+        'menu_position' => 8,
+        'exclude_from_search' => true,
+        'publicly_queryable' => false,
+        'capability_type' => array('credit','credits'),
+        'map_meta_cap' => true,
+        'hierarchical' => false,
+        'rewrite' => array('slug' => 'credit', 'with_front' => true),
+        'query_var' => true,
+        'supports' => array('title','author'),
+        'taxonomies' => array(),
+        'labels' => array (
+            'name' => 'My credits',
+            'singular_name' => 'Credit',
+            'menu_name' => 'Credits',
+            'all_items' => 'Credits',
+            'add_new' => 'Add New',
+            'add_new_item' => 'Add New Credit',
+            'edit' => 'Edit',
+            'edit_item' => 'Edit Credit',
+            'new_item' => 'New Credit',
+            'view' => 'View Credit',
+            'view_item' => 'View Credit',
+            'search_items' => 'Search Credits',
+            'not_found' => 'No Credits Found',
+            'not_found_in_trash' => 'No Credits Found in Trash',
+            'parent' => 'Parent Credit',
+        )
+    ));
+
 }
 
 function ts_register_custom_post_status() {

@@ -303,7 +303,7 @@ jQuery(document).ready(function($) {
 				$('.registration-form .btn[type="submit"]').click();
 			}
 		}
-	});	
+	});
 
 	$('.btn-addvoucher').on('click', function(e) {
 		e.preventDefault();
@@ -328,6 +328,11 @@ jQuery(document).ready(function($) {
 		$('#popup-save-voucher').modal('show');
 	});
 
+	$('.btn-addinvoice').on('click', function(e) {
+		e.preventDefault();
+		$('#popup-create-invoice').modal('show');
+	});
+
 });
 
 function callback(data) {
@@ -342,6 +347,14 @@ function callbackAddVoucher(data) {
 	if(data.success==true) {
 		//jQuery('#popup-save-voucher').modal('hide');
 		location.reload();
+	}
+}
+
+function callbackCreateInvoice(data) {
+	if(data.success==true) {
+		jQuery('#popup-refresh').modal('hide');
+		if(data.redirect)
+			window.location.href = data.redirect;
 	}
 }
 
@@ -555,7 +568,7 @@ function callbackAddRoutineDancers(data) {
 		row.find('.btn-remove').removeClass('btn-remove').addClass('btn-delete-routine').attr('data-id', routine_id);
 		row.find('.parentFormstudio-competition.formError').remove();
 	}	
-	jQuery('#add-routine-dancers').find('input[type="submit"]').val('Add');
+	jQuery('#add-routine-dancers').find('input[type="submit"]').val('Add/Edit');
 }
 
 function callbackApplyCoupon(data) {
@@ -655,10 +668,9 @@ var init_dataTable = function() {
 	 		var orderby = jQuery(this).attr('data-orderby') !=null ? jQuery(this).attr('data-orderby') : 0;
 	 		var sort 	= jQuery(this).attr('data-sort') !=null ? jQuery(this).attr('data-sort').toString() : 'desc';
 	 		var length 	= jQuery(this).attr('data-length') !=null ? jQuery(this).attr('data-length') : 5;
-
 			jQuery(this).DataTable({
 				'bLengthChange' : true,
-				'bFilter' : false, 
+				'bFilter' : false,
 				'bInfo' : true,
 				'iDisplayLength' : parseInt(length),
 				'aLengthMenu' : [[10, 25, 50, -1], [10, 25, 50, 'All']],
@@ -666,10 +678,11 @@ var init_dataTable = function() {
 				'dom' : 'rt<"table-footer clearfix"pl>',
 				'language': {
 		            'lengthMenu': '_MENU_ Records per page',
-		        	}				
+		        	}
 			});
 		});
 	}
+
 }
 
 /*var init_datePicker = function() {

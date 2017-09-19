@@ -148,7 +148,14 @@ function ts_get_tour_cities() {
 		'date_from' => 'April 6, 2018',
 		'date_to' => 'April 8, 2018',
 	);
-
+    $tour[] = array(
+        'id' => 7,
+        'title' => 'Aug 21-23, 2017 test tour date - Las Vegas, NV',
+        'city' => 'Las Vegas, NV',
+        'venue' => 'Hilton Lake Las Vegas Resort and Spa',
+        'date_from' => 'August 21, 2017',
+        'date_to' => 'August 23, 2017',
+    );
 	return $tour;
 }
 

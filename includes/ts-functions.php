@@ -434,7 +434,7 @@ function ts_login_redirect($redirect_to, $request, $user) {
 			return TS_ORGANIZER_DASHBOARD;
 		} 
 		else if (in_array('studio', $user->roles) ||  in_array('individual', $user->roles)) {
-			if(absint(get_user_meta($user->ID, 'ts_login_count', true)) > 1){
+			if(absint(get_user_meta($user->ID, 'ts_login_count', true)) > 0){
 				return TS_STUDIO_DASHBOARD;
 			}
 			else{
@@ -734,6 +734,8 @@ function ts_get_entry_data_from_post($entry_id, $user_id=false) {
 		$entry_data['competition'] = get_post_meta($entry_id, 'competition', true);
 		$entry_data['grand_total'] = get_post_meta($entry_id, 'grand_total', true);
 		$entry_data['discount_code'] = get_post_meta($entry_id, 'discount_code', true);
+		$entry_data['remaining_amount'] = get_post_meta($entry_id, 'remaining_amount', true);
+		$entry_data['amount_credited'] = get_post_meta($entry_id, 'amount_credited', true);
 	}
 	return $entry_data;
 }
@@ -803,6 +805,9 @@ function ts_get_workshop_fee($id, $duration_id=1, $eid, $tour_city=false) {
 
 	if(! $tour_city){
 		$entry_data = ts_get_session_entry_data($eid);
+		if( empty( $entry_data ) ) {
+			$entry_data = ts_get_entry_data_from_post($eid);
+		}
 		$tour_city 	= ts_check_value($entry_data, 'workshop', 'tour_city');
 	}
 
@@ -818,7 +823,7 @@ function ts_get_workshop_fee($id, $duration_id=1, $eid, $tour_city=false) {
 		$fee_standard_oneday 	= get_term_meta($age_div[0]->term_id, 'fee_standard_oneday', true);
 	}
 		
-	return $duration_id==2 ? $fee_standard_oneday : $fee_standard;	
+	return $duration_id==2 ? $fee_standard_oneday : $fee_standard;
 }
 
 function ts_get_discounted_workshop_fee($base_fee, $discount_id) {
@@ -878,7 +883,7 @@ function ts_get_total_workshop_fee($eid, $data=false) {
 			$workshop_fee = $workshop_fee+$observer_fee;
 		}
 	}
-		
+
 	if(is_array($munchkin_observer) && ! empty($munchkin_observer)){
 		foreach ($munchkin_observer as $key => $value) {
 			$munchkin_observer_fee = ts_get_munchkin_observer_fee();
@@ -1184,6 +1189,10 @@ function ts_forgot_username_text($translated_text, $text, $domain) {
         $translated_text = str_replace('Howdy,', '', $translated_text);	
     }
 
+	if (false !== strpos($translated_text, 'Reset Password')){
+		$translated_text = str_replace('Reset Password', 'Create Password', $translated_text);
+	}
+
 	return $translated_text;
 }
 
@@ -1230,8 +1239,10 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 	$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($entry_id, $entry_data);
 	$competition_fee 				= ts_get_total_competition_fee($entry_id, $entry_data);
 	$grand_total        			= ts_grand_total($entry_id, $entry_data);
+    $amount_credited                = absint(ts_check_value($entry_data,'amount_credited'));
 
 	if(! empty($discount_code)){
+		$discount_value	= absint(ts_get_discount_value($discount_code));
 		$grand_total = ts_discounted_grand_total($grand_total, $discount_code, $entry_id);
 	}
 	ob_start();
@@ -1341,7 +1352,7 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 		if(! empty($discount_code)) { ?>
 		<tr>
 			<td align="right" colspan="3">
-				Discount Code: <strong><?php echo $discount_code; ?></strong> <span style="color:red;"> (-$200)</span>
+				Discount Code: <strong><?php echo $discount_code; ?></strong> <span style="color:red;"> (-$<?php echo number_format($discount_value, 2);?>)</span>
 			</td>
 		</tr>
 		<?php
@@ -1351,11 +1362,27 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 				<strong>Grand Total: $<span id="grand-total"><?php echo number_format($grand_total, 2); ?></span></strong>
 			</td>
 		</tr>
+		<?php
+		if(! empty($amount_credited)) {
+			?>
+			<tr>
+				<td align="right" colspan="3">
+					<strong>Amount Credited: $<span id="grand-total"><?php echo number_format($amount_credited, 2); ?></span></strong>
+				</td>
+			</tr>
+			<?php
+		}
+		?>
 		<tr>
-			<td colspan="3">&nbsp;</td>
+			<td align="right" colspan="3"><a class="btn btn-blue btn-addinvoice" href="javascript:void(0);">Create Invoice</a></td>
 		</tr>
-	</table>	
-	<?php 
+		<tr>
+			<td colspan="3"> </td>
+		</tr>
+	</table>
+
+	<?php
+	ts_create_invoice($entry_id);
 	$output = ob_get_contents();
 	ob_end_clean();
 
@@ -1491,4 +1518,213 @@ function ts_invoice_mark_as_paid(  $entry_id, $user_id, $payment_method='stripe_
     update_post_meta($entry_id, 'invoice_due', false);
     ts_change_post_status($invoice_id, 'paid' );
 
+}
+
+function ts_get_form_action() {
+    $action = '';
+    if(current_user_can('is_studio')) {
+        $action = 'studio_registration';
+    }
+    else if(current_user_can('is_individual')) {
+        $action = 'individual_registration';
+    }
+    return $action;
+}
+
+function ts_disable_random_password( $password ) {
+	if ( is_page('createpass') ) {
+		return '';
+	}
+	return $password;
+}
+
+function ts_get_discount_value($voucher_code=false) {
+	$discount_value = 0;
+    $voucher_id  = ts_post_exists($voucher_code, '', '', 'ts_coupon');
+
+	if($voucher_code) {
+        $discount_value = get_post_meta($voucher_id, 'discount', true);
+	}
+
+	return $discount_value;
+}
+
+function ts_set_remaining_amount_meta( $entry_id, $user_id, $remaining_amount ) {
+	update_post_meta($entry_id, 'remaining_due', true);
+	update_post_meta($entry_id, 'remaining_amount', $remaining_amount);
+}
+
+function ts_clear_remaining_amount($entry_id, $user_id, $method, $grand_total, $remaining, $remaining_amount) {
+	if( $remaining && 0 !== $remaining_amount && 'stripe_payment' === $method ) :
+		/*
+		$paid_amount = absint(get_post_meta($entry_id, 'paid_amount', true));
+		$paid_amount = $paid_amount + absint($remaining_amount);
+		update_post_meta($entry_id, 'paid_amount',$paid_amount);
+		*/
+		delete_post_meta($entry_id, 'remaining_due');
+		delete_post_meta($entry_id, 'remaining_amount');
+
+	endif;
+}
+
+function ts_copy_meta_data($entry_id) {
+    $workshop = get_post_meta($entry_id, 'workshop',true);
+    $competition = get_post_meta($entry_id, 'competition',true);
+
+    update_post_meta($entry_id,'paid_workshop',$workshop);
+    update_post_meta($entry_id,'paid_competition',$competition);
+}
+
+function ts_return_credit_total($grand_total, $entry_id) {
+    $credit_amount = 0;
+    $workshop_participants = $paid_workshop_participants = array();
+    $competition_routines = $paid_competition_routines = array();
+
+    $workshop = get_post_meta($entry_id, 'workshop',true);
+    $paid_workshop = get_post_meta($entry_id, 'paid_workshop',true);
+
+    $competition = get_post_meta($entry_id, 'competition',true);
+    $paid_competition = get_post_meta($entry_id, 'paid_competition',true);
+
+    if( $competition && ! empty( $competition['routines'] ) ) {
+        $competition_routines = $competition['routines'];
+    }
+    if( $paid_competition && ! empty( $paid_competition['routines'] ) ) {
+        $paid_competition_routines = $paid_competition['routines'];
+    }
+
+    if( $workshop && ! empty( $workshop['participants'] ) ) {
+        $workshop_participants = $workshop['participants'];
+    }
+    if( $paid_workshop && ! empty( $paid_workshop['participants'] ) ) {
+        $paid_workshop_participants = $paid_workshop['participants'];
+    }
+
+    $participant_results = array_diff_key($paid_workshop_participants,$workshop_participants);
+    if( $participant_results && is_array( $participant_results ) ) {
+        foreach( $participant_results as $key => $participant_result ) {
+            if( 'observers' !== $key && 'munchkin_observers' !== $key ) {
+                $credit_amount +=  absint($participant_result['fee']);
+            }
+        }
+    }
+
+    $routines_results = array_diff_key($paid_competition_routines,$competition_routines);
+    if( $routines_results && is_array( $routines_results ) ) {
+        foreach( $routines_results as $routines_result ) {
+            $credit_amount +=  absint($routines_result['fee']);
+        }
+    }
+
+    return $credit_amount;
+}
+
+function ts_create_credit_post( $entry_id, $amount_credited ) {
+
+    $credit_id = (int) get_post_meta($entry_id,'credit_id',true);
+    $credit_status = ts_post_exists_by_id($credit_id);
+	$credit_expiry_timestamp = ts_get_local_timestamp(date('Y/m/d', strtotime('+1 year')));
+
+    if( $credit_status ) {
+
+		wp_clear_scheduled_hook( 'ts_autodelete_credit', array( $credit_id ) );
+		wp_schedule_single_event($credit_expiry_timestamp, 'ts_autodelete_credit', array( $credit_id ) );
+        update_post_meta( $credit_id,'amount_credited',$amount_credited );
+		update_post_meta( $credit_id,'amount_expiry_date',date('Y/m/d', strtotime('+1 year')));
+
+    } else {
+		$user_id 	= get_current_user_id();
+
+		$creditArgs = array(
+			'post_title' => 'Credit #' . $entry_id,
+			'post_type' => 'ts_credit',
+			'author' => $user_id,
+			'post_status' => 'publish',
+		);
+		$newCredit = wp_insert_post($creditArgs, true);
+
+		if($newCredit && !is_wp_error($newCredit)) {
+
+			wp_schedule_single_event($credit_expiry_timestamp, 'ts_autodelete_credit', array( $newCredit ) );
+			update_post_meta( $newCredit,'amount_credited',$amount_credited );
+			update_post_meta( $newCredit,'amount_expiry_date',date('Y/m/d', strtotime('+1 year')));
+			update_post_meta( $newCredit,'entry_id',$entry_id );
+			update_post_meta( $entry_id,'credit_id',$newCredit );
+		}
+
+    }
+
+	delete_post_meta($entry_id, 'remaining_due');
+	delete_post_meta($entry_id, 'remaining_amount');
+
+}
+
+function ts_credit_totals( $autherid = false ) {
+
+	$total= 0;
+	if( $autherid ) {
+		$creditArgs = array(
+			'author' => $autherid,
+		);
+		$credits = ts_get_posts( 'ts_credit',-1,$creditArgs );
+		if($credits) {
+			foreach ($credits as $credit) {
+				setup_postdata($credit);
+				$credit_id = $credit->ID;
+				$amount_credited = (int)get_post_meta($credit_id, 'amount_credited', true);
+				$total=$total+$amount_credited;
+			}
+		}
+	}
+
+	return $total;
+}
+
+function ts_create_invoice($entry_id){
+	$check_entry = get_post_meta($entry_id, 'completed', true);
+	$status = get_post_status($entry_id);
+	$invoice_due = get_post_meta($entry_id, 'invoice_due', true);
+	$invoice_id = get_post_meta($entry_id, 'invoice_id', true);
+	$invoice_status = false;
+	if($invoice_id) {
+		$invoice_status = get_post_status($invoice_id);
+	}
+	?>
+	<div id="popup-create-invoice" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Invoice</h4>
+				</div>
+				<div class="modal-body">
+					<?php
+					if ( ( $status === 'paid' || $status === 'paidcheck' )  && $check_entry && 'paid' != $invoice_status ) {
+						?>
+						<form method="post" action="" id="form-create-invoice" name="form-create-invoice" >
+							<div class="ts-entry-invoice">
+								<input type="hidden" name="entryid" value="<?php echo $entry_id; ?>" />
+								<label for="ts-entry-invoice-amount"><?php _e('Invoice Amount'); ?></label>
+								<input name="ts-entry-invoice-amount" type="number" value="" placeholder="$0.00" required>
+								<label for="ts-entry-invoice-note"><?php _e('Invoice Note'); ?></label>
+								<textarea name="ts-entry-invoice-note" rows="3" cols="50" required></textarea>
+								<input type="hidden" name="ts_entry_hidden_post_status" value="<?php echo $status;?>">
+							</div>
+							<input type="submit" value="Generate Invoice" class="btn btn-blue">
+						</form>
+						<?php
+					} elseif( $invoice_due ) {
+						_e('Invoice has been created. Please check the status here! ');
+						echo '<a href="'.get_edit_post_link($invoice_id).'">Click here</a>';
+					} elseif( $invoice_status !== false && $invoice_status === 'paid' ) {
+						_e('Invoice has been paid! ');
+					} else {
+						_e('Please wait until registration & payment is completed!');
+					}
+					?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php
 }

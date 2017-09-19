@@ -553,7 +553,7 @@ function ts_my_entries_page() {
 					if($my_entries) {
 						?>
 		                <?php
-						foreach ($my_entries as $entry) { 
+						foreach ($my_entries as $entry) {
 							setup_postdata($entry);
 		                    $entry_id = $entry->ID;
 		                    $workshop = get_post_meta($entry_id, 'workshop', true);
@@ -573,7 +573,7 @@ function ts_my_entries_page() {
 		                ?>
 		            <?php
 		            }else{
-		            	echo '<tr><td colspan="4">No Entries Found</td></tr>';
+		            	echo '<tr><td colspan="5">No Entries Found</td></tr>';
 		            }
 		            ?>
                 </tbody>
@@ -624,7 +624,7 @@ function ts_my_entries_page() {
 					?>
 					<?php
 				}else{
-					echo '<tr><td colspan="4">No Invoices Found</td></tr>';
+					echo '<tr><td colspan="5">No Invoices Found</td></tr>';
 				}
 				?>
 				</tbody>
@@ -731,10 +731,114 @@ function ts_vouchers_page() {
 	<?php	
 }
 
+function ts_invoices_page() {
+    ?>
+    <div id="invoices-page" class="wrap">
+        <h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+        <div class="ts-admin-wrapper vouchers-wrapper">
+            <table id="invoices-list" class="ts-data-table" data-length="10" data-sort="asc">
+                <thead>
+                <tr>
+                    <th style="text-align:center;">Invoice ID</th>
+                    <th style="text-align:center;">Status</th>
+                    <th style="text-align:center;">Amount</th>
+                    <th style="text-align:center;">Status</th>
+                    <th style="text-align:center;">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                $args = array(
+                    'post_status' => array('unpaid', 'paid', 'unpaidcheck', 'paidcheck', 'outstanding_amount'),
+                );
+                $invoices = ts_get_posts('ts_invoice',-1,$args);
+                if($invoices) {
+                    foreach ($invoices as $invoice) {
+                        setup_postdata($invoice);
+                        $invoice_id 			= $invoice->ID;
+                        $invoice_code 			= $invoice->post_title;
+                        $invoice_status 		= $invoice->post_status;
+                        $invoice_amount 		= get_post_meta($invoice_id, 'invoice_amount', true);
+                        $invoice_note 		    = get_post_meta($invoice_id, 'invoice_note', true);
+                        ?>
+                        <tr id="item-<?php echo $invoice_id; ?>">
+                            <td style="text-align:center;"><?php echo $invoice_code; ?></td>
+                            <td style="text-align:center;"><?php echo $invoice_status; ?></td>
+                            <td style="text-align:center;">$<?php echo number_format_i18n($invoice_amount,2); ?></td>
+                            <td style="text-align:center;"><?php echo $invoice_note; ?></td>
+                            <td style="text-align:center;">
+                                <a title="delete" href="javascript:void(0);"
+                                   class="btn btn-red btn-delete"
+                                   data-id="<?php echo $invoice_id; ?>"
+                                   data-type="invoice"
+                                ><small>Delete</small></a>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                }else{
+                    echo '<tr><td colspan="5">No Invoices Created</td></tr>';
+                }
+                ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php
+}
+
 function ts_post_pay_invoice_page() {
 	?>
 	<div id="post-pay-invoice-page" class="wrap">
 		<?php echo do_shortcode('[ts-pay-invoice-form]'); ?>
 	</div>
 	<?php
+}
+
+
+function ts_credits_page() {
+    $autherid = get_current_user_id();
+    ?>
+    <div id="credits-page" class="wrap">
+        <h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> ( $<?php echo number_format(ts_credit_totals($autherid),2);?> ) </h1>
+        <div class="ts-admin-wrapper credits-wrapper">
+            <table id="credits-list" class="ts-data-table" data-length="10" data-sort="asc">
+                <thead>
+                <tr>
+                    <th>City</th>
+                    <th>Credit Received</th>
+                    <th>Credit Expiry Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+				$creditArgs = array(
+				              'author' => $autherid,
+                );
+                $credits = ts_get_posts( 'ts_credit',-1,$creditArgs );
+                if($credits) {
+                    foreach ($credits as $credit) {
+                        setup_postdata($credit);
+                        $credit_id 					= $credit->ID;
+                        $amount_credited			= (int) get_post_meta($credit_id, 'amount_credited', true);
+                        $amount_expiry_date 		= get_post_meta($credit_id, 'amount_expiry_date', true);
+						$entry_id					= (int) get_post_meta($credit_id, 'entry_id', true);
+						$workshop 					= get_post_meta($entry_id, 'workshop', true);
+                        ?>
+                        <tr id="item-<?php echo $credit_id; ?>">
+                            <td><?php echo get_the_title($workshop['tour_city']); ?></td>
+							<td>$<?php echo number_format($amount_credited, 2); ?></td>
+							<td><?php echo $amount_expiry_date; ?></td>
+                        </tr>
+                        <?php
+                    }
+                }else{
+                    echo '<tr><td colspan="3">No Credits Found</td></tr>';
+                }
+                ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php
 }

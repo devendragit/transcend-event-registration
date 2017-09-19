@@ -61,7 +61,7 @@ if (! function_exists('wp_new_user_notification') ) {
 	      $message .= sprintf( __( 'Username: %s' ), $user->user_login ) . "\r\n\r\n";
 	      $message .= sprintf( __( 'Email: %s' ), $user->user_email ) . "\r\n";
 
-	      @wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] New User Registration' ), $blogname ), $message );
+	      //@wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] New User Registration' ), $blogname ), $message );
 	    }
 
 	    if ( 'admin' === $notify || ( empty( $deprecated ) && empty( $notify ) ) ) {
@@ -79,22 +79,40 @@ if (! function_exists('wp_new_user_notification') ) {
 	    $hashed = time() . ':' . $wp_hasher->HashPassword( $key );
 	    $wpdb->update( $wpdb->users, array( 'user_activation_key' => $hashed ), array( 'user_login' => $user->user_login ) );
 
-	    if(in_array('studio', $user->roles) ||  in_array('individual', $user->roles)) {
+	    if(in_array('individual', $user->roles)) {
 
 	      $headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'BCC: Carl D <carld.projects@gmail.com>');
-
+          $subject = 'Congratulations, '.$user->user_login .', you are invited to attend Transcend!';
 	      $message = '
 	      <p style="text-align:center; margin-bottom:30px;"><span style="display:inline-block;padding:20px;background-color:#000;"><img src="'. TS_URI .'assets/images/logo.png" /></span></p>
-	      <p style="text-align:center; font-size:1.6em; font-weight:bold;">You have been invited to join Transcend.</p>
-	      <p style="text-align:center; font-size:1.3em; font-weight:bold;">Below are the details to access your account:</p><br /><br />
-	      <p>Please visit: <a href="'. home_url('register') .'">'. home_url('register') .'</p>
-	      <p>Enter the username and password provided below:</p>
-	      <p><strong>Username: </strong>'. $user->user_login .'</p>
-	      <p><strong>Password: </strong>to create your password please <a href="'. network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user->user_login), 'login') .'">click here</a></p>
-	      <p>We can’t wait to dance with you!!</p>
+	      <p style="text-align:center; font-size:1.6em; font-weight:bold;">You have been invited to join Transcend.</p><br />
+	      <p style="text-align:center; font-size:1.3em;">Thank you so much for your submission to attend Transcend this year. Registration happens by submission-only, and we are happy to extend an invitation for you to attend! You demonstrate the dedication, passion, and aspirations that we want Transcend dancers to feel united by.</p>
+          <p style="text-align:center; font-size:1.3em;">Please <a href="'. network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user->user_login), 'login') .'">click here</a> to create your password and access your account.</p>
+          <p style="text-align:center; font-size:1.3em;">Your username is <strong>'. $user->user_login .'</strong></p><br />
+	      <p style="font-size:1.3em;">Please let us know if you have any questions, and we look forward to seeing you this year!</p>
+	      <p style="font-size:1.3em;">Best regards,</p>
+	      <p style="font-size:1.3em;">the Transcend Team</p>
 	      ';
 
-	      wp_mail($user->user_email, sprintf(__('[%s] Your username and password'), get_option('blogname')), $message, $headers);
+	      wp_mail($user->user_email, $subject, $message, $headers);
 	    }
+
+        if(in_array('studio', $user->roles)) {
+
+            $headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'BCC: Carl D <carld.projects@gmail.com>');
+            $subject = 'Congratulations, '.$user->user_login .', you are invited to attend Transcend!';
+            $message = '
+	      <p style="text-align:center; margin-bottom:30px;"><span style="display:inline-block;padding:20px;background-color:#000;"><img src="'. TS_URI .'assets/images/logo.png" /></span></p>
+	      <p style="text-align:center; font-size:1.6em; font-weight:bold;">You have been invited to join Transcend.</p>
+	      <p style="text-align:center; font-size:1.3em;">Please <a href="'. network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user->user_login), 'login') .'">click here</a> to create your password and access your account.</p>
+	      <p style="text-align:center; font-size:1.3em;">Your username is <strong>'. $user->user_login .'</strong></p><br />
+	      <p style="font-size:1.3em;">Please let us know if you have any questions, and we hope to see you this year!</p>
+	      <p style="font-size:1.3em;">Best regards,</p>
+	      <p style="font-size:1.3em;">the Transcend Team</p>
+	      ';
+
+            wp_mail($user->user_email, $subject, $message, $headers);
+        }
+
 	}
 }

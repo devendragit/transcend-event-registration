@@ -119,7 +119,7 @@ function ts_new_invoice_user_notification($entry_id, $invoice_id) {
 
                 $invoice_amount = get_post_meta($invoice_id, 'invoice_amount', true);
                 $invoice_note = get_post_meta($invoice_id, 'invoice_note', true);
-                $pay_now_link = '';
+                $pay_now_link = admin_url('admin.php?page=ts-entry-pay-invoice&action=pay_invoice&id='.$entry_id.'&evid='.$invoice_id);;
 
                 $headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@transcendtour.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>');
                 $subject = 'Invoice #'. $invoice_id .' has been created';

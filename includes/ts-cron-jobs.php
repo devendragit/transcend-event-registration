@@ -53,3 +53,12 @@ function ts_auto_delete_music_cron( $date ) {
         }
     }
 }
+
+function ts_autodelete_credit_cron_job( $credit_id ) {
+
+    $entry_id = get_post_meta( $credit_id, 'entry_id', true );
+    delete_post_meta($entry_id,'amount_credited');
+    update_post_meta($entry_id,'credit_expired',true);
+    wp_delete_post($credit_id);
+
+}

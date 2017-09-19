@@ -69,7 +69,7 @@ function ts_event_registration_shortcode() {
 
 		$login_count = absint(get_user_meta($user_id, 'ts_login_count', true));
 
-		if($login_count > 1 && ! is_admin()) {
+		if($login_count > 0 && ! is_admin()) {
 			?>	
 			<script type="text/javascript">
 				window.location.replace('<?php echo TS_ADMIN_DASHBOARD; ?>');
@@ -169,6 +169,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 		'meta_type' => 'DATE'
 	);
 	$tour_cities = ts_get_posts('ts_tour', -1, $argsTourCities);
+	$form_action = ts_get_form_action();
 	?>
 	<div class="workshop-container">
 		<form name="entry-workshop" id="entry-workshop" class="studio-registration registration-form" method="post" action="">
@@ -177,7 +178,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 			<?php } ?>
 			<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 			<input type="hidden" name="tab" value="workshop">
-			<input type="hidden" name="action" value="studio_registration">
+			<input type="hidden" name="action" value="<?php echo $form_action;?>">
 			<div class="row">
 				<div class="col-md-12 select-tour-city-container">
 					<span>Please select a city</span>
@@ -480,6 +481,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 	$participants = ts_check_value($workshop, 'participants');
 	$competition = ts_check_value($entry_data, 'competition');
 	$total_competition_fee = ts_get_total_competition_fee($eid, $entry_data);
+	$form_action = ts_get_form_action();
 	?>
 	<div class="studio-competition-container">
 		<form name="studio-competition" id="studio-competition" class="studio-registration registration-form validate competition-page" method="post" action="">
@@ -488,7 +490,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 			<?php } ?>
 			<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 			<input type="hidden" name="tab" value="competition">
-			<input type="hidden" name="action" value="studio_registration">
+			<input type="hidden" name="action" value="<?php echo $form_action;?>">
 			<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
 			<div class="table-container">
 				<?php
@@ -881,6 +883,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 	$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($eid);
 	$competition_fee 				= ts_get_total_competition_fee($eid);
 	//echo ts_discounted_grand_total(1000, 'test2', $entry_id);
+	$form_action = ts_get_form_action();
 	?>
 	<div class="studio-confirmation-container">
 		<h1 class="heading-title"><?php echo get_the_title($workshop['tour_city']); ?></h1>
@@ -890,7 +893,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 			<?php } ?>
 			<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 			<input type="hidden" name="tab" value="confirmation">
-			<input type="hidden" name="action" value="studio_registration">
+			<input type="hidden" name="action" value="<?php echo $form_action;?>">
 			<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
 			<div class="row">
 				<div class="col-md-6 workshop-fee-breakdown">
@@ -1017,15 +1020,55 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 				</div>
 			</div>
 			<div class="row grand-total">
-				<div class="col-md-12 t-right">Grand Total: 
-					<?php 
-					$grand_total = ts_grand_total($eid, $entry_data);
-					if(isset($entry_data['discount_code'])) {
-						$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+				<?php
+				$grand_total = ts_grand_total($eid, $entry_data);
+				if(isset($entry_data['discount_code'])) {
+					$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+				}
+				$get_entry_status = get_post_status($entry_id);
+				$amount_paid = $amount_payable = $amount_credit = '';
+				$button_value = 'Confirm and Continue to Payment';
+
+				if($get_entry_status=='paid' || $get_entry_status=='paidcheck'){
+					$amount_paid = absint(get_post_meta($entry_id,'paid_amount',true));
+					if( $amount_paid > $grand_total ){
+						$amount_credit = ts_return_credit_total($grand_total, $entry_id);
+						$button_value = $amount_credit > 0 ? 'Confirm and Continue to receive credit' : 'Confirm and Save your registration';
+					} else if( $amount_paid < $grand_total ) {
+						$amount_payable = $grand_total - $amount_paid;
+						$button_value = 'Confirm and Continue to pay remaining amount';
+					} else {
+						$button_value = 'Confirm and Save your registration';
 					}
-					?>
+				}
+
+				?>
+				<div class="col-md-12 t-right">Grand Total:
 					$<span id="grand-total"><?php echo number_format($grand_total, 2); ?></span>
 				</div>
+				<?php
+				if( !empty($amount_payable) ){
+					?>
+					<div class="col-md-12 t-right">Amount Paid:
+						$<span id="grand-total"><?php echo number_format($amount_paid, 2); ?></span>
+					</div>
+					<div class="col-md-12 t-right">Amount Payable:
+						$<span id="grand-total"><?php echo number_format($amount_payable, 2); ?></span>
+						<input type="hidden" name="remaining_amount" value="<?php echo $amount_payable; ?>" />
+					</div>
+				<?php
+				}
+				?>
+				<?php
+				if( !empty($amount_credit) ){
+					?>
+					<div class="col-md-12 t-right">Amount Credit:
+						$<span id="grand-total"><?php echo number_format($amount_credit, 2); ?></span>
+						<input type="hidden" name="amount_credited" value="<?php echo $amount_credit; ?>" />
+					</div>
+					<?php
+				}
+				?>
 			</div>
 			<div class="row form-footer-btns">
 				<div class="col-md-4 t-left"> 
@@ -1038,11 +1081,11 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 					$status = get_post_status( $entry_id );
 					if($status=='paid' || $status=='paidcheck'){
 						?>					
-						<input class="btn btn-green" type="submit" value="Confirm and Continue to Payment">
+						<input class="btn btn-green" type="submit" value="<?php echo $button_value;?>">
 					<?php
 					}
 					else { ?>	
-						<a class="btn btn-green btn-popupwaiver" href="javascript:void(0);">Confirm and Continue to Payment</a>
+						<a class="btn btn-green btn-popupwaiver" href="javascript:void(0);"><?php echo $button_value;?></a>
 						<input class="btn hidden btn-submitconfirmation" type="submit" value="Submit">
 					<?php
 					} ?>
@@ -1116,7 +1159,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_step, $base_url, $steps) {
 
 	$confirmation = $steps['confirmation']['id'];
-
+	$form_action = ts_get_form_action();
 	if( $entry_id && get_post_meta($entry_id, 'comfirmed', true)) {
 
 		$status = get_post_status( $entry_id );
@@ -1126,10 +1169,66 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 			$grand_total = get_post_meta($entry_id, 'grand_total', true);
 			$competition_fee = ts_get_total_competition_fee($entry_id, $entry_data);
 			$paid_amount_competition = get_post_meta($entry_id, 'paid_amount_competition', true);
-			if($paid_amount!=$grand_total && $competition_fee > $paid_amount_competition) {
+			$amount_credited =  get_post_meta($entry_id, 'amount_credited', true);
+			if($paid_amount!=$grand_total) {
 				?>
 				<div class="form-container-2 t-center boxed-container">
-					<h1>Your changes have been saved, and we will contact you to make a payment. If you have a credit for next year, it will appear on your account at the later date. Thank you.</h1>
+					<?php
+					if($paid_amount>$grand_total) {
+						echo '<h1>Credit has been credited to your account.</h1>';
+						do_action('registration_amount_credited',$entry_id,$amount_credited);
+						?>
+						<script type="text/javascript">
+							setTimeout(function(){
+								window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
+							}, 5000);
+						</script>
+						<?php
+					} else {
+						require_once(TS_LIBRARIES .'config.php');
+
+						if(isset($entry_data['discount_code'])) {
+							$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+						}
+						$remaining_total = $grand_total - $paid_amount;
+						$current_user = wp_get_current_user();
+						?>
+						<div class="studio-payment-container payment-form-container form-container-1">
+							<div class="row">
+								<div class="col-md-12 t-center">OR</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6 t-center stripe-payment-form-container">
+									<form action="<?php echo $base_url .'&step='. $next_step .'&completed=1&remaining=1'; ?>" method="post" class="stripe-payment-form">
+										<script src="https://checkout.stripe.com/checkout.js"
+												class="stripe-button"
+												data-key="<?php echo $stripe['publishable_key']; ?>"
+												data-amount="<?php echo $remaining_total * 100; ?>"
+												data-name="<?php echo get_bloginfo('name'); ?>"
+												data-billing-address="true"
+												data-email="<?php echo $current_user->user_email; ?>"
+												data-description="Remaining payment for Entry #<?php echo $entry_id; ?>">
+										</script>
+									</form>
+								</div>
+								<div class="col-md-6 t-center mail-payment-form-container">
+									<form name="studio-payment" id="studio-payment" class="studio-registration registration-form validate mail-payment-form" method="post" action="">
+										<input type="hidden" name="entry_id" value="<?php echo $entry_id; ?>">
+										<input type="hidden" name="eid" value="<?php echo $eid; ?>">
+										<input type="hidden" name="tab" value="payment">
+										<input type="hidden" name="action" value="<?php echo $form_action;?>">
+										<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
+										<input type="hidden" name="remaining" value="1">
+										<label><input type="checkbox" name="" class="validate[required]"> Mail in Check</label><br />
+										<input class="btn btn-green" type="submit" value="Submit Registration">
+									</form>
+								</div>
+							</div>
+							<p class="foot-note">Registration is not complete without full payment, <br>or until check is received in the mail.</p>
+						</div>
+						<?php
+					}
+					?>
 				</div>
 				<?php
 			}
@@ -1137,15 +1236,15 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 				?>
 				<div class="form-container-2 t-center boxed-container">
 					<h1>Your changes have been saved.</h1>
+					<?php do_action('registration_recompleted',$entry_id); ?>
 				</div>
+				<script type="text/javascript">
+					setTimeout(function(){
+						window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
+					}, 5000);
+				</script>
 				<?php
-			} ?>
-			<script type="text/javascript">
-			setTimeout(function(){
-				window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
-		    }, 5000);	
-			</script>
-			<?php			
+			}
 		}
 		else {
 
@@ -1181,7 +1280,7 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 							<input type="hidden" name="entry_id" value="<?php echo $entry_id; ?>">
 							<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 							<input type="hidden" name="tab" value="payment">
-							<input type="hidden" name="action" value="studio_registration">
+							<input type="hidden" name="action" value="<?php echo $form_action;?>">
 							<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
 							<label><input type="checkbox" name="" class="validate[required]"> Mail in Check</label><br />
 							<input class="btn btn-green" type="submit" value="Submit Registration">
@@ -1211,11 +1310,20 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 
 		if($_POST){
 			require_once(TS_LIBRARIES .'config.php');
-
+			$charge_amount = $remaining_amount = 0;
+            $remaining = false;
 			$grand_total = ts_grand_total($eid, $entry_data);
-			
+
 			if(isset($entry_data['discount_code'])) {
 				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+			}
+
+			if( isset($entry_data['remaining_amount'] ) && ! empty($entry_data['remaining_amount']) ) {
+                $remaining = true;
+				$remaining_amount = absint($entry_data['remaining_amount']);
+				$charge_amount = $remaining_amount;
+			} else {
+				$charge_amount = $grand_total;
 			}
 
 			$token  = $_POST['stripeToken'];
@@ -1230,15 +1338,16 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 			try {
 				$charge = \Stripe\Charge::create(array(
 					'customer' => $customer->id,
-					'amount'   => $grand_total * 100,
+					'amount'   => $charge_amount * 100,
 					'currency' => 'usd'
 				));
 			} 
 			catch(\Stripe\Error\Card $e) {
 
 			}	
-			do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total);
+			do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total,	$remaining, $remaining_amount);
 			do_action('registration_completed', $entry_id, $user_id, 'stripe_payment');
+			//do_action('registration_comfirmed', $entry_id);
 		}
 
 		if(get_post_meta($entry_id, 'completed', true)) {
@@ -1337,7 +1446,7 @@ function ts_pay_invoice_shortcode() {
 
 		$login_count = absint(get_user_meta($user_id, 'ts_login_count', true));
 
-		if($login_count > 1 && ! is_admin()) {
+		if($login_count > 0 && ! is_admin()) {
 			?>
 			<script type="text/javascript">
 				window.location.replace('<?php echo TS_ADMIN_DASHBOARD; ?>');
@@ -1345,7 +1454,7 @@ function ts_pay_invoice_shortcode() {
 			<?php
 		}
 		else {
-			if( $evid && ( current_user_can('is_studio') || current_user_can('is_individual') ) ) {
+			if( $evid && get_post_status($evid) && ( current_user_can('is_studio') || current_user_can('is_individual') ) ) {
 				require_once( TS_INCLUDES . 'shortcodes/pay-invoice.php' );
 				ts_pay_invoice_html( $entry_id, $evid, $user_id );
 			} else {

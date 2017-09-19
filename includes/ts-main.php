@@ -55,11 +55,19 @@ add_action('registration_completed', 'ts_addto_mailchimp_list', 10, 2);
 add_action('registration_edited', 'ts_reg_edited_notification', 10, 2);
 add_action('registration_paid', 'ts_mark_as_paid', 10, 3);
 add_action('registration_paid', 'ts_save_paid_amount', 10, 4);
+add_action('registration_paid', 'ts_clear_remaining_amount', 10, 6);
+add_action('registration_paid', 'ts_copy_meta_data', 10, 1);
 add_action('ts_cron_jobs', 'ts_auto_delete_music_cron', 10, 1);
 add_action('ts_invoice_created', 'ts_new_invoice_user_notification', 10, 2);
 add_action('ts_invoice_created', 'ts_update_meta_after_invoice_creation', 10, 2);
 add_action('invoice_paid', 'ts_mark_as_paid', 10, 3);
 add_action('invoice_paid', 'ts_invoice_mark_as_paid', 10, 5);
+add_action('registration_edited', 'ts_set_remaining_amount_meta', 10, 3);
+add_action('registration_recompleted', 'ts_set_entry_meta', 10, 1);
+add_action('registration_amount_credited', 'ts_create_credit_post', 10, 2);
+add_action('ts_autodelete_credit','ts_autodelete_credit_cron_job', 10 ,1 );
+add_action('registration_amount_credited', 'ts_set_entry_meta', 10, 1);
+add_action('invoice_paid', 'ts_set_entry_meta', 10, 1);
 
 /* Remove */
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
@@ -79,6 +87,7 @@ add_filter('login_headertitle', 'ts_login_logo_url_title');
 add_filter('media_upload_default_tab', 'ts_media_library_default_tab', 99);
 add_filter('gettext', 'ts_forgot_username_text', 1, 3);
 add_filter('media_view_strings','ts_remove_medialibrary_tab');
+add_filter('random_password', 'ts_disable_random_password', 10, 2);
 
 /** Front-end **/
 add_action('wp_footer', 'ts_footer_scripts');
@@ -179,6 +188,7 @@ function ts_add_role_caps() {
 			array('routine','routines'),
 			array('coupon','coupons'),
             array('invoice','invoices'),
+            array('credit','credits'),
 		);
 
 		foreach ($capability_types  as $type) {
@@ -334,7 +344,7 @@ function ts_remove_default_menus() {
 	}
 
 	/* ts_event, ts_tour, hidden for now */
-	/*$post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon');
+	$post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon', 'ts_invoice', 'ts_credit');
 
 	foreach ($post_types  as $p) {
 		if(current_user_can('is_custom_user')) { 
@@ -342,7 +352,7 @@ function ts_remove_default_menus() {
 			remove_submenu_page('edit.php?post_type='. $p, 'post-new.php?post_type='. $p);	
 			remove_submenu_page('edit.php?post_type='. $p, 'edit.php?post_type='. $p);
 		}	
-	}*/
+	}
 }
 
 function ts_register_custom_menu_pages() {
@@ -352,11 +362,13 @@ function ts_register_custom_menu_pages() {
 		add_menu_page('Add Registration', 'Add Registration', 'add_ts_entry', 'ts-post-entry', 'ts_post_entry_page', '', 101);
 		add_menu_page('Edit Registration', 'Edit Registration', 'add_ts_entry', 'ts-edit-entry', 'ts_post_entry_page', '', 102);
         add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 104);
+        add_menu_page('Credits', 'My Credits', 'is_custom_user', 'ts-credits', 'ts_credits_page', 'dashicons-cart', 105);
 	}
 	else if (current_user_can('is_organizer')) {
 		add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
 		add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
 		add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 104);
+        add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 105);
 	}
 }
 
@@ -395,6 +407,7 @@ function ajax_post_init() {
     add_action('wp_ajax_delete_all', 'ajax_delete_all');
     add_action('wp_ajax_save_voucher', 'ajax_save_voucher');
     add_action('wp_ajax_pay_invoice', 'ajax_pay_invoice');
+    add_action('wp_ajax_create_invoice', 'ajax_create_invoice');
 }
 
 /* Commented Out. Reason: I believe we are not using this function yet.
