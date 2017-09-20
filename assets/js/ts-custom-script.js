@@ -307,6 +307,7 @@ jQuery(document).ready(function($) {
 
 	$('.btn-addvoucher').on('click', function(e) {
 		e.preventDefault();
+		$('#form-save-voucher')[0].reset();
 		$('#popup-save-voucher').modal('show');
 	});
 
@@ -320,12 +321,60 @@ jQuery(document).ready(function($) {
 		$('#voucher-id').val(id);
 		$('#voucher-code').val(code);
 		$('#voucher-discount').val(discount);
-		if(workshop==1)
-			$('#voucher-workshop').prop('checked',true);
-		if(competition==1)
-			$('#voucher-competition').prop('checked',true);
+		if(workshop==1) $('#voucher-workshop').prop('checked',true);
+		if(competition==1) $('#voucher-competition').prop('checked',true);
 		$('#popup-save-voucher .modal-title').text('Edit Voucher');
 		$('#popup-save-voucher').modal('show');
+	});
+
+	$('.btn-addtour').on('click', function(e) {
+		e.preventDefault();
+		$('#form-save-tour')[0].reset();
+		$('#popup-save-tour').modal('show');
+	});
+
+	$('.btn-edittour').on('click', function(e) {
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		var title = $(this).attr('data-title');
+		var datefrom = $(this).attr('data-datefrom');
+		var dateto = $(this).attr('data-dateto');
+		var city = $(this).attr('data-city');
+		var venue = $(this).attr('data-venue');
+		var listid = $(this).attr('data-listid');
+		var workshop = $(this).attr('data-workshop');
+		var status = $(this).attr('data-status');
+		$('#tour-id').val(id);
+		$('#tour-title').val(title);
+		$('#tour-datefrom').val(datefrom);
+		$('#tour-dateto').val(dateto);
+		$('#tour-city').val(city);
+		$('#tour-venue').val(venue);
+		$('#tour-listid').val(listid);
+		if(status!=2) {
+			$('#tour-status').prop('checked',true);
+		}
+		else {
+			$('#tour-status').prop('checked',false);
+		}
+		if(workshop!=2) {
+			$('#tour-workshop').prop('checked',true);
+		}
+		else {
+			$('#tour-workshop').prop('checked',false);
+		}
+		$('#popup-save-tour .modal-title').text('Edit Tour');
+		$('#popup-save-tour').modal('show');
+	});
+
+	$('#tour-status').on('change', function(e) {
+		e.preventDefault();
+		if(false==$(this).is(':checked')){
+			$('#tour-workshop').prop('disabled',true);
+		}
+		else {
+			$('#tour-workshop').prop('disabled',false);
+		}
 	});
 
 });
@@ -333,14 +382,21 @@ jQuery(document).ready(function($) {
 function callback(data) {
 	if(data.success==true) {
 		jQuery('#popup-refresh').modal('hide');
-		if(data.redirect)
+		if(data.redirect){
 			window.location.href = data.redirect;
+		}
 	}
 }
 
-function callbackAddVoucher(data) {
+function callbackSaveVoucher(data) {
 	if(data.success==true) {
 		//jQuery('#popup-save-voucher').modal('hide');
+		location.reload();
+	}
+}
+
+function callbackSaveTour(data) {
+	if(data.success==true) {
 		location.reload();
 	}
 }
@@ -555,7 +611,7 @@ function callbackAddRoutineDancers(data) {
 		row.find('.btn-remove').removeClass('btn-remove').addClass('btn-delete-routine').attr('data-id', routine_id);
 		row.find('.parentFormstudio-competition.formError').remove();
 	}	
-	jQuery('#add-routine-dancers').find('input[type="submit"]').val('Add');
+	//jQuery('#add-routine-dancers').find('input[type="submit"]').val('Add');
 }
 
 function callbackApplyCoupon(data) {
@@ -655,19 +711,44 @@ var init_dataTable = function() {
 	 		var orderby = jQuery(this).attr('data-orderby') !=null ? jQuery(this).attr('data-orderby') : 0;
 	 		var sort 	= jQuery(this).attr('data-sort') !=null ? jQuery(this).attr('data-sort').toString() : 'desc';
 	 		var length 	= jQuery(this).attr('data-length') !=null ? jQuery(this).attr('data-length') : 5;
+	 		var filter 	= jQuery(this).attr('data-filter') !=null ? true : false;
+	 		var colfilter = jQuery(this).attr('data-colfilter') !=null ? true : false;
 
-			jQuery(this).DataTable({
+			var table = jQuery(this).DataTable({
 				'bLengthChange' : true,
-				'bFilter' : false, 
+				'bFilter' : filter, 
 				'bInfo' : true,
 				'iDisplayLength' : parseInt(length),
 				'aLengthMenu' : [[10, 25, 50, -1], [10, 25, 50, 'All']],
 				'order' : [[orderby, sort]],
-				'dom' : 'rt<"table-footer clearfix"pl>',
+				'dom' : 'frt<"table-footer clearfix"pl>',
 				'language': {
+					'sSearch' : '',
+					'sSearchPlaceholder' : 'Search',
 		            'lengthMenu': '_MENU_ Records per page',
 		        	}				
 			});
+
+			if(colfilter) {
+				table.columns().every( function () {
+	                var column = this;
+	                var select = jQuery('<select><option value="">All '+jQuery(column.footer()).text()+'</option></select>')
+	                    .appendTo( jQuery(column.footer()).empty() )
+	                    .on( 'change', function () {
+	                        var val = jQuery.fn.dataTable.util.escapeRegex(
+	                            jQuery(this).val()
+	                        );
+	                        column
+	                            .search( val ? '^'+val+'$' : '', true, false )
+	                            .draw();
+	                    } );
+	 
+	                column.data().unique().sort().each( function ( d, j ) {
+	                	d = d.replace(/(<([^>]+)>)/ig,"");
+	                    select.append( '<option value="'+d+'">'+d+'</option>' )
+	                });
+	            });			
+			}	
 		});
 	}
 }

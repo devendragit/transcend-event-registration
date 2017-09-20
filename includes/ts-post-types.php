@@ -35,7 +35,7 @@ function ts_register_custom_post_types() {
 	));
 
 	register_post_type('ts_event', array(
-		'label' => 'Events',
+		'label' => 'Schedules',
 		'description' => '',
 		'public' => true,
 		'menu_position' => 7,
@@ -49,21 +49,21 @@ function ts_register_custom_post_types() {
 		'supports' => array('title'),
 		'taxonomies' => array(),
 		'labels' => array (
-			'name' => 'Events',
-			'singular_name' => 'Event',
-			'menu_name' => 'Events',
-			'all_items' => 'Events',
+			'name' => 'Schedules',
+			'singular_name' => 'Schedule',
+			'menu_name' => 'Schedules',
+			'all_items' => 'Schedules',
 			'add_new' => 'Add New',
-			'add_new_item' => 'Add New Event',
+			'add_new_item' => 'Add New Schedule',
 			'edit' => 'Edit',
-			'edit_item' => 'Edit Event',
-			'new_item' => 'New Event',
-			'view' => 'View Event',
-			'view_item' => 'View Event',
-			'search_items' => 'Search Events',
-			'not_found' => 'No Events Found',
-			'not_found_in_trash' => 'No Events Found in Trash',
-			'parent' => 'Parent Event',
+			'edit_item' => 'Edit Schedule',
+			'new_item' => 'New Schedule',
+			'view' => 'View Schedule',
+			'view_item' => 'View Schedule',
+			'search_items' => 'Search Schedules',
+			'not_found' => 'No Schedules Found',
+			'not_found_in_trash' => 'No Schedules Found in Trash',
+			'parent' => 'Parent Schedule',
 		)
 	));
 

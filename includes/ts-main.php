@@ -333,10 +333,9 @@ function ts_remove_default_menus() {
 		remove_menu_page('ts-post-entry');
 	}
 
-	/* ts_event, ts_tour, hidden for now */
-	/*$post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon');
+	$post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon');
 
-	foreach ($post_types  as $p) {
+	/*foreach ($post_types  as $p) {
 		if(current_user_can('is_custom_user')) { 
 			remove_menu_page('edit.php?post_type='. $p);
 			remove_submenu_page('edit.php?post_type='. $p, 'post-new.php?post_type='. $p);	
@@ -355,8 +354,11 @@ function ts_register_custom_menu_pages() {
 	}
 	else if (current_user_can('is_organizer')) {
 		add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
+			add_submenu_page( 'ts-entries', 'Workshop Participants', 'Workshop Participants', 'is_organizer', 'ts-workshop-entries', 'ts_workshopentries_page');
+			add_submenu_page( 'ts-entries', 'Competition Routines', 'Competition Routines', 'is_organizer', 'ts-competition-entries', 'ts_competitionentries_page');
 		add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
 		add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 104);
+		add_menu_page('Tours', 'Tours', 'is_organizer', 'ts-tours', 'ts_tours_page', 'dashicons-admin-site', 105);
 	}
 }
 
@@ -395,6 +397,7 @@ function ajax_post_init() {
     add_action('wp_ajax_delete_all', 'ajax_delete_all');
     add_action('wp_ajax_save_voucher', 'ajax_save_voucher');
     add_action('wp_ajax_pay_invoice', 'ajax_pay_invoice');
+    add_action('wp_ajax_save_tour', 'ajax_save_tour');
 }
 
 /* Commented Out. Reason: I believe we are not using this function yet.

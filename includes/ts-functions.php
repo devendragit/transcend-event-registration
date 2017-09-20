@@ -230,9 +230,9 @@ function ts_get_posts($post_type='ts_entry', $count=-1, $moreargs=array()) {
 
 	$args = array_merge($args, $moreargs);
 
-	$post = get_posts($args);	
+	$posts = get_posts($args);	
 
-	return $post;
+	return $posts;
 }
 
 function ts_get_user_posts($post_type='ts_entry', $count=-1, $user_id=false, $moreargs=array()) {
@@ -248,9 +248,9 @@ function ts_get_user_posts($post_type='ts_entry', $count=-1, $user_id=false, $mo
 
 	$args = array_merge($args, $moreargs);
 
-	$post = get_posts($args);	
+	$posts = get_posts($args);	
 
-	return $post;
+	return $posts;
 }
 
 
@@ -719,6 +719,8 @@ function ts_load_entry_data_from_post($eid, $user_id=false) {
 
 	$entry_data = ts_get_entry_data_from_post($eid, $user_id);
 	$_SESSION['user_temp'][$user_id]['entry'][$eid] = $entry_data;
+
+	return $entry_data;
 }
 
 function ts_get_entry_data_from_post($entry_id, $user_id=false) {
@@ -1122,6 +1124,9 @@ function ts_mark_as_paid($entry_id, $user_id, $payment_method='stripe_payment') 
 	else {
 		ts_change_post_status($entry_id, 'paidcheck');
 	}	
+
+	$date_paid = date_format(date_create('now'),'Y/m/d');
+	update_post_meta($entry_id, 'date_paid', $date_paid);
 }
 
 function ts_save_paid_amount($entry_id, $user_id, $payment_method='stripe_payment', $grand_total) {
@@ -1491,4 +1496,20 @@ function ts_invoice_mark_as_paid(  $entry_id, $user_id, $payment_method='stripe_
     update_post_meta($entry_id, 'invoice_due', false);
     ts_change_post_status($invoice_id, 'paid' );
 
+}
+
+function ts_is_paid($entry_id) {
+	$entry_status = get_post_status($entry_id);
+	if($entry_status=='paid' || $entry_status=='paidcheck')
+		return true;
+	else
+		return false;
+}
+
+function ts_is_noworkshopentry($entry_data) {
+	$participants = ts_check_value($entry_data, 'workshop', 'participants');
+	if(! empty($participants) )
+		return false;
+	else
+		return true;
 }

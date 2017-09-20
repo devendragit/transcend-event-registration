@@ -150,7 +150,19 @@ jQuery(document).ready(function($) {
 			formdata.append('token', ajax_post_object.tokens.save_item);
 			formdata.append('action', 'save_voucher');
 			var form = new TSForm(formdata);
-			form.submitForm(callbackAddVoucher);
+			form.submitForm(callbackSaveVoucher);
+		}	
+    });
+
+    $('#form-save-tour').on('submit', function(e){
+		e.preventDefault();
+		if($(this).validationEngine('validate', { scroll: false, showArrowOnRadioAndCheckbox: true })) {
+			$(this).find('input[type="submit"]').val('Saving...');
+			var formdata =  new FormData(this);
+			formdata.append('token', ajax_post_object.tokens.save_item);
+			formdata.append('action', 'save_tour');
+			var form = new TSForm(formdata);
+			form.submitForm(callbackSaveTour);
 		}	
     });
 

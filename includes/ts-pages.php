@@ -4,7 +4,7 @@ function ts_entries_page() {
 	<div id="entries-page" class="wrap">	
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<table id="entries-list" class="ts-data-table" data-length="10" data-sort="asc">
+			<table id="entries-list" class="ts-data-table" data-length="10" data-sort="asc" data-filter="true" data-colfilter="true">
                 <thead>
                     <tr>
                         <th style="width:80px; text-align:center; display:none;">#</th>
@@ -12,6 +12,7 @@ function ts_entries_page() {
                         <th style="text-align:center;">Type</th>
                         <th style="text-align:center;">Studio</th>
                         <th style="text-align:center;">Status</th>
+                        <th style="text-align:center;">Date Completed</th>
                         <th style="text-align:center;">Payment</th>
                         <th style="width:50px; text-align:center;">View</th>
                         <th style="width:50px; text-align:center;">Delete</th>
@@ -40,7 +41,8 @@ function ts_entries_page() {
 		                    $entry_type 	= wp_get_object_terms($entry_id, 'ts_entry_type');
 		                    $workshop 		= get_post_meta($entry_id, 'workshop', true);
 		                    $tour_city 		= $workshop['tour_city'];
-		                    //$tour_date 		= get_post_meta($entry_id, 'tour_date', true);
+		                    $date_paid 		= get_post_meta($entry_id, 'date_paid', true);
+		                    $date_paid 		= $date_paid ? date_format(date_create($date_paid),'m/d/Y') : '';
 		                	?>
 		                    <tr id="item-<?php echo $entry_id; ?>">
 		                    	<td style="text-align:center; display:none;"><?php echo $count; ?></td>
@@ -48,6 +50,7 @@ function ts_entries_page() {
 		                    	<td style="text-align:center;"><?php echo $entry_type[0]->name; ?></td>
 		                    	<td style="text-align:center;"><?php echo $studio; ?></td>
 		                    	<td style="text-align:center;"><?php echo $status_obj->label; ?></td>
+		                    	<td style="text-align:center;"><?php echo $date_paid; ?></td>
 		                        <td style="text-align:center;">
 		                        	<?php 
 		                        	if($post_status=='unpaidcheck') {
@@ -73,6 +76,200 @@ function ts_entries_page() {
 		            }
 		            ?>
                 </tbody>
+			    <tfoot>
+			        <tr>
+                        <th class="hidden"></th>
+                        <th>Cities</th>
+                        <th>Types</th>
+                        <th>Studios</th>
+                        <th class="hidden"></th>
+                        <th class="hidden"></th>
+                        <th class="hidden"></th>
+                        <th class="hidden"></th>
+                        <th class="hidden"></th>
+			        </tr>
+			    </tfoot>
+			</table>
+		</div>
+	</div>
+	<?php
+}
+
+function ts_workshopentries_page() {
+	?>
+	<div id="entries-page" class="wrap">	
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<div class="ts-admin-wrapper entries-wrapper">
+			<table id="entries-list" class="ts-data-table" data-length="25" data-sort="asc" data-filter="true" data-colfilter="true">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th style="text-align:center;">Age Division</th>
+                        <th style="text-align:center;">Type</th>
+                        <th style="text-align:center;">Studio</th>
+                        <th style="text-align:center;">City</th>
+                    </tr>
+                </thead>
+                <tbody>
+					<?php
+					$args = array(
+						'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
+					);
+					$entries = ts_get_posts('ts_entry', -1, $args); 
+
+					if($entries) {
+						foreach ($entries as $entry) { 
+							setup_postdata($entry);
+		                    $entry_id 		= $entry->ID;
+		                    $author 		= $entry->post_author;
+		                    $studio 		= get_field('studio', 'user_'. $author);
+		                    $entry_type 	= wp_get_object_terms($entry_id, 'ts_entry_type');
+		                    $entrytype_name = $entry_type[0]->name;
+		                    $workshop 		= get_post_meta($entry_id, 'workshop', true);
+		                    $participants 	= $workshop['participants'];
+		                    $city 			= get_post_meta($workshop['tour_city'], 'city', true);
+							if(! empty($participants) ){
+								$args = array(
+									'include' => array_keys($participants),
+								);
+								if($entrytype_name=='Studio') {
+									$post_type = 'ts_studio_roster';
+								}
+								else if($entrytype_name=='Individual'){
+									$post_type = 'ts_sibling';
+								}	
+								$roster_posts = ts_get_posts($post_type, -1, $args);
+
+								foreach ($roster_posts as $rp) {
+									$rid 			= $rp->ID;
+									$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
+									$agediv_name 	= $age_div[0]->name;
+									$name 			= get_the_title($rid);
+									?>
+				                    <tr id="item-<?php echo $entry_id; ?>">
+				                    	<td><?php echo $name; ?></td>
+				                    	<td style="text-align:center;"><?php echo $agediv_name; ?></td>
+				                    	<td style="text-align:center;"><?php echo $entrytype_name; ?></td>
+				                    	<td style="text-align:center;"><?php echo $studio; ?></td>
+				                    	<td style="text-align:center;"><?php echo $city; ?></td>
+				                    </tr>
+									<?php
+								}
+							}
+		                }
+		                ?>
+			            <?php
+		            }else{
+		            	echo '<tr><td colspan="7">No Workshop Entries Found</td></tr>';
+		            }
+		            ?>
+                </tbody>
+			    <tfoot>
+			        <tr>
+                        <th class="hidden">Name</th>
+                        <th class="hidden">Age Division</th>
+                        <th class="hidden">Types</th>
+                        <th class="hidden">Studios</th>
+                        <th>Cities</th>
+			        </tr>
+			    </tfoot>
+			</table>
+		</div>
+	</div>
+	<?php
+}
+
+function ts_competitionentries_page() {
+	?>
+	<div id="entries-page" class="wrap">	
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<div class="ts-admin-wrapper entries-wrapper">
+			<table id="entries-list" class="ts-data-table" data-length="25" data-sort="asc" data-filter="true" data-colfilter="true">
+                <thead>
+                    <tr>
+                        <th>Routine Name</th>
+                        <th style="text-align:center;">Dancers</th>
+                        <th style="text-align:center;">Age Division</th>
+                        <th style="text-align:center;">Category</th>
+                        <th style="text-align:center;">City</th>
+                    </tr>
+                </thead>
+                <tbody>
+					<?php
+					$args = array(
+						'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
+					);
+					$entries = ts_get_posts('ts_entry', -1, $args); 
+
+					if($entries) {
+						foreach ($entries as $entry) { 
+							setup_postdata($entry);
+		                    $entry_id 		= $entry->ID;
+		                    $competition 	= get_post_meta($entry_id, 'competition', true);
+							$routines 		= $competition['routines'];
+		                    $workshop 		= get_post_meta($entry_id, 'workshop', true);
+		                    $city 			= get_post_meta($workshop['tour_city'], 'city', true);
+
+							if(! empty($routines) ){
+								$routine_ids = array_keys($routines);
+								$args = array(
+									'order'            => 'ASC',
+									'include'          => $routine_ids,
+								);
+								$routine_posts = ts_get_posts('ts_routine', -1, $args);
+
+								foreach ($routine_posts as $rp) {
+									$rpid 			= $rp->ID;
+									$name 	 	= get_the_title($rpid);
+									$cat 	 	= get_post_meta($rpid, 'cat', true);
+									$categories = ts_get_competition_categories();
+									$cat_name 	= $categories[$cat]['title'];
+									$dancers 	= get_post_meta($rpid, 'dancers', true);
+									$dancers_array  = is_array($dancers) ? $dancers : explode(",", $dancers);
+									$dancers_string = '';
+									$ids = $dancers_array;
+									$count_d = count($ids);
+									$age_total = 0;
+									if(! empty($ids)){
+										foreach ($ids as $d) {
+											if(ts_post_exists_by_id($d)){
+												$dancers_string.= get_the_title($d) .', ';
+												$birth_date = get_post_meta($d, 'birth_date', true);
+												$age = ts_get_the_age($birth_date);
+												$age_total = $age_total + $age;
+											}
+										}
+										$age_ave = round($age_total / $count_d);
+										$agediv_name = ts_get_routine_agediv_name($age_ave);
+									}
+									?>
+				                    <tr id="item-<?php echo $entry_id; ?>">
+				                    	<td><?php echo $name; ?></td>
+				                    	<td style="text-align:center;"><?php echo $dancers_string; ?></td>
+				                    	<td style="text-align:center;"><?php echo $agediv_name; ?></td>
+				                    	<td style="text-align:center;"><?php echo $cat_name; ?></td>
+				                    	<td style="text-align:center;"><?php echo $city; ?></td>
+				                    </tr>
+									<?php
+								}
+							}
+		                }
+		                ?>
+			            <?php
+		            }else{
+		            	echo '<tr><td colspan="7">No Routines Found</td></tr>';
+		            }
+		            ?>
+                </tbody>
+			    <tfoot>
+			        <tr>
+                        <th class="hidden">Routine Name</th>
+                        <th class="hidden">Dancers</th>
+                        <th class="hidden">Age Division</th>
+                        <th class="hidden">Category</th>
+                        <th>Cities</th>
+			        </tr>
+			    </tfoot>
 			</table>
 		</div>
 	</div>
@@ -517,9 +714,11 @@ function ts_my_entries_page() {
 		                    $title 		= get_the_title($stop_id);
 		                    $date_from 	= get_post_meta($stop_id, 'date_from', true);
 		                    $date_to 	= get_post_meta($stop_id, 'date_to', true);
-		                    $disabled 	= $date_from && ts_get_days_before_date($date_from) <= 0 ? 'disabled' : '';
+		                    $date_to 	= get_post_meta($stop_id, 'date_to', true);
+		                    $status 	= get_post_meta($stop_id, 'status', true);
+		                    $disabled 	= ($date_from && ts_get_days_before_date($date_from) <= 0) || ($status==2) ? 'disabled' : '';
 		                	?>
-		                    <option value="<?php echo $stop_id; ?>" <?php echo $disabled; ?>><?php echo $title; ?></option>
+		                    <option value="<?php echo $stop_id; ?>" <?php echo $disabled; ?> ><?php echo $title; ?></option>
 		                <?php
 		                }
 		            }
@@ -737,4 +936,103 @@ function ts_post_pay_invoice_page() {
 		<?php echo do_shortcode('[ts-pay-invoice-form]'); ?>
 	</div>
 	<?php
+}
+
+function ts_tours_page() {
+	?>
+	<div id="tours-page" class="wrap">	
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addtour" href="javascript:void(0);">Add New</a></h1>
+		<div class="ts-admin-wrapper tours-wrapper">
+			<table id="tours-list" class="ts-data-table" data-length="10" data-sort="asc">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Title</th>
+                        <th style="text-align:center;">City</th>
+                        <th style="text-align:center;">Date Start</th>
+                        <th style="text-align:center;">Date End</th>
+                        <th style="text-align:center;">Workshop</th>
+                        <th style="text-align:center;">Tour</th>
+                        <th style="text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+					<?php
+					$tours = ts_get_posts('ts_tour'); 
+					if($tours) {
+						foreach ($tours as $tour) { 
+							setup_postdata($tour);
+		                    $tour_id 	= $tour->ID;
+		                    $title 		= $tour->post_title;
+							$status 	= get_post_meta($tour_id, 'status', true);
+							$date_from 	= get_post_meta($tour_id, 'date_from', true);
+							$date_to 	= get_post_meta($tour_id, 'date_to', true);
+							$fmt_dfrom 	= date_format(date_create($date_from),'m/d/Y');
+							$fmt_dto 	= date_format(date_create($date_to),'m/d/Y');
+							$venue 		= get_post_meta($tour_id, 'venue', true);
+							$city 		= get_post_meta($tour_id, 'city', true);
+							$workshop 	= get_post_meta($tour_id, 'workshop', true);
+							$list_id 	= get_post_meta($tour_id, 'list_id', true);
+		                	?>
+		                    <tr id="item-<?php echo $tour_id; ?>">
+		                        <td style="text-align:left;"><?php echo $title; ?></td>
+		                        <td style="text-align:center;"><?php echo $city; ?></td>
+		                        <td style="text-align:center;"><?php echo $fmt_dfrom; ?></td>
+		                        <td style="text-align:center;"><?php echo $fmt_dto; ?></td>
+		                        <td style="text-align:center;"><?php echo $workshop==2 ? 'Closed' : 'Open'; ?></td>
+		                        <td style="text-align:center;"><?php echo $status==2 ? 'Closed' : 'Open'; ?></td>
+		                        <td style="text-align:center;">
+		                        	<a title="edit" href="javascript:void(0);" 
+		                        		class="btn btn-blue btn-edittour" 
+		                        		data-id="<?php echo $tour_id; ?>" 
+		                        		data-title="<?php echo $title; ?>"
+		                        		data-status="<?php echo $status; ?>"
+		                        		data-datefrom="<?php echo $fmt_dfrom; ?>"
+		                        		data-dateto="<?php echo $fmt_dto; ?>"
+		                        		data-venue="<?php echo $venue; ?>"
+		                        		data-city="<?php echo $city; ?>"
+		                        		data-workshop="<?php echo $workshop; ?>"
+		                        		data-listid="<?php echo $list_id; ?>"
+		                        		><small>Edit</small></a>
+		                        	<a title="delete" href="javascript:void(0);" 
+		                        		class="btn btn-red btn-closetour" 
+		                        		data-id="<?php echo $tour_id; ?>" 
+		                        		data-type="post"
+		                        		><small>Close</small></a>
+		                        </td>
+		                    </tr>
+		                <?php
+		                }
+		            }else{
+		            	echo '<tr><td colspan="5">No Tours Found</td></tr>';
+		            }
+		            ?>
+                </tbody>
+			</table>
+		</div>
+	</div>
+	<div id="popup-save-tour" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Add Tour</h4>
+				</div>
+				<div class="modal-body">
+					<form method="post" action="" id="form-save-tour" name="form-save-tour" >
+						<input type="hidden" name="tour-id" id="tour-id" value="" />
+						<p><label><input type="checkbox" name="tour-status" id="tour-status" value="1" checked="true" /> Enable Tour</label></p>
+						<p><label><input type="checkbox" name="tour-workshop" id="tour-workshop" value="1" checked="true" /> Enable Workshop</label></p>
+						<p>Title <br /><input type="text" name="tour-title" id="tour-title" value="" /></p>
+						<p>City <br /><input type="text" name="tour-city" id="tour-city" value="" /></p>
+						<p>Venue <br /><input type="text" name="tour-venue" id="tour-venue" value="" /></p>
+						<p>Date Start <br /><input type="text" name="tour-datefrom" id="tour-datefrom" value="" maxlength="10" class="validate[required,custom[date_format]] formatted-date ts-date-picker" placeholder="MM/DD/YYYY" /></p>
+						<p>Date End <br /><input type="text" name="tour-dateto" id="tour-dateto" value="" maxlength="10" class="validate[required,custom[date_format]] formatted-date ts-date-picker" placeholder="MM/DD/YYYY" /></p>
+						<p>Mailchimp List ID <br /><input type="text" name="tour-listid" id="tour-listid" value="" /></p>
+						<input type="submit" value="Save" class="btn btn-blue">
+					</form>	
+				</div>
+			</div>
+		</div>
+	</div>	
+	<?php	
 }
