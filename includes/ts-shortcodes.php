@@ -5,9 +5,9 @@ function ts_event_registration_shortcode() {
 	?>
 	<style type="text/css">
 		body.ts-event-registration .fl-content-full.container {
-		    width: 100% !important;
-		    max-width: none !important;
-		}	
+			width: 100% !important;
+			max-width: none !important;
+		}
 		body.ts-event-registration .fl-post-header {
 			max-width: 1020px;
 			margin-left: auto;
@@ -24,32 +24,32 @@ function ts_event_registration_shortcode() {
 	<?php
 	if ( ! is_user_logged_in() ) {
 		$args = array(
-	        'echo' => true,
-	        'redirect' => get_permalink(ts_get_register_page_id()), 
-	        'form_id' => 'loginform',
-	        'label_username' => __( '' ),
-	        'label_password' => __( '' ),
-	        'label_remember' => __( 'Remember Me' ),
-	        'label_log_in' => __( 'Log In' ),
-	        'id_username' => 'user_login',
-	        'id_password' => 'user_pass',
-	        'id_remember' => 'rememberme',
-	        'id_submit' => 'wp-submit',
-	        'remember' => false,
-	        'value_username' => NULL,
-	        'value_remember' => false 
-	    );
-	    ?>
-	    <div class="ts-loginform-wrapper tml tml-login text-center">
+			'echo' => true,
+			'redirect' => get_permalink(ts_get_register_page_id()),
+			'form_id' => 'loginform',
+			'label_username' => __( '' ),
+			'label_password' => __( '' ),
+			'label_remember' => __( 'Remember Me' ),
+			'label_log_in' => __( 'Log In' ),
+			'id_username' => 'user_login',
+			'id_password' => 'user_pass',
+			'id_remember' => 'rememberme',
+			'id_submit' => 'wp-submit',
+			'remember' => false,
+			'value_username' => NULL,
+			'value_remember' => false
+		);
+		?>
+		<div class="ts-loginform-wrapper tml tml-login text-center">
 			<?php wp_login_form( $args ); ?>
 			<div class="LoginLinks">
 				<a href="<?php echo wp_lostpassword_url( get_permalink() ); ?>" title="Forgot Password">Forgot Password?</a>&nbsp;&nbsp;
 				<a href="<?php echo wp_lostpassword_url( get_permalink() ); ?>&forgotusername=1" title="Forgot Username">Forgot Username?</a>
-			</div>	
+			</div>
 		</div>
 		<script type="text/javascript">
-		jQuery('#user_login').attr('placeholder', 'Username');
-		jQuery('#user_pass').attr('placeholder', 'Password');
+			jQuery('#user_login').attr('placeholder', 'Username');
+			jQuery('#user_pass').attr('placeholder', 'Password');
 		</script>
 		<?php
 	}
@@ -69,14 +69,14 @@ function ts_event_registration_shortcode() {
 
 		$login_count = absint(get_user_meta($user_id, 'ts_login_count', true));
 
-		if($login_count > 1 && ! is_admin()) {
-			?>	
+		if($login_count > 0 && ! is_admin()) {
+			?>
 			<script type="text/javascript">
 				window.location.replace('<?php echo TS_ADMIN_DASHBOARD; ?>');
 			</script>
 			<?php
 		}
-		else {	
+		else {
 			if(current_user_can('is_studio')) {
 				require_once( TS_INCLUDES . 'shortcodes/studio-registration.php' );
 				ts_studio_registration_html($entry_data, $entry_id, $eid, $user_id, $base_url );
@@ -86,7 +86,7 @@ function ts_event_registration_shortcode() {
 				ts_individual_registration_html($entry_data, $entry_id, $eid, $user_id, $base_url);
 			}
 			else {
-				?>	
+				?>
 				<script type="text/javascript">
 					window.location.replace('<?php echo TS_ADMIN_DASHBOARD; ?>');
 				</script>
@@ -135,10 +135,10 @@ function ts_display_tabs_html($steps, $curr_step, $base_url) {
 				</li>
 				<?php
 			}
-			?>	
+			?>
 		</ul>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_step, $base_url, $steps) {
@@ -149,12 +149,12 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 	$munchkin_observer 	= ts_check_value($workshop, 'munchkin_observers');
 
 	$argsAgeDivision = array(
-	    'taxonomy' => 'ts_agediv',
-	    'hide_empty' => false,
-	    'hierarchical' => false,
-	    'orderby' => 'meta_value_num',
-	    'meta_key' => 'div_order',
-	);									
+		'taxonomy' => 'ts_agediv',
+		'hide_empty' => false,
+		'hierarchical' => false,
+		'orderby' => 'meta_value_num',
+		'meta_key' => 'div_order',
+	);
 	$age_divisions = get_terms($argsAgeDivision);
 
 	$free_teacher_ids = ts_get_free_teacher_ids($eid, $entry_data);
@@ -169,6 +169,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 	$tour_cities = ts_get_posts('ts_tour', -1, $argsTourCities);
 	$current_city = $workshop['tour_city'];
 	$workshop_status = get_post_meta($current_city, 'workshop', true);
+	$form_action = ts_get_form_action();
 	?>
 	<div class="workshop-container">
 		<form name="entry-workshop" id="entry-workshop" class="studio-registration registration-form" method="post" action="">
@@ -177,7 +178,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 			<?php } ?>
 			<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 			<input type="hidden" name="tab" value="workshop">
-			<input type="hidden" name="action" value="studio_registration">
+			<input type="hidden" name="action" value="<?php echo $form_action;?>">
 			<div class="row">
 				<div class="col-md-12 select-tour-city-container">
 					<span>Please select a city</span>
@@ -192,19 +193,19 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 							echo '<option value="'. $tc_id .'" '. ( $workshop['tour_city']==$tc_id ? 'selected' : '' ) .' '. $disabled .'>'. $tc_title .'</option>';
 						}
 						?>
-					</select>	
+					</select>
 				</div>
-			</div>	
-			<?php 
+			</div>
+			<?php
 			if($workshop_status != 2) { ?>
 				<div class="table-container">
 					<div class="row table-head">
-						<div class="col-md-2"><strong>Name</strong></div> 
-						<div class="col-md-2 t-center"><strong>Age Division</strong></div> 
-						<div class="col-md-3 t-center"><strong>Discount/Scholarship</strong></div> 
-						<div class="col-md-2 t-center"><strong>Full Weekend/1-Day</strong></div> 
-						<div class="col-md-2 t-center"><strong>Fee</strong></div> 
-						<div class="col-md-1 t-center"><strong>Delete</strong></div> 
+						<div class="col-md-2"><strong>Name</strong></div>
+						<div class="col-md-2 t-center"><strong>Age Division</strong></div>
+						<div class="col-md-3 t-center"><strong>Discount/Scholarship</strong></div>
+						<div class="col-md-2 t-center"><strong>Full Weekend/1-Day</strong></div>
+						<div class="col-md-2 t-center"><strong>Fee</strong></div>
+						<div class="col-md-1 t-center"><strong>Delete</strong></div>
 					</div>
 					<?php
 					?>
@@ -222,7 +223,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 							}
 							else if(current_user_can('is_individual')){
 								$post_type = 'ts_sibling';
-							}	
+							}
 							$roster_posts = ts_get_user_posts($post_type, -1, false, $args);
 
 							foreach ($roster_posts as $rp) {
@@ -243,7 +244,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 									<div class="col-md-2">
 										<input type="hidden" class="participant-name" name="workshop[participants][<?php echo $rid; ?>][name]" value="<?php echo $first_name .' '. $last_name; ?>" />
 										<span class="participant-name-preview"><?php echo $name; ?></span>
-									</div> 
+									</div>
 									<div class="col-md-2 t-center <?php echo $disabled_class; ?>-container">
 										<?php
 										if($age_divisions) {
@@ -260,7 +261,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 											</select>
 											<?php
 										} ?>
-									</div> 
+									</div>
 									<div class="col-md-3 t-center <?php echo $disabled_class; ?>-container">
 										<select name="workshop[participants][<?php echo $rid; ?>][discount]" id="discount-<?php echo $rid; ?>" data-id="<?php echo $rid; ?>" data-eid="<?php echo $eid; ?>" class="adjust-workshop-fee select-discount <?php echo $disabled_class; ?>">
 											<option value="0">None</option>
@@ -271,7 +272,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 											}
 											?>
 										</select>
-									</div> 
+									</div>
 									<div class="col-md-2 t-center <?php echo $disabled_class; ?>-container">
 										<select name="workshop[participants][<?php echo $rid; ?>][duration]" id="duration-<?php echo $rid; ?>" data-id="<?php echo $rid; ?>" data-eid="<?php echo $eid; ?>" class="adjust-workshop-fee select-duration <?php echo $disabled_class; ?>">
 											<?php
@@ -285,12 +286,12 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 											}
 											?>
 										</select>
-									</div> 
+									</div>
 									<div class="col-md-2 t-center">
 										<input type="hidden" name="workshop[participants][<?php echo $rid; ?>][fee]" id="fee-<?php echo $rid; ?>" value="<?php echo $participant_fee; ?>" />
 										<span id="fee-preview-<?php echo $rid; ?>"><?php echo $participant_fee_preview; ?></span>
-									</div> 
-									<div class="col-md-1 t-center"><a href="javascript:void(0);" class="btn btn-red btn-removeparticipant" data-id="<?php echo $rid; ?>" data-eid="<?php echo $eid; ?>">Delete</a></div> 
+									</div>
+									<div class="col-md-1 t-center"><a href="javascript:void(0);" class="btn btn-red btn-removeparticipant" data-id="<?php echo $rid; ?>" data-eid="<?php echo $eid; ?>">Delete</a></div>
 								</div>
 								<?php
 							}
@@ -316,17 +317,17 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 									<div class="col-md-2">
 										<input type="hidden" class="observer-name" name="workshop[observers][<?php echo $id; ?>][name]" value="<?php echo $name; ?>">
 										<span class="observer-name-preview"><?php echo $value['name']; ?></span>
-									</div> 
-									<div class="col-md-2 t-center">N/A</div> 
-									<div class="col-md-3 t-center">N/A</div> 
-									<div class="col-md-2 t-center">N/A</div> 
+									</div>
+									<div class="col-md-2 t-center">N/A</div>
+									<div class="col-md-3 t-center">N/A</div>
+									<div class="col-md-2 t-center">N/A</div>
 									<div class="col-md-2 t-center">
 										<input class="observer-fee" type="hidden" name="workshop[observers][<?php echo $id; ?>][fee]" value="<?php echo $fee; ?>">
 										$<span class="observer-fee-preview"><?php echo number_format($fee, 2); ?></span>
-									</div> 
+									</div>
 									<div class="col-md-1 t-center">
 										<a href="javascript:void(0);" class="btn btn-red btn-removeobserver" data-id="<?php echo $id; ?>" data-eid="<?php echo $eid; ?>">Delete</a>
-									</div> 
+									</div>
 								</div>
 								<?php
 							}
@@ -352,28 +353,28 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 									<div class="col-md-2">
 										<input type="hidden" class="observer-name" name="workshop[munchkin_observers][<?php echo $id; ?>][name]" value="<?php echo $name; ?>">
 										<span class="observer-name-preview"><?php echo $value['name']; ?></span>
-									</div> 
-									<div class="col-md-2 t-center">N/A</div> 
-									<div class="col-md-3 t-center">N/A</div> 
-									<div class="col-md-2 t-center">N/A</div> 
+									</div>
+									<div class="col-md-2 t-center">N/A</div>
+									<div class="col-md-3 t-center">N/A</div>
+									<div class="col-md-2 t-center">N/A</div>
 									<div class="col-md-2 t-center">
 										<input class="observer-fee" type="hidden" name="workshop[munchkin_observers][<?php echo $id; ?>][fee]" value="<?php echo $fee; ?>">
 										$<span class="observer-fee-preview"><?php echo number_format($value['fee'], 2); ?></span>
-									</div> 
+									</div>
 									<div class="col-md-1 t-center">
 										<a href="javascript:void(0);" class="btn btn-red btn-removemunchkinobserver" data-id="<?php echo $id; ?>" data-eid="<?php echo $eid; ?>">Delete</a>
-									</div> 
+									</div>
 								</div>
 								<?php
 							}
 						}
-						?>	
+						?>
 					</div>
-				</div>	
+				</div>
 				<div class="row">
 					<div class="col-md-9 addbutton-container">
 						<?php if(current_user_can('is_studio')) { ?>
-						<a href="javascript:void(0);" class="btn-addfromroster btn btn-gray">Add from Roster</a>
+							<a href="javascript:void(0);" class="btn-addfromroster btn btn-gray">Add from Roster</a>
 						<?php } ?>
 						<a href="javascript:void(0);" class="btn-addobserver btn btn-gray" data-eid="<?php echo $eid; ?>">Add Observer</a>
 						<a href="javascript:void(0);" class="btn-addmunchkinobserver btn btn-gray" data-eid="<?php echo $eid; ?>">Add Additional Munchkin Observer</a>
@@ -385,17 +386,17 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 					<div class="col-md-1">
 					</div>
 				</div>
-			<?php 
+				<?php
 			}
 			else {
 				echo '
 				<div class="form-container-2 t-center boxed-container">
 					<h1>Workshop registration is already closed for this city.</h1>
 				</div>';
-			} 
+			}
 			?>
 			<div class="row form-footer-btns">
-				<div class="col-md-4 t-left"> 
+				<div class="col-md-4 t-left">
 					<a class="btn btn-blue" href="<?php echo TS_STUDIO_DASHBOARD; ?>">Dashboard</a>
 					<a class="btn btn-gray" href="<?php echo $base_url .'&step='. $prev_step; ?>">Back</a>
 				</div>
@@ -406,22 +407,22 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 				</div>
 			</div>
 		</form>
-		
+
 		<div class="row workshop-observer-base hidden" id="" data-id="">
 			<div class="col-md-2">
 				<input type="hidden" class="observer-name" name="" value="">
 				<span class="observer-name-preview"></span>
-			</div> 
-			<div class="col-md-2 t-center">N/A</div> 
-			<div class="col-md-3 t-center">N/A</div> 
-			<div class="col-md-2 t-center">N/A</div> 
+			</div>
+			<div class="col-md-2 t-center">N/A</div>
+			<div class="col-md-3 t-center">N/A</div>
+			<div class="col-md-2 t-center">N/A</div>
 			<div class="col-md-2 t-center">
 				<input class="observer-fee" type="hidden" name="" value="">
 				$<span class="observer-fee-preview"></span>
-			</div> 
+			</div>
 			<div class="col-md-1 t-center">
 				<a href="javascript:void(0);" class="btn btn-red btn-removeobserver" data-id="" data-eid="">Delete</a>
-			</div> 
+			</div>
 		</div>
 
 		<div id="add-fromroster" class="modal fade" role="dialog">
@@ -439,17 +440,17 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 							'meta_key' => 'age_cat_order',
 						);
 						$roster = ts_get_user_posts('ts_studio_roster', -1, false, $args);
-						
+
 						if($roster) {
 							?>
 							<form method="post" action="" id="add-workshop-participants" name="add-workshop-participants" >
 								<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 								<div class="dancer-list table-container">
 									<div class="row table-head">
-										<div class="col-md-6"><strong>Name</strong></div> 
-										<div class="col-md-6 t-center"><strong>Age Division</strong></div> 
+										<div class="col-md-6"><strong>Name</strong></div>
+										<div class="col-md-6 t-center"><strong>Age Division</strong></div>
 									</div>
-									<div class="table-body">	
+									<div class="table-body">
 										<?php
 										foreach($roster as $r) {
 											$rid = $r->ID;
@@ -459,15 +460,15 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 											?>
 											<div class="row">
 												<div class="col-md-6">
-													<label><input type="checkbox" name="participants[]" value="<?php echo $rid; ?>" id="participant-<?php echo $rid; ?>" <?php echo $checked; ?> /> 
-													<span><?php echo $name; ?></span></label>
+													<label><input type="checkbox" name="participants[]" value="<?php echo $rid; ?>" id="participant-<?php echo $rid; ?>" <?php echo $checked; ?> />
+														<span><?php echo $name; ?></span></label>
 												</div>
 												<div class="col-md-6 t-center">
 													<?php echo $age_div[0]->name; ?>
 												</div>
 											</div>
 											<?php
-										} 
+										}
 										?>
 									</div>
 								</div>
@@ -475,15 +476,15 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 									<input type="submit" value="Add" class="btn btn-blue">
 								</div>
 							</form>
-						<?php
+							<?php
 						}
-						?>	
+						?>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next_step, $base_url, $steps) {
@@ -492,6 +493,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 	$participants = ts_check_value($workshop, 'participants');
 	$competition = ts_check_value($entry_data, 'competition');
 	$total_competition_fee = ts_get_total_competition_fee($eid, $entry_data);
+	$form_action = ts_get_form_action();
 	?>
 	<div class="studio-competition-container">
 		<form name="studio-competition" id="studio-competition" class="studio-registration registration-form validate competition-page" method="post" action="">
@@ -500,7 +502,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 			<?php } ?>
 			<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 			<input type="hidden" name="tab" value="competition">
-			<input type="hidden" name="action" value="studio_registration">
+			<input type="hidden" name="action" value="<?php echo $form_action;?>">
 			<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
 			<div class="table-container">
 				<?php
@@ -517,16 +519,16 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 				if($routine_ids!==0 && $routine_posts) {
 					?>
 					<div class="row table-head">
-						<div class="col-sm-2"><strong>Routine Name</strong></div> 
-						<div class="col-sm-2 t-center"><strong>Dancers</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Age Division</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Category</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Genre</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Enter / Exit with / without music</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Are there Props w/ set up / clean up?</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Music</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Fee</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Delete</strong></div> 
+						<div class="col-sm-2"><strong>Routine Name</strong></div>
+						<div class="col-sm-2 t-center"><strong>Dancers</strong></div>
+						<div class="col-sm-1 t-center"><strong>Age Division</strong></div>
+						<div class="col-sm-1 t-center"><strong>Category</strong></div>
+						<div class="col-sm-1 t-center"><strong>Genre</strong></div>
+						<div class="col-sm-1 t-center"><strong>Enter / Exit with / without music</strong></div>
+						<div class="col-sm-1 t-center"><strong>Are there Props w/ set up / clean up?</strong></div>
+						<div class="col-sm-1 t-center"><strong>Music</strong></div>
+						<div class="col-sm-1 t-center"><strong>Fee</strong></div>
+						<div class="col-sm-1 t-center"><strong>Delete</strong></div>
 					</div>
 					<div class="routine-container table-body">
 						<?php
@@ -551,7 +553,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 							<div class="row" id="item-<?php echo $rpid; ?>" data-id="<?php echo $rpid; ?>">
 								<div class="col-sm-2">
 									<input name="routinecurr[<?php echo $rpid; ?>][name]" value="<?php echo $name; ?>" id="routine-name-<?php echo $rpid; ?>" class="routine-name validate[required]" type="text">
-								</div> 
+								</div>
 								<div class="col-sm-2 t-center">
 									<span class="routine-dancers-preview" id="routine-dancers-preview-<?php echo $rpid; ?>">
 										<?php
@@ -578,7 +580,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 								<div class="col-sm-1 t-center">
 									<span class="routine-agediv-preview" id="routine-agediv-preview-<?php echo $rpid; ?>"><?php echo $age_div_name; ?></span>
 									<input class="routine-agediv" id="routine-agediv-<?php echo $rpid; ?>" name="routinecurr[<?php echo $rpid; ?>][agediv]" value="<?php echo $age_div_name; ?>" type="hidden">
-								</div> 
+								</div>
 								<div class="col-sm-1 t-center">
 									<span class="routine-cat-preview" id="routine-cat-preview-<?php echo $rpid; ?>">
 										<?php
@@ -587,7 +589,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 										?>
 									</span>
 									<input class="routine-cat" id="routine-cat-<?php echo $rpid; ?>" name="routinecurr[<?php echo $rpid; ?>][cat]" value="<?php echo $cat; ?>" class="" type="hidden">
-								</div> 
+								</div>
 								<div class="col-sm-1 t-center">
 									<select class="routine-genre" name="routinecurr[<?php echo $rpid; ?>][genre]" >
 										<option value="">None</option>
@@ -598,7 +600,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 										}
 										?>
 									</select>
-								</div> 
+								</div>
 								<div class="col-sm-1 t-center">
 									<select class="routine-flows" name="routinecurr[<?php echo $rpid; ?>][flows]" >
 										<option value="">None</option>
@@ -609,7 +611,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 										}
 										?>
 									</select>
-								</div> 
+								</div>
 								<div class="col-sm-1 t-center">
 									<select class="routine-props" name="routinecurr[<?php echo $rpid; ?>][props]" >
 										<?php
@@ -619,119 +621,119 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 										}
 										?>
 									</select>
-								</div> 
+								</div>
 								<div class="col-sm-1 t-center routine-music-container">
 									<input class="routine-music" id="routine-music-<?php echo $rpid; ?>" name="routinecurr[<?php echo $rpid; ?>][music]" value="<?php echo $music; ?>" type="hidden">
-									<?php 
+									<?php
 									if(! $music ) {
 										echo '
 										<a href="javascript:void(0);" class="btn-addroutinemusic btn btn-green" data-id="'. $rpid .'"><small>Add</small></a>';
 									}
-									else{ 
+									else{
 										$music_filename = basename(get_attached_file($music));
 										echo '
 										<div><small>'. $music_filename .'</small></div>
 										<a href="javascript:void(0);" class="btn-removeroutinemusic btn btn-red" data-id="'. $rpid .'"><small>Remove</small></a>';
-									} 
+									}
 									?>
-								</div> 
+								</div>
 								<div class="col-sm-1 t-center">
 									$<span class="routine-fee-preview" id="routine-fee-preview-<?php echo $rpid; ?>"><?php echo number_format($fee, 2); ?></span>
 									<input class="routine-fee" id="routine-fee-<?php echo $rpid; ?>" name="routinecurr[<?php echo $rpid; ?>][fee]" value="<?php echo $fee; ?>" type="hidden">
-								</div> 
+								</div>
 								<div class="col-sm-1 t-center">
 									<a href="javascript:void(0);" class="btn-delete-routine btn btn-red" data-id="<?php echo $rpid; ?>" data-eid="<?php echo $eid; ?>"><small>Delete</small></a>
-								</div> 
+								</div>
 							</div>
 							<?php
 						}
 						?>
-					</div>	
+					</div>
 					<?php
 				}
 				else{
 					?>
 					<div class="row table-head">
-						<div class="col-sm-2"><strong>Routine Name</strong></div> 
-						<div class="col-sm-2 t-center"><strong>Dancers</strong></div> 
-						<div class="col-sm-2 t-center"><strong>Age Division</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Category</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Genre</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Enter / Exit with / without music</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Are there Props w/ set up / clean up?</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Music</strong></div> 
-						<div class="col-sm-1 t-center"><strong>Fee</strong></div> 
+						<div class="col-sm-2"><strong>Routine Name</strong></div>
+						<div class="col-sm-2 t-center"><strong>Dancers</strong></div>
+						<div class="col-sm-2 t-center"><strong>Age Division</strong></div>
+						<div class="col-sm-1 t-center"><strong>Category</strong></div>
+						<div class="col-sm-1 t-center"><strong>Genre</strong></div>
+						<div class="col-sm-1 t-center"><strong>Enter / Exit with / without music</strong></div>
+						<div class="col-sm-1 t-center"><strong>Are there Props w/ set up / clean up?</strong></div>
+						<div class="col-sm-1 t-center"><strong>Music</strong></div>
+						<div class="col-sm-1 t-center"><strong>Fee</strong></div>
 					</div>
-					<div class="routine-container table-body">	
+					<div class="routine-container table-body">
 						<?php
-						for ($i=1; $i <= 10; $i++) { 
-						?>
-						<div class="row" id="item-<?php echo $i; ?>" data-id="<?php echo $i; ?>">
-							<div class="col-sm-2">
-								<input name="routinenew[<?php echo $i; ?>][name]" value="" id="routine-name-<?php echo $i; ?>" class="routine-name validate[required]" type="text">
-							</div> 
-							<div class="col-sm-2 t-center">
-								<span class="routine-dancers-preview" id="routine-dancers-preview-<?php echo $i; ?>"></span>
-								<input class="routine-dancers validate[required]" id="routine-dancers-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][dancers]" value="" type="text">
-								<a href="javascript:void(0);" class="btn-addroutinedancers btn btn-green" data-id="<?php echo $i; ?>"><small>Edit</small></a>
+						for ($i=1; $i <= 10; $i++) {
+							?>
+							<div class="row" id="item-<?php echo $i; ?>" data-id="<?php echo $i; ?>">
+								<div class="col-sm-2">
+									<input name="routinenew[<?php echo $i; ?>][name]" value="" id="routine-name-<?php echo $i; ?>" class="routine-name validate[required]" type="text">
+								</div>
+								<div class="col-sm-2 t-center">
+									<span class="routine-dancers-preview" id="routine-dancers-preview-<?php echo $i; ?>"></span>
+									<input class="routine-dancers validate[required]" id="routine-dancers-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][dancers]" value="" type="text">
+									<a href="javascript:void(0);" class="btn-addroutinedancers btn btn-green" data-id="<?php echo $i; ?>"><small>Edit</small></a>
+								</div>
+								<div class="col-sm-2 t-center">
+									<span id="routine-agediv-preview-<?php echo $i; ?>" class="routine-agediv-preview"></span>
+									<input id="routine-agediv-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][agediv]" value="" class="routine-agediv" type="hidden">
+								</div>
+								<div class="col-sm-1 t-center">
+									<span id="routine-cat-preview-<?php echo $i; ?>" class="routine-cat-preview"></span>
+									<input id="routine-cat-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][cat]" value="" class="routine-cat" type="hidden">
+								</div>
+								<div class="col-sm-1 t-center">
+									<select name="routinenew[<?php echo $i; ?>][genre]" class="routine-genre" >
+										<option value="">None</option>
+										<?php
+										$genres = ts_get_routine_genres();
+										foreach ($genres as $g) {
+											echo '<option value="'. $g['id'] .'">'. $g['title'] .'</option>';
+										}
+										?>
+									</select>
+								</div>
+								<div class="col-sm-1 t-center">
+									<select name="routinenew[<?php echo $i; ?>][flows]" class="routine-flows" >
+										<option value="">None</option>
+										<?php
+										$flows = ts_get_routine_flows();
+										foreach ($flows as $f) {
+											echo '<option value="'. $f['id'] .'">'. $f['title'] .'</option>';
+										}
+										?>
+									</select>
+								</div>
+								<div class="col-sm-1 t-center">
+									<select name="routinenew[<?php echo $i; ?>][props]" class="routine-props" >
+										<?php
+										$props = ts_get_routine_props();
+										foreach ($props as $p) {
+											echo '<option value="'. $p['id'] .'">'. $p['title'] .'</option>';
+										}
+										?>
+									</select>
+								</div>
+								<div class="col-sm-1 t-center routine-music-container">
+									<input class="routine-music" id="routine-music-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][music]" value="" type="hidden">
+									<a href="javascript:void(0);" class="btn-addroutinemusic btn btn-green" data-id="<?php echo $i; ?>"><small>Add</small></a>
+								</div>
+								<div class="col-sm-1 t-center">
+									<span id="routine-fee-preview-<?php echo $i; ?>" class="routine-fee-preview"></span>
+									<input id="routine-fee-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][fee]" value="" class="routine-fee" type="hidden">
+								</div>
 							</div>
-							<div class="col-sm-2 t-center">
-								<span id="routine-agediv-preview-<?php echo $i; ?>" class="routine-agediv-preview"></span>
-								<input id="routine-agediv-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][agediv]" value="" class="routine-agediv" type="hidden">
-							</div> 
-							<div class="col-sm-1 t-center">
-								<span id="routine-cat-preview-<?php echo $i; ?>" class="routine-cat-preview"></span>
-								<input id="routine-cat-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][cat]" value="" class="routine-cat" type="hidden">
-							</div> 
-							<div class="col-sm-1 t-center">
-								<select name="routinenew[<?php echo $i; ?>][genre]" class="routine-genre" >
-									<option value="">None</option>
-									<?php
-									$genres = ts_get_routine_genres();
-									foreach ($genres as $g) {
-										echo '<option value="'. $g['id'] .'">'. $g['title'] .'</option>';
-									}
-									?>
-								</select>
-							</div> 
-							<div class="col-sm-1 t-center">
-								<select name="routinenew[<?php echo $i; ?>][flows]" class="routine-flows" >
-									<option value="">None</option>
-									<?php
-									$flows = ts_get_routine_flows();
-									foreach ($flows as $f) {
-										echo '<option value="'. $f['id'] .'">'. $f['title'] .'</option>';
-									}
-									?>
-								</select>
-							</div> 
-							<div class="col-sm-1 t-center">
-								<select name="routinenew[<?php echo $i; ?>][props]" class="routine-props" >
-									<?php
-									$props = ts_get_routine_props();
-									foreach ($props as $p) {
-										echo '<option value="'. $p['id'] .'">'. $p['title'] .'</option>';
-									}
-									?>
-								</select>
-							</div> 
-							<div class="col-sm-1 t-center routine-music-container">
-								<input class="routine-music" id="routine-music-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][music]" value="" type="hidden">
-								<a href="javascript:void(0);" class="btn-addroutinemusic btn btn-green" data-id="<?php echo $i; ?>"><small>Add</small></a>
-							</div> 
-							<div class="col-sm-1 t-center">
-								<span id="routine-fee-preview-<?php echo $i; ?>" class="routine-fee-preview"></span>
-								<input id="routine-fee-<?php echo $i; ?>" name="routinenew[<?php echo $i; ?>][fee]" value="" class="routine-fee" type="hidden">
-							</div> 
-						</div>
-						<?php
+							<?php
 						}
 						?>
-					</div>	
-					<?php	
+					</div>
+					<?php
 				}
 				?>
-			</div>	
+			</div>
 			<div class="row">
 				<div class="col-md-6">
 					<?php if(! empty($routine_posts) ) { ?>
@@ -744,7 +746,7 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 				</div>
 			</div>
 			<div class="row form-footer-btns">
-				<div class="col-md-4 t-left"> 
+				<div class="col-md-4 t-left">
 					<a class="btn btn-blue" href="<?php echo TS_STUDIO_DASHBOARD; ?>">Dashboard</a>
 					<a class="btn btn-gray" href="<?php echo $base_url .'&step='. $prev_step; ?>">Back</a>
 				</div>
@@ -768,25 +770,25 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 							'order' => 'ASC',
 							'meta_key' => 'age_cat_order',
 							'tax_query' => array(
-									array(
-										'taxonomy' => 'ts_agediv',
-										'field' => 'name',
-										'terms' => 'Teacher',
-										'operator' => 'NOT IN',
-									)
-								),
+								array(
+									'taxonomy' => 'ts_agediv',
+									'field' => 'name',
+									'terms' => 'Teacher',
+									'operator' => 'NOT IN',
+								)
+							),
 						);
 						if(current_user_can('is_studio')) {
 							$post_type = 'ts_studio_roster';
 						}
 						else if(current_user_can('is_individual')){
 							$post_type = 'ts_sibling';
-						}	
+						}
 
-							$args['include'] = array_keys($participants);
+						$args['include'] = array_keys($participants);
 
 						$studio_roster = ts_get_user_posts($post_type, -1, false, $args);
-						
+
 						if($studio_roster) {
 							?>
 							<form method="post" action="" id="add-routine-dancers" name="add-routine-dancers" >
@@ -795,10 +797,10 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 								<input type="hidden" name="eid" value="<?php echo $eid; ?>" />
 								<div class="dancer-list table-container">
 									<div class="row table-head">
-										<div class="col-md-6"><strong>Name</strong></div> 
-										<div class="col-md-6 t-center"><strong>Age Division</strong></div> 
+										<div class="col-md-6"><strong>Name</strong></div>
+										<div class="col-md-6 t-center"><strong>Age Division</strong></div>
 									</div>
-									<div class="table-body">										
+									<div class="table-body">
 										<?php
 										foreach($studio_roster as $sr) {
 											$rid = $sr->ID;
@@ -807,15 +809,15 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 											?>
 											<div class="row">
 												<div class="col-md-6">
-													<label><input type="checkbox" name="dancers[]" value="<?php echo $rid; ?>" /> 
-													<?php echo $name; ?></label>
+													<label><input type="checkbox" name="dancers[]" value="<?php echo $rid; ?>" />
+														<?php echo $name; ?></label>
 												</div>
 												<div class="col-md-6 t-center">
 													<?php echo $age_div[0]->name; ?>
 												</div>
 											</div>
 											<?php
-										} 
+										}
 										?>
 									</div>
 								</div>
@@ -823,21 +825,21 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 									<input type="submit" value="Add/Edit" class="btn btn-blue">
 								</div>
 							</form>
-						<?php
+							<?php
 						}
-						?>	
+						?>
 					</div>
 				</div>
 			</div>
-		</div>							
+		</div>
 	</div>
-	<?php 
+	<?php
 }
 
 function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $next_step, $base_url, $steps) {
 
 	$workshoppage = $steps['workshop']['id'];
-	
+
 	if(ts_is_noworkshopentry($entry_data)) {
 		?>
 		<div class="form-container-2 t-center boxed-container">
@@ -846,7 +848,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 		<script type="text/javascript">
 			setTimeout(function(){
 				window.location.replace("<?php echo $base_url .'&step='. $workshoppage; ?>");
-		    }, 5000);	
+			}, 5000);
 		</script>
 		<?php
 	}
@@ -879,7 +881,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 
 		foreach ($participants as $key => $value) {
 			$agediv = $value['age_division'];
-			
+
 			if($agediv==$Munchkin->term_id) {
 				$countMunchkin++;
 			}
@@ -902,12 +904,13 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 				$countTeachers++;
 			}
 		}
-		
+
 		$workshop_fee 					= ts_get_total_workshop_fee($eid);
 		$workshop_teacher_discount 		= ts_get_total_teacher_discount($eid);
 		$workshop_scholarship_discount 	= ts_get_total_scholarship_discount($eid);
 		$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($eid);
 		$competition_fee 				= ts_get_total_competition_fee($eid);
+		$form_action = ts_get_form_action();
 		?>
 		<div class="studio-confirmation-container">
 			<h1 class="heading-title"><?php echo get_the_title($workshop['tour_city']); ?></h1>
@@ -917,7 +920,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 				<?php } ?>
 				<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 				<input type="hidden" name="tab" value="confirmation">
-				<input type="hidden" name="action" value="studio_registration">
+				<input type="hidden" name="action" value="<?php echo $form_action;?>">
 				<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
 				<div class="row">
 					<div class="col-md-6 workshop-fee-breakdown">
@@ -988,7 +991,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 								<strong class="amount">$<?php echo number_format($workshop_fee_discounted, 2); ?></strong>
 							</div>
 						</div>
-					</div>	
+					</div>
 					<div class="col-md-6 competition-fee-breakdown">
 						<div class="row">
 							<div class="col-md-1">&nbsp;</div>
@@ -998,16 +1001,16 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 						$routines = $competition['routines'];
 
 						if(is_array($routines) && ! empty($routines) ) {
-							foreach ($routines as $r) { 
+							foreach ($routines as $r) {
 								$name = $r['name'];
-								$dancersCount = count(explode(",",$r['dancers'])); 
+								$dancersCount = count(explode(",",$r['dancers']));
 								?>
 								<div class="row">
 									<div class="col-md-1">&nbsp;</div>
 									<div class="col-md-7"><?php echo $name; ?></div>
 									<div class="col-md-4 t-right"><strong>$<?php echo number_format(ts_get_routine_fee($dancersCount),2); ?></strong></div>
 								</div>
-							<?php
+								<?php
 							}
 						}
 						?>
@@ -1029,13 +1032,14 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 				<div class="row">
 					<div class="col-md-12 t-right coupon-container">
 						<?php
+						$grand_total = ts_grand_total($eid, $entry_data);
 						if(isset($entry_data['discount_code']) && ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id) ) { ?>
 							<input type="hidden" name="discount_code" value="<?php echo $entry_data['discount_code']; ?>" >
 							Discount Code: <strong><?php echo $entry_data['discount_code']; ?></strong>
 							<button type="button" data-eid="<?php echo $eid; ?>" class="btn btn-blue btn-removecoupon">Remove</button>
 							<?php
 						}
-						else { 
+						else {
 							?>
 							<label><input type="text" value="" id="discount-coupon" name="discount-coupon" /></label>
 							<button type="button" data-eid="<?php echo $eid; ?>" class="btn btn-blue btn-applycoupon">Apply Voucher</button>
@@ -1044,44 +1048,81 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 					</div>
 				</div>
 				<div class="row grand-total">
-					<div class="col-md-12 t-right">Grand Total: 
-						<?php 
-						$grand_total = ts_grand_total($eid, $entry_data);
-						if(isset($entry_data['discount_code'])) {
-							$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+					<?php
+					if(isset($entry_data['discount_code'])) {
+						$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+					}
+					$get_entry_status = get_post_status($entry_id);
+					$amount_paid = $amount_payable = $amount_credit = '';
+					$button_value = 'Confirm and Continue to Payment';
+					if($get_entry_status=='paid' || $get_entry_status=='paidcheck'){
+						$amount_paid = absint(get_post_meta($entry_id,'paid_amount',true));
+						if( $amount_paid > $grand_total ){
+							$amount_credit = ts_return_credit_total($grand_total, $entry_id);
+							$button_value = $amount_credit > 0 ? 'Confirm and Continue to receive credit' : 'Confirm and Save your registration';
+						} else if( $amount_paid < $grand_total ) {
+							$amount_payable = $grand_total - $amount_paid;
+							$button_value = 'Confirm and Continue to pay remaining amount';
+						} else {
+							$button_value = 'Confirm and Save your registration';
 						}
-						?>
+					}
+					?>
+					<div class="col-md-12 t-right">Grand Total:
 						$<span id="grand-total"><?php echo number_format($grand_total, 2); ?></span>
 					</div>
+					<?php
+					if( !empty($amount_payable) ){
+						?>
+						<div class="col-md-12 t-right">Amount Paid:
+							$<span id="grand-total"><?php echo number_format($amount_paid, 2); ?></span>
+						</div>
+						<div class="col-md-12 t-right">Amount Payable:
+							$<span id="grand-total"><?php echo number_format($amount_payable, 2); ?></span>
+							<input type="hidden" name="remaining_amount" value="<?php echo $amount_payable; ?>" />
+						</div>
+						<?php
+					}
+					?>
+					<?php
+					if( !empty($amount_credit) ){
+						?>
+						<div class="col-md-12 t-right">Amount Credit:
+							$<span id="grand-total"><?php echo number_format($amount_credit, 2); ?></span>
+							<input type="hidden" name="amount_credited" value="<?php echo $amount_credit; ?>" />
+						</div>
+						<?php
+					}
+					?>
 				</div>
 				<div class="row form-footer-btns">
-					<div class="col-md-4 t-left"> 
+					<div class="col-md-4 t-left">
 						<a class="btn btn-blue" href="<?php echo TS_STUDIO_DASHBOARD; ?>">Dashboard</a>
 						<a class="btn btn-gray" href="<?php echo $base_url .'&step='. $prev_step; ?>">Back</a>
 					</div>
-					<div class="col-md-8 t-right"> 
+					<div class="col-md-8 t-right">
 						<a class="btn btn-gray btn-saveforlater" data-nextstep="<?php echo $next_step; ?>" href="javascript:void(0);">Save</a>
 						<?php
 						$status = get_post_status( $entry_id );
 						if($status=='paid' || $status=='paidcheck'){
-							?>					
-							<input class="btn btn-green" type="submit" value="Confirm and Continue to Payment">
-						<?php
+							?>
+							<input class="btn btn-green" type="submit" value="<?php echo $button_value;?>>
+							<?php
 						}
-						else { ?>	
-							<a class="btn btn-green btn-popupwaiver" href="javascript:void(0);">Confirm and Continue to Payment</a>
+						else { ?>
+							<a class="btn btn-green btn-popupwaiver" href="javascript:void(0);"><?php echo $button_value;?></a>
 							<input class="btn hidden btn-submitconfirmation" type="submit" value="Submit">
-						<?php
+							<?php
 						} ?>
 					</div>
 				</div>
 			</form>
-		</div>	
+		</div>
 		<div id="popup-waiver" class="modal fade" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
-					<form name="popup-waiver-form" id="popup-waiver-form" class="validate boxed" method="post" action="">			
-						<?php 
+					<form name="popup-waiver-form" id="popup-waiver-form" class="validate boxed" method="post" action="">
+						<?php
 						if(current_user_can('is_studio')) {
 							?>
 							<h2 style="text-align: center;">WAIVER AND RELEASE OF LIABILITY</h2>
@@ -1089,15 +1130,15 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 							<p>***This form must be read and signed before the participant is permitted to take part in any Transcend event sessions (each, “an Event”). By signing this agreement, the participant and the participant"™s parent/guardian affirms having read it. ***</p>
 							<ol>
 								<li>In consideration of being allowed to participate in any way in any Transcend event, I, the undersigned, acknowledge, appreciate, and agree that:
-								<ol>
-									<li>I know that via my participation, I may risk bodily injury, as well as the risk of damage to or loss of property; and</li>
-									<li>I understand that by signing this form and participating in an Event, I assume all such risks, both known and unknown; and</li>
-									<li>I agree to comply with all terms and condition communicated by TRANSCEND, the Event venue, and all persons managing the event. I agree to pay full attention at all times during my participation in any Event. I agree that if I observe any unusual hazard, I will immediately bring such to the attention of the nearest staff person associated with the Event. I agree that if I am feeling ill, dizzy, or in any way uncomfortable with my ability to safely participate in any event, I will notify staff and withdraw from participation the event;</li>
-									<li>I, for myself, and on behalf of my heirs, assigns, hereby release, indemnify, hold harmless, and covenant not to sue Transcend Productions, LLC or its affiliates ("Transcend"), its officers, officials, volunteers, employees, agents, and/or other participants, sponsors, advertisers, and, if applicable, the owners and lessors of premises used for the activity ("RELEASEES"), any injury and/or loss or damage to person or property, whether caused by the negligence of the releases or otherwise related to any event in which I participate, except that which is the result of gross negligence or intentional misconduct, to the fullest extent permitted by law.</li>
-									<li>I understand that Transcend from time to time produces audio-visual programs, promotions, and other materials relating to its Events. I and my Guardian hereby grant Transcend and its agents, successors, assigns and licensees the perpetual right to use my name, likeness, biographical information, photographs, voice, personal characteristics, and other personal identification (collectively “Likeness”) and any digital, videotape, sound and audio-visual recordings in any way (collectively “Recordings”) in any and all manner and media, now known or hereafter devised, throughout the world, for any and all purposes including, without limitation, in productions and in connection with the advertising and promotion of productions and/or Transcend, provided that Transcend is under no obligation to exercise any of the foregoing rights.</li>
-									<li>I have elected, on a voluntary basis, and, if I am under the age of 18, with the acknowledgement and permission of my parents or legal guardians (individually and collectively referred to herein as “Guardian”), to participate in dance and other athletic performance-related activities (individually and collectively, “Activities”) for which I am registered with TRANSCEND, I and my Guardian agree and acknowledge that I may only attend Events under the supervision of a chaperone who is at least 21 years of age (“Chaperone”), that such Chaperone is responsible for my supervision at all times, and that Transcend is not responsible in any way or to any extent for supervision of me or for my welfare during my attendance at Events and participation in Activities.</li>
-									<li>By signing this waiver, you release Transcend and all its employees from all claims arising out of related to any injury which may be sustained by you/your child while attending any dance class, performance, or other event associated with Transcend. You also affirm you now have, and will continue to carry, proper primary medical, health, and hospitalization and accident insurance, which you consider adequate for the protection of both your child.</li>
-								</ol>
+									<ol>
+										<li>I know that via my participation, I may risk bodily injury, as well as the risk of damage to or loss of property; and</li>
+										<li>I understand that by signing this form and participating in an Event, I assume all such risks, both known and unknown; and</li>
+										<li>I agree to comply with all terms and condition communicated by TRANSCEND, the Event venue, and all persons managing the event. I agree to pay full attention at all times during my participation in any Event. I agree that if I observe any unusual hazard, I will immediately bring such to the attention of the nearest staff person associated with the Event. I agree that if I am feeling ill, dizzy, or in any way uncomfortable with my ability to safely participate in any event, I will notify staff and withdraw from participation the event;</li>
+										<li>I, for myself, and on behalf of my heirs, assigns, hereby release, indemnify, hold harmless, and covenant not to sue Transcend Productions, LLC or its affiliates ("Transcend"), its officers, officials, volunteers, employees, agents, and/or other participants, sponsors, advertisers, and, if applicable, the owners and lessors of premises used for the activity ("RELEASEES"), any injury and/or loss or damage to person or property, whether caused by the negligence of the releases or otherwise related to any event in which I participate, except that which is the result of gross negligence or intentional misconduct, to the fullest extent permitted by law.</li>
+										<li>I understand that Transcend from time to time produces audio-visual programs, promotions, and other materials relating to its Events. I and my Guardian hereby grant Transcend and its agents, successors, assigns and licensees the perpetual right to use my name, likeness, biographical information, photographs, voice, personal characteristics, and other personal identification (collectively “Likeness”) and any digital, videotape, sound and audio-visual recordings in any way (collectively “Recordings”) in any and all manner and media, now known or hereafter devised, throughout the world, for any and all purposes including, without limitation, in productions and in connection with the advertising and promotion of productions and/or Transcend, provided that Transcend is under no obligation to exercise any of the foregoing rights.</li>
+										<li>I have elected, on a voluntary basis, and, if I am under the age of 18, with the acknowledgement and permission of my parents or legal guardians (individually and collectively referred to herein as “Guardian”), to participate in dance and other athletic performance-related activities (individually and collectively, “Activities”) for which I am registered with TRANSCEND, I and my Guardian agree and acknowledge that I may only attend Events under the supervision of a chaperone who is at least 21 years of age (“Chaperone”), that such Chaperone is responsible for my supervision at all times, and that Transcend is not responsible in any way or to any extent for supervision of me or for my welfare during my attendance at Events and participation in Activities.</li>
+										<li>By signing this waiver, you release Transcend and all its employees from all claims arising out of related to any injury which may be sustained by you/your child while attending any dance class, performance, or other event associated with Transcend. You also affirm you now have, and will continue to carry, proper primary medical, health, and hospitalization and accident insurance, which you consider adequate for the protection of both your child.</li>
+									</ol>
 								</li>
 							</ol>
 							<p><strong>For Studio Owners/Directors of Registered Participants:</strong></p>
@@ -1111,16 +1152,16 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 							<p><strong>PLEASE BE ADVISED</strong>:</p>
 							<p>***This form must be read and signed before the participant is permitted to take part in any Transcend event sessions (each, "an Event"). By signing this agreement, the participant and the participant's parent/guardian affirms having read it. ***</p>
 							<ol>
-						 		<li>In consideration of being allowed to participate in any way in any Transcend event, I, the undersigned, acknowledge, appreciate, and agree that:
-								<ol>
-								 	<li>I know that via my participation, I may risk bodily injury, as well as the risk of damage to or loss of property; and</li>
-								 	<li>I understand that by signing this form and participating in an Event, I assume all such risks, both known and unknown; and</li>
-								 	<li>I agree to comply with all terms and condition communicated by TRANSCEND, the Event venue, and all persons managing the event. I agree to pay full attention at all times during my participation in any Event. I agree that if I observe any unusual hazard, I will immediately bring such to the attention of the nearest staff person associated with the Event. I agree that if I am feeling ill, dizzy, or in any way uncomfortable with my ability to safely participate in any event, I will notify staff and withdraw from participation the event;</li>
-								 	<li>I, for myself, and on behalf of my heirs, assigns, hereby release, indemnify, hold harmless, and covenant not to sue Transcend Productions, LLC or its affiliates ("Transcend"), its officers, officials, volunteers, employees, agents, and/or other participants, sponsors, advertisers, and, if applicable, the owners and lessors of premises used for the activity ("RELEASEES"), any injury and/or loss or damage to person or property, whether caused by the negligence of the releases or otherwise related to any event in which I participate, except that which is the result of gross negligence or intentional misconduct, to the fullest extent permitted by law.</li>
-								 	<li>I understand that Transcend from time to time produces audio-visual programs, promotions, and other materials relating to its Events. I and my Guardian hereby grant Transcend and its agents, successors, assigns and licensees the perpetual right to use my name, likeness, biographical information, photographs, voice, personal characteristics, and other personal identification (collectively "Likeness") and any digital, videotape, sound and audio-visual recordings in any way (collectively "Recordings") in any and all manner and media, now known or hereafter devised, throughout the world, for any and all purposes including, without limitation, in productions and in connection with the advertising and promotion of productions and/or Transcend, provided that Transcend is under no obligation to exercise any of the foregoing rights.</li>
-								 	<li>I have elected, on a voluntary basis, and, if I am under the age of 18, with the acknowledgement and permission of my parents or legal guardians (individually and collectively referred to herein as "Guardian"), to participate in dance and other athletic performance-related activities (individually and collectively, "Activities") for which I am registered with TRANSCEND,  I and my Guardian agree and acknowledge that I may only attend Events under the supervision of a chaperone who is at least 21 years of age ("Chaperone"), that such Chaperone is responsible for my supervision at all times, and that Transcend is not responsible in any way or to any extent for supervision of me or for my welfare during my attendance at Events and participation in Activities.</li>
-								 	<li>By signing this waiver, you release Transcend and all its employees from all claims arising out of related to any injury which may be sustained by you/your child while attending any dance class, performance, or other event associated with Transcend. You also affirm you now have, and will continue to carry, proper primary medical, health, and hospitalization and accident insurance, which you consider adequate for the protection of both your child.</li>
-								</ol>
+								<li>In consideration of being allowed to participate in any way in any Transcend event, I, the undersigned, acknowledge, appreciate, and agree that:
+									<ol>
+										<li>I know that via my participation, I may risk bodily injury, as well as the risk of damage to or loss of property; and</li>
+										<li>I understand that by signing this form and participating in an Event, I assume all such risks, both known and unknown; and</li>
+										<li>I agree to comply with all terms and condition communicated by TRANSCEND, the Event venue, and all persons managing the event. I agree to pay full attention at all times during my participation in any Event. I agree that if I observe any unusual hazard, I will immediately bring such to the attention of the nearest staff person associated with the Event. I agree that if I am feeling ill, dizzy, or in any way uncomfortable with my ability to safely participate in any event, I will notify staff and withdraw from participation the event;</li>
+										<li>I, for myself, and on behalf of my heirs, assigns, hereby release, indemnify, hold harmless, and covenant not to sue Transcend Productions, LLC or its affiliates ("Transcend"), its officers, officials, volunteers, employees, agents, and/or other participants, sponsors, advertisers, and, if applicable, the owners and lessors of premises used for the activity ("RELEASEES"), any injury and/or loss or damage to person or property, whether caused by the negligence of the releases or otherwise related to any event in which I participate, except that which is the result of gross negligence or intentional misconduct, to the fullest extent permitted by law.</li>
+										<li>I understand that Transcend from time to time produces audio-visual programs, promotions, and other materials relating to its Events. I and my Guardian hereby grant Transcend and its agents, successors, assigns and licensees the perpetual right to use my name, likeness, biographical information, photographs, voice, personal characteristics, and other personal identification (collectively "Likeness") and any digital, videotape, sound and audio-visual recordings in any way (collectively "Recordings") in any and all manner and media, now known or hereafter devised, throughout the world, for any and all purposes including, without limitation, in productions and in connection with the advertising and promotion of productions and/or Transcend, provided that Transcend is under no obligation to exercise any of the foregoing rights.</li>
+										<li>I have elected, on a voluntary basis, and, if I am under the age of 18, with the acknowledgement and permission of my parents or legal guardians (individually and collectively referred to herein as "Guardian"), to participate in dance and other athletic performance-related activities (individually and collectively, "Activities") for which I am registered with TRANSCEND,  I and my Guardian agree and acknowledge that I may only attend Events under the supervision of a chaperone who is at least 21 years of age ("Chaperone"), that such Chaperone is responsible for my supervision at all times, and that Transcend is not responsible in any way or to any extent for supervision of me or for my welfare during my attendance at Events and participation in Activities.</li>
+										<li>By signing this waiver, you release Transcend and all its employees from all claims arising out of related to any injury which may be sustained by you/your child while attending any dance class, performance, or other event associated with Transcend. You also affirm you now have, and will continue to carry, proper primary medical, health, and hospitalization and accident insurance, which you consider adequate for the protection of both your child.</li>
+									</ol>
 								</li>
 							</ol>
 							<p><strong>If under 18 (for Parents/Guardians): </strong></p>
@@ -1136,14 +1177,15 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 					</form>
 				</div>
 			</div>
-		</div>		
-		<?php	
+		</div>
+		<?php
 	}
 }
 
 function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_step, $base_url, $steps) {
 
 	$confirmation = $steps['confirmation']['id'];
+	$form_action = ts_get_form_action();
 
 	if( $entry_id && get_post_meta($entry_id, 'comfirmed', true)) {
 
@@ -1154,26 +1196,82 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 			$grand_total = get_post_meta($entry_id, 'grand_total', true);
 			$competition_fee = ts_get_total_competition_fee($entry_id, $entry_data);
 			$paid_amount_competition = get_post_meta($entry_id, 'paid_amount_competition', true);
-			if($paid_amount!=$grand_total && $competition_fee > $paid_amount_competition) {
+			$amount_credited =  get_post_meta($entry_id, 'amount_credited', true);
+			if($paid_amount!=$grand_total) {
 				?>
 				<div class="form-container-2 t-center boxed-container">
-					<h1>Your changes have been saved, and we will contact you to make a payment. If you have a credit for next year, it will appear on your account at the later date. Thank you.</h1>
+					<?php
+					if($paid_amount>$grand_total) {
+						echo '<h1>Credit has been credited to your account.</h1>';
+						do_action('registration_amount_credited',$entry_id,$amount_credited);
+						?>
+						<script type="text/javascript">
+							setTimeout(function(){
+								window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
+							}, 5000);
+						</script>
+					<?php
+					} else {
+					require_once(TS_LIBRARIES .'config.php');
+
+					if(isset($entry_data['discount_code'])) {
+						$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+					}
+					$remaining_total = $grand_total - $paid_amount;
+					$current_user = wp_get_current_user();
+					?>
+						<div class="studio-payment-container payment-form-container form-container-1">
+							<div class="row">
+								<div class="col-md-12 t-center">OR</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6 t-center stripe-payment-form-container">
+									<form action="<?php echo $base_url .'&step='. $next_step .'&completed=1&remaining=1'; ?>" method="post" class="stripe-payment-form">
+										<script src="https://checkout.stripe.com/checkout.js"
+												class="stripe-button"
+												data-key="<?php echo $stripe['publishable_key']; ?>"
+												data-amount="<?php echo $remaining_total * 100; ?>"
+												data-name="<?php echo get_bloginfo('name'); ?>"
+												data-billing-address="true"
+												data-email="<?php echo $current_user->user_email; ?>"
+												data-description="Remaining payment for Entry #<?php echo $entry_id; ?>">
+										</script>
+									</form>
+								</div>
+								<div class="col-md-6 t-center mail-payment-form-container">
+									<form name="studio-payment" id="studio-payment" class="studio-registration registration-form validate mail-payment-form" method="post" action="">
+										<input type="hidden" name="entry_id" value="<?php echo $entry_id; ?>">
+										<input type="hidden" name="eid" value="<?php echo $eid; ?>">
+										<input type="hidden" name="tab" value="payment">
+										<input type="hidden" name="action" value="<?php echo $form_action;?>">
+										<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
+										<input type="hidden" name="remaining" value="1">
+										<label><input type="checkbox" name="" class="validate[required]"> Mail in Check</label><br />
+										<input class="btn btn-green" type="submit" value="Submit Registration">
+									</form>
+								</div>
+							</div>
+							<p class="foot-note">Registration is not complete without full payment, <br>or until check is received in the mail.</p>
+						</div>
+						<?php
+					}
+					?>
 				</div>
 				<?php
 			}
-			else {			
+			else {
 				?>
 				<div class="form-container-2 t-center boxed-container">
 					<h1>Your changes have been saved.</h1>
+					<?php do_action('registration_recompleted',$entry_id); ?>
 				</div>
+				<script type="text/javascript">
+					setTimeout(function(){
+						window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
+					}, 5000);
+				</script>
 				<?php
-			} ?>
-			<script type="text/javascript">
-			setTimeout(function(){
-				window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
-		    }, 5000);	
-			</script>
-			<?php			
+			}
 		}
 		else {
 
@@ -1193,23 +1291,23 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 				<div class="row">
 					<div class="col-md-6 t-center stripe-payment-form-container">
 						<form action="<?php echo $base_url .'&step='. $next_step .'&completed=1'; ?>" method="post" class="stripe-payment-form">
-							<script src="https://checkout.stripe.com/checkout.js" 
-								class="stripe-button"
-							    data-key="<?php echo $stripe['publishable_key']; ?>"
-							    data-amount="<?php echo $grand_total * 100; ?>" 
-							    data-name="<?php echo get_bloginfo('name'); ?>" 
-							    data-billing-address="true" 
-							    data-email="<?php echo $current_user->user_email; ?>"
-							    data-description="Payment for Entry #<?php echo $entry_id; ?>">
+							<script src="https://checkout.stripe.com/checkout.js"
+									class="stripe-button"
+									data-key="<?php echo $stripe['publishable_key']; ?>"
+									data-amount="<?php echo $grand_total * 100; ?>"
+									data-name="<?php echo get_bloginfo('name'); ?>"
+									data-billing-address="true"
+									data-email="<?php echo $current_user->user_email; ?>"
+									data-description="Payment for Entry #<?php echo $entry_id; ?>">
 							</script>
 						</form>
 					</div>
-					<div class="col-md-6 t-center mail-payment-form-container">	
+					<div class="col-md-6 t-center mail-payment-form-container">
 						<form name="studio-payment" id="studio-payment" class="studio-registration registration-form validate mail-payment-form" method="post" action="">
 							<input type="hidden" name="entry_id" value="<?php echo $entry_id; ?>">
 							<input type="hidden" name="eid" value="<?php echo $eid; ?>">
 							<input type="hidden" name="tab" value="payment">
-							<input type="hidden" name="action" value="studio_registration">
+							<input type="hidden" name="action" value="<?php echo $form_action;?>">
 							<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
 							<label><input type="checkbox" name="" class="validate[required]"> Mail in Check</label><br />
 							<input class="btn btn-green" type="submit" value="Submit Registration">
@@ -1219,7 +1317,7 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 				<p class="foot-note">Registration is not complete without full payment, <br>or until check is received in the mail.</p>
 			</div>
 			<?php
-		}	
+		}
 
 	}
 	else {
@@ -1235,15 +1333,23 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 
 	$confirmation = $steps['confirmation']['id'];
 
-	if( $entry_id ) { 
+	if( $entry_id ) {
 
 		if($_POST){
 			require_once(TS_LIBRARIES .'config.php');
-
+			$charge_amount = $remaining_amount = 0;
+			$remaining = false;
 			$grand_total = ts_grand_total($eid, $entry_data);
-			
+
 			if(isset($entry_data['discount_code'])) {
 				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+			}
+			if( isset($entry_data['remaining_amount'] ) && ! empty($entry_data['remaining_amount']) ) {
+				$remaining = true;
+				$remaining_amount = absint($entry_data['remaining_amount']);
+				$charge_amount = $remaining_amount;
+			} else {
+				$charge_amount = $grand_total;
 			}
 
 			$token  = $_POST['stripeToken'];
@@ -1258,14 +1364,14 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 			try {
 				$charge = \Stripe\Charge::create(array(
 					'customer' => $customer->id,
-					'amount'   => $grand_total * 100,
+					'amount'   => $charge_amount * 100,
 					'currency' => 'usd'
 				));
-			} 
+			}
 			catch(\Stripe\Error\Card $e) {
 
-			}	
-			do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total);
+			}
+			do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total,	$remaining, $remaining_amount);
 			do_action('registration_completed', $entry_id, $user_id, 'stripe_payment');
 		}
 
@@ -1275,9 +1381,9 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 				<h1>Thank you for registering for Transcend - we can’t wait to dance with you! You will be receiving a confirmation email shortly.</h1>
 			</div>
 			<script type="text/javascript">
-			setTimeout(function(){
-				window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
-		    }, 5000);	
+				setTimeout(function(){
+					window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
+				}, 5000);
 			</script>
 			<?php
 		}
@@ -1365,7 +1471,7 @@ function ts_pay_invoice_shortcode() {
 
 		$login_count = absint(get_user_meta($user_id, 'ts_login_count', true));
 
-		if($login_count > 1 && ! is_admin()) {
+		if($login_count > 0 && ! is_admin()) {
 			?>
 			<script type="text/javascript">
 				window.location.replace('<?php echo TS_ADMIN_DASHBOARD; ?>');
@@ -1373,7 +1479,7 @@ function ts_pay_invoice_shortcode() {
 			<?php
 		}
 		else {
-			if( $evid && ( current_user_can('is_studio') || current_user_can('is_individual') ) ) {
+			if( $evid && get_post_status($evid) && ( current_user_can('is_studio') || current_user_can('is_individual') ) ) {
 				require_once( TS_INCLUDES . 'shortcodes/pay-invoice.php' );
 				ts_pay_invoice_html( $entry_id, $evid, $user_id );
 			} else {
@@ -1403,83 +1509,83 @@ function ts_pay_invoice_shortcode() {
 }
 
 function ts_display_invoice_header_html( $entry_id, $invoice_id, $user_id ) {
-    $title = get_the_title( $invoice_id );
-    ?>
-    <div class="steps-btn-container clearfix">
-        <ul class="clearfix">
-            <li class="li-step">
+	$title = get_the_title( $invoice_id );
+	?>
+	<div class="steps-btn-container clearfix">
+		<ul class="clearfix">
+			<li class="li-step">
 						<span class="btn-step-outer grad-white">
 							<span class="btn-step-inner grad-ligher-white">
 								<span class="btn-step grad-light-gray">1</span>
 							</span>
 						</span>
-                <span class="step-title-short"><?php echo $title; ?></span>
-            </li>
-        </ul>
-    </div>
-    <?php
+				<span class="step-title-short"><?php echo $title; ?></span>
+			</li>
+		</ul>
+	</div>
+	<?php
 }
 
 function ts_display_invoice_content_html( $entry_id, $invoice_id, $user_id ) {
-    $invoice_title = get_the_title( $invoice_id );
-    $iv_amount = (int) get_post_meta($invoice_id,'invoice_amount',true);
-    $note = get_post_meta($invoice_id,'invoice_note',true);
+	$invoice_title = get_the_title( $invoice_id );
+	$iv_amount = (int) get_post_meta($invoice_id,'invoice_amount',true);
+	$note = get_post_meta($invoice_id,'invoice_note',true);
 
-    $user_info = get_userdata( $user_id );
-    $email = $user_info->user_email;
-    require_once(TS_LIBRARIES .'config.php');
-    if($_POST){
-        $token  = $_POST['stripeToken'];
+	$user_info = get_userdata( $user_id );
+	$email = $user_info->user_email;
+	require_once(TS_LIBRARIES .'config.php');
+	if($_POST){
+		$token  = $_POST['stripeToken'];
 
-        try {
-            $charge = \Stripe\Charge::create(array(
-                'description' => $invoice_title.' for '.$email,
-                'amount'   => $iv_amount * 100,
-                'currency' => 'usd',
-                'receipt_email' => $email,
-                'source' => $token
-            ));
-        }
-        catch(\Stripe\Error\Card $e) {
+		try {
+			$charge = \Stripe\Charge::create(array(
+				'description' => $invoice_title.' for '.$email,
+				'amount'   => $iv_amount * 100,
+				'currency' => 'usd',
+				'receipt_email' => $email,
+				'source' => $token
+			));
+		}
+		catch(\Stripe\Error\Card $e) {
 
-        }
-        do_action('invoice_paid', $entry_id, $user_id, 'stripe_payment', $iv_amount, $invoice_id);
-        ?>
-        <div class="form-container-2 t-center boxed-container">
-            <h4>Thank you! You will be receiving a receipt email shortly.</h4>
-        </div>
-        <script type="text/javascript">
-            setTimeout(function(){
-                window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
-            }, 5000);
-        </script>
-        <?php
-    } else {
-        ?>
-        <div class="invoice-payment-container payment-form-container form-container-1">
-            <div class="row">
-                <div class="col-md-12 t-center">
-                    <h6>Outstanding Amount: $<?php echo $iv_amount;?></h6>
-                    <p>Note: <?php echo $note;?></p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 t-center invoice-payment-form-container">
-                    <form action="" method="post" class="invoice-payment-form">
-                        <script src="https://checkout.stripe.com/checkout.js"
-                                class="stripe-button"
-                                data-key="<?php echo $stripe['publishable_key']; ?>"
-                                data-amount="<?php echo $iv_amount * 100; ?>"
-                                data-name="<?php echo get_bloginfo('name'); ?>"
-                                data-billing-address="true"
-                                data-email="<?php echo $email; ?>"
-                                data-description="Outstanding Payment for Entry #<?php echo $entry_id; ?>">
-                        </script>
-                    </form>
-                </div>
-            </div>
-            <p class="foot-note">Registration is not completed until invoice paid.</p>
-        </div>
-        <?php
-    }
+		}
+		do_action('invoice_paid', $entry_id, $user_id, 'stripe_payment', $iv_amount, $invoice_id);
+		?>
+		<div class="form-container-2 t-center boxed-container">
+			<h4>Thank you! You will be receiving a receipt email shortly.</h4>
+		</div>
+		<script type="text/javascript">
+			setTimeout(function(){
+				window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
+			}, 5000);
+		</script>
+		<?php
+	} else {
+		?>
+		<div class="invoice-payment-container payment-form-container form-container-1">
+			<div class="row">
+				<div class="col-md-12 t-center">
+					<h6>Outstanding Amount: $<?php echo $iv_amount;?></h6>
+					<p>Note: <?php echo $note;?></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 t-center invoice-payment-form-container">
+					<form action="" method="post" class="invoice-payment-form">
+						<script src="https://checkout.stripe.com/checkout.js"
+								class="stripe-button"
+								data-key="<?php echo $stripe['publishable_key']; ?>"
+								data-amount="<?php echo $iv_amount * 100; ?>"
+								data-name="<?php echo get_bloginfo('name'); ?>"
+								data-billing-address="true"
+								data-email="<?php echo $email; ?>"
+								data-description="Outstanding Payment for Entry #<?php echo $entry_id; ?>">
+						</script>
+					</form>
+				</div>
+			</div>
+			<p class="foot-note">Registration is not completed until invoice paid.</p>
+		</div>
+		<?php
+	}
 }

@@ -20,6 +20,9 @@ function ajax_studio_registration() {
 		$payment  	   = $_POST['payment'];
 		$discount_code = $_POST['discount_code'];
 		$save 		   = $_POST['save_for_later'];
+        $remaining        = absint($_POST['remaining']);
+        $remaining_amount = absint($_POST['remaining_amount']);
+        $amount_credited = absint($_POST['amount_credited']);
 
 		$response = array(
 			'success' => false,
@@ -377,14 +380,17 @@ function ajax_studio_registration() {
 				$paid_amount = get_post_meta($entry_id, 'paid_amount', true);
 				$grand_total = get_post_meta($entry_id, 'grand_total', true);
 				if($paid_amount!=$grand_total) {
-					do_action('registration_edited', $entry_id, $user_id);
+					do_action('registration_edited', $entry_id, $user_id, $remaining_amount);
 				}
+				if( $amount_credited > 0 ){
+				    update_post_meta($entry_id,'amount_credited',$amount_credited);
+                }
 			}
 		}
 		if($tab=='payment') {
 			
 			do_action('registration_completed', $entry_id, $user_id, 'mail_in_check');
-			ts_change_post_status($entry_id, 'unpaidcheck');
+            ts_change_post_status($entry_id, 'unpaidcheck');
 			$completed = '&completed=1';
 		}
 		if($tab!='payment'){
@@ -443,7 +449,7 @@ function ajax_studio_registration() {
 		}	
 
 		ts_set_session_entry_data($temp_data, $eid, $user_id);
-		
+
 		$has_error = false;
 
 		if($has_error === true) {
@@ -483,6 +489,9 @@ function ajax_individual_registration() {
 		$payment  	   = $_POST['payment'];
 		$discount_code = $_POST['discount_code'];
 		$save 		   = $_POST['save_for_later'];
+        $remaining        = absint($_POST['remaining']);
+        $remaining_amount = absint($_POST['remaining_amount']);
+        $amount_credited = absint($_POST['amount_credited']);
 
 		$response = array(
 			'success' => false,
@@ -492,8 +501,9 @@ function ajax_individual_registration() {
 
 		$has_error = true;
 		$completed = '';
+        $comfirmed = false;
 
-		$user_id 	= get_current_user_id();
+        $user_id 	= get_current_user_id();
 		$entry_data = ts_get_session_entry_data($eid);
 		$temp_data 	= $entry_data;
 		$curr_step 	= ((int)$next_step)-1;
@@ -919,8 +929,11 @@ function ajax_individual_registration() {
 				$paid_amount = get_post_meta($entry_id, 'paid_amount', true);
 				$grand_total = get_post_meta($entry_id, 'grand_total', true);
 				if($paid_amount!=$grand_total) {
-					do_action('registration_edited', $entry_id, $user_id);
+					do_action('registration_edited', $entry_id, $user_id, $remaining_amount);
 				}
+                if( $amount_credited > 0 ){
+                    update_post_meta($entry_id,'amount_credited',$amount_credited);
+                }
 			}
 		}
 		if($tab=='payment') {
@@ -956,7 +969,7 @@ function ajax_individual_registration() {
 					$updated = wp_update_post(array('ID' => $updated, 'post_title' => 'Entry #'. $updated), true);
 				}
 
-				$entry_type = get_term_by('name', 'Individual', 'ts_entry_type'); // I belive this should be individual.
+				$entry_type = get_term_by('name', 'Individual', 'ts_entry_type');
 				wp_set_object_terms($updated, $entry_type->term_id, 'ts_entry_type');
 
 				$grand_total = ts_grand_total($eid, $temp_data);
@@ -1998,7 +2011,7 @@ function ajax_delete_item() {
 				$response['message'][] = __('Access Denied');
 			}
 		}
-		else if($type='roster') {
+		else if($type=='roster') {
 			if(current_user_can('delete_post', $id)){
 				$delete = wp_delete_post($id, true);
 				if($delete && ! is_wp_error($delete)) {
@@ -2011,7 +2024,25 @@ function ajax_delete_item() {
 				$response['message'][] = __('Access Denied');
 			}
 		}
-			
+        else if( $type == 'invoice') {
+            if(current_user_can('delete_post', $id)){
+                $entry_id = (int)get_post_meta($id,'entry_id',true);
+                $ts_entry_previous_status = get_post_meta( $entry_id, 'ts_entry_hidden_post_status', true);
+
+                delete_post_meta($entry_id,'ts_entry_invoice_amount');
+                delete_post_meta($entry_id,'invoice_due');
+                delete_post_meta($entry_id,'invoice_id');
+                delete_post_meta($entry_id,'ts_entry_invoice_note');
+                delete_post_meta($entry_id,'ts_entry_hidden_post_status');
+                $delete = wp_delete_post($id, true);
+
+                ts_change_post_status($entry_id, $ts_entry_previous_status );
+
+            }else{
+                $response['message'][] = __('Access Denied');
+            }
+        }
+
 		if($delete && ! is_wp_error($delete)) {
 			$response['success'] = true;
 			$response['message'][] = __('Successfully deleted.');
@@ -2095,5 +2126,67 @@ function ajax_pay_invoice() {
 
         echo json_encode($response);
     endif;
+    die();
+}
+
+function ajax_create_invoice() {
+
+    if($_POST) :
+
+        check_ajax_referer('ts-save-item', 'token');
+
+        $id				            = $_POST['entryid'];
+        $ts_entry_invoice_amount 	= $_POST['ts-entry-invoice-amount'];
+        $ts_entry_invoice_note 		= $_POST['ts-entry-invoice-note'];
+        $ts_entry_hidden_post_status= $_POST['ts_entry_hidden_post_status'];
+
+        $id 			= absint($id);
+        $has_error 		= true;
+
+        $response = array(
+            'success' => false,
+            'id' => $id,
+            'redirect' => false,
+        );
+
+        $invoice_id = false;
+        if(isset($ts_entry_invoice_amount)) {
+            $ts_entry_invoice_amount = intval( $ts_entry_invoice_amount );
+            update_post_meta($id, "ts_entry_invoice_amount", $ts_entry_invoice_amount);
+            $invoice_id = wp_insert_post(array (
+                'post_type' => 'ts_invoice',
+                'post_title' => 'Invoice #' . $id,
+                'post_status' => 'unpaid',
+                'ping_status' => 'closed',
+            ));
+            if ($id) {
+                update_post_meta($invoice_id, 'invoice_amount', $ts_entry_invoice_amount);
+                do_action('ts_invoice_created', $id, $invoice_id);
+                $has_error 		= false;
+            }
+        }
+        if(isset($ts_entry_invoice_note)) {
+            $ts_entry_invoice_note = sanitize_textarea_field( $ts_entry_invoice_note );
+            update_post_meta($id, "ts_entry_invoice_note", $ts_entry_invoice_note);
+            if ( $invoice_id ) {
+                update_post_meta($invoice_id, 'invoice_note', $ts_entry_invoice_note);
+            }
+        }
+        if(isset($ts_entry_hidden_post_status)) {
+            $ts_entry_hidden_post_status = sanitize_textarea_field( $ts_entry_hidden_post_status );
+            update_post_meta($id, "ts_entry_hidden_post_status", $ts_entry_hidden_post_status);
+        }
+
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+            $response['redirect'] = admin_url('admin.php?page=ts-invoices');
+        }
+        echo json_encode($response);
+
+    endif;
+
     die();
 }

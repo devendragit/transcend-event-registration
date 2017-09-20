@@ -166,6 +166,16 @@ jQuery(document).ready(function($) {
 		}	
     });
 
+	$('#form-create-invoice').on('submit', function(e){
+		e.preventDefault();
+		$(this).find('input[type="submit"]').val('Creating...');
+		var formdata =  new FormData(this);
+		formdata.append('token', ajax_post_object.tokens.save_item);
+		formdata.append('action', 'create_invoice');
+		var form = new TSForm(formdata);
+		form.submitForm(callbackCreateInvoice);
+	});
+
     $('.ts-registrationform-wrapper').on('click', '.btn-saveroster', function(e){
 		e.preventDefault();
 		$('#popup-refresh').modal('show');
