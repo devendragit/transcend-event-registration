@@ -165,3 +165,6 @@ tr.acf-field[data-name="email"] {
 #adminmenu .wp-submenu li.wp-first-item {
     display: none !important;
 }
+.acf-input-wrap input[type="text"] {
+    max-width: none;
+}
