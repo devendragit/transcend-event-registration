@@ -1,8 +1,8 @@
 body.custom-user {
-	font-family: 'Omnes-Regular';
+    font-family: 'Omnes-Regular';
 }
 body.custom-user .btn {
-	font-family: 'Omnes-Semibold';
+    font-family: 'Omnes-Semibold';
 }
 body.custom-user #wpadminbar {
     height: 38px;
@@ -30,14 +30,14 @@ body.custom-user #wpadminbar * {
     display: none;
 }
 #profile-page h2 {
-	font-size: 18px;
+    font-size: 18px;
     font-weight: bold;
-    margin: 25px 0 0;	
+    margin: 25px 0 0;
 }
 #profile-page h3 {
-	font-size: 17px;
+    font-size: 17px;
     font-weight: bold;
-    margin: 25px 0 0;	
+    margin: 25px 0 0;
 }
 #wp-admin-bar-site-logo a {
     background: transparent !important;
@@ -48,7 +48,7 @@ body.custom-user #wpadminbar * {
     vertical-align: middle;
 }
 #wp-admin-bar-site-logo img {
-	max-height: 88%;
+    max-height: 88%;
 }
 #tourstops-list tr:hover {
     background-color: #ccc;
@@ -61,7 +61,7 @@ body.custom-user #wpadminbar * {
 }
 .custom-user h1.admin-page-title,
 .custom-user h2.admin-sub-title {
-     font-family: "Oswald", sans-serif;
+    font-family: "Oswald", sans-serif;
 }
 h1.admin-page-title {
     font-size: 24px !important;
@@ -85,9 +85,9 @@ h2.admin-sub-title {
     height: 40px;
     min-width: 280px;
     margin: 0 10px;
-    padding: 0 10px;  
+    padding: 0 10px;
     font-size: 16px;
-    font-weight: bold;      
+    font-weight: bold;
 }
 .new-registration-form button {
     padding: 14px 40px !important;
@@ -107,6 +107,35 @@ table.dataTable thead .sorting {
 table.dataTable .dataTables_length {
     display: none;
 }
+table.dataTable tfoot {
+    position: absolute;
+    top: -13px;
+    left: -18px;
+}
+table.dataTable tfoot th,
+table.dataTable tfoot td {
+    border-top: 0;
+    padding: 10px 18px 10px 18px;
+    width: 180px;
+}
+table.dataTable tfoot th select,
+table.dataTable tfoot td select {
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid #e6e6e6;
+    font-size: 13px;
+    padding: 3px 15px;
+    width: 100%;
+    color: #484848;
+    background-color: #fcfcfc;
+    box-shadow: none;
+    margin-right: 10px;
+    height: 28px;
+    line-height: 28px;
+}
+.dataTables_wrapper .dataTables_filter input[type="search"] {
+    width: 350px;
+}
 tr.acf-field[data-name="invitees"],
 tr.acf-field[data-name="email"] {
     display: none;
@@ -122,17 +151,24 @@ tr.acf-field[data-name="email"] {
 #view-entry-page .table-container {
     margin: 0 12px;
 }
-.btn-addvoucher {
+.admin-page-title .btn {
     margin: -7px 0 0 10px;
 }
+#popup-save-tour .modal-dialog,
 #popup-save-voucher .modal-dialog,
-#popup-create-invoice .modal-dialog{
+#popup-create-invoice .modal-dialog {
     max-width: 360px;
 }
 .ts-entry-invoice input,
 .ts-entry-invoice textarea{
     margin-bottom: 15px;
 }
-.btn-addinvoice{
-    margin: 12px 0 20px 0px;
+#adminmenu .wp-submenu li.wp-first-item {
+    display: none !important;
+}
+.acf-input-wrap input[type="text"] {
+    max-width: none;
+}
+.btn-addvoucher {
+   margin: -7px 0 0 10px;
 }

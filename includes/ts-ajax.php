@@ -183,6 +183,11 @@ function ajax_studio_registration() {
 		}
 		if($tab=='workshop') {
 			if($workshop){
+
+				if((! isset($workshop['tour_city']) || $workshop['tour_city']=='') || ts_is_paid($entry_id) || (isset($workshop['tour_city']) && get_post_meta($workshop['tour_city'], 'status', true)==2) ) {
+					$workshop['tour_city'] = $temp_data['workshop']['tour_city'];
+				}
+
 				$temp_data['workshop'] = $workshop;
 
 				$participants 		= ts_check_value($workshop, 'participants');
@@ -1228,8 +1233,10 @@ function ajax_set_tour_city() {
 		$entry_data = ts_get_session_entry_data($eid);
 
 		$temp_data = $entry_data;
-
-		$temp_data['workshop']['tour_city'] = $tour_city;
+				
+		if(! ts_is_paid($eid) && get_post_meta($tour_city, 'status', true) != 2 ) {
+			$temp_data['workshop']['tour_city'] = $tour_city;
+		}
 
 		ts_set_session_entry_data($temp_data, $eid);
 
@@ -1623,7 +1630,6 @@ function ajax_save_voucher() {
 
 		$response = array(
 			'success' => false, 
-			'id' => $id,
 		);
 
 		$args = array(
@@ -1632,7 +1638,7 @@ function ajax_save_voucher() {
 			'post_status' => 'publish',
 		);
 
-		if($id) {
+		if($id && current_user_can('edit_coupon', $id)){
 			$args['ID'] = $id;
 			$voucher_id = wp_update_post($args, true);
 		}
@@ -1645,7 +1651,7 @@ function ajax_save_voucher() {
 			update_post_meta($voucher_id, 'discount', $discount);
 			update_post_meta($voucher_id, 'workshop', $workshop);
 			update_post_meta($voucher_id, 'competition', $competition);
-
+			$response['id'] = $voucher_id;
 			$has_error = false;
 		}
 
@@ -1657,6 +1663,75 @@ function ajax_save_voucher() {
 			$response['discount'] = $discount;
 			$response['workshop'] = $workshop==1 ? 'Enabled' : 'Disabled';
 			$response['competition'] = $competition==1 ? 'Enabled' : 'Disabled';
+			$response['success'] = true;
+		}
+		echo json_encode($response);
+
+	endif;
+
+    die();		
+}
+
+function ajax_save_tour() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-save-item', 'token');
+
+		$id				= $_POST['tour-id'];
+		$status 		= $_POST['tour-status'];
+		$workshop 		= $_POST['tour-workshop'];
+		$title 			= $_POST['tour-title'];
+		$city 			= $_POST['tour-city'];
+		$venue 			= $_POST['tour-venue'];
+		$datefrom 		= $_POST['tour-datefrom'];
+		$dateto 		= $_POST['tour-dateto'];
+		$listid 		= $_POST['tour-listid'];
+
+		$id 			= absint($id);
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+		);
+
+		$args = array(
+			'post_title' => $title,
+			'post_type' => 'ts_tour',
+			'post_status' => 'publish',
+		);
+
+		if($id && current_user_can('edit_tour', $id)){
+			$args['ID'] = $id;
+			$tour_id = wp_update_post($args, true);
+		}
+		else{
+			$args['post_content'] = '';
+			$tour_id = wp_insert_post($args, true);
+		}
+			
+		if($tour_id && !is_wp_error($tour_id)) {
+
+			$workshop = isset($workshop) && isset($status) ? 1 : 2;
+			$status = isset($status) ? 1 : 2;
+
+			update_post_meta($tour_id, 'status', $status);
+			update_post_meta($tour_id, 'workshop', $workshop);
+			update_post_meta($tour_id, 'city', $city);
+			update_post_meta($tour_id, 'venue', $venue);
+			update_post_meta($tour_id, 'date_from', date_format(date_create($datefrom),'Y/m/d'));
+			update_post_meta($tour_id, 'date_to', date_format(date_create($dateto),'Y/m/d'));
+			update_post_meta($tour_id, 'list_id', $listid);
+			$response['id'] = $tour_id;
+			$has_error = false;
+		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['tour'] = $status;
+			$response['workshop'] = $workshop;
 			$response['success'] = true;
 		}
 		echo json_encode($response);

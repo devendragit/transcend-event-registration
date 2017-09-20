@@ -44,14 +44,14 @@ function ts_create_terms() {
 				update_term_meta($term_id, 'fee_standard', $fee_meta[$term_slug]['fee_standard']);
 				update_term_meta($term_id, 'fee_early_oneday', $fee_meta[$term_slug]['fee_early_oneday']);
 				update_term_meta($term_id, 'fee_standard_oneday', $fee_meta[$term_slug]['fee_standard_oneday']);
-			}	
+			}
 		}
 	}
 }
 
 function ts_create_tour_posts() {
 
-	$tours = ts_get_tour_cities();	
+	$tours = ts_get_tour_cities();
 
 	foreach ($tours as $t) {
 		if(! ts_post_exists($t['title'])) {
@@ -96,7 +96,7 @@ function ts_update_agediv_fees() {
 			$term_slug 	= $term->slug;
 
 			$fee_meta 	= ts_get_fees_meta();
-			
+
 			update_term_meta($term_id, 'fee_early', $fee_meta[$term_slug]['fee_early']);
 			update_term_meta($term_id, 'fee_standard', $fee_meta[$term_slug]['fee_standard']);
 			update_term_meta($term_id, 'fee_early_oneday', $fee_meta[$term_slug]['fee_early_oneday']);
@@ -125,12 +125,12 @@ function ts_update_agedivs() {
 
 	$term 	 = get_term_by('name', 'Munchkins', 'ts_agediv');
 	$term_id = $term->term_id;
-	wp_update_term($term_id, 'ts_agediv', array('name' => 'Munchkin'));			
+	wp_update_term($term_id, 'ts_agediv', array('name' => 'Munchkin'));
 }
 
 function ts_update_tour_posts() {
 
-	$tours = ts_get_tour_cities();	
+	$tours = ts_get_tour_cities();
 
 	foreach ($tours as $t) {
 		if($id = ts_post_exists($t['title'])) {
@@ -162,40 +162,40 @@ function ts_update_entries() {
 	$args = array(
 		'post_status' => array('pending', 'publish', 'unpaid', 'paid', 'unpaidcheck', 'paidcheck'),
 	);
-	$entries = ts_get_posts('ts_entry', -1, $args); 
+	$entries = ts_get_posts('ts_entry', -1, $args);
 
 	if($entries) {
-		foreach ($entries as $entry) { 
+		foreach ($entries as $entry) {
 			setup_postdata($entry);
-            $entry_id = $entry->ID;
-            $workshop = get_post_meta($entry_id, 'workshop', true);
-            $tour_city 		= $workshop['tour_city'];
-            if(isset($tour_city)) {
-            	$date_from 	= get_post_meta($tour_city, 'date_from', true);
+			$entry_id = $entry->ID;
+			$workshop = get_post_meta($entry_id, 'workshop', true);
+			$tour_city 		= $workshop['tour_city'];
+			if(isset($tour_city)) {
+				$date_from 	= get_post_meta($tour_city, 'date_from', true);
 				$date_to 	= get_post_meta($tour_city, 'date_to', true);
-            	update_post_meta($entry_id, 'tour_date', date_format(date_create($date_from),'Y/m/d'));
+				update_post_meta($entry_id, 'tour_date', date_format(date_create($date_from),'Y/m/d'));
 				update_post_meta($entry_id, 'tour_date', date_format(date_create($date_to),'Y/m/d'));
-            }
-            $status = get_post_status($entry_id);
-            if($status=='paid' || $status=='paidcheck'){
+			}
+			$status = get_post_status($entry_id);
+			if($status=='paid' || $status=='paidcheck'){
 				$paid_amount = get_post_meta($entry_id, 'paid_amount', true);
 				$grand_total = get_post_meta($entry_id, 'grand_total', true);
 				if(! $paid_amount) {
-	            	update_post_meta($entry_id, 'paid_amount', $grand_total);
-	        	}
-	        }	
-        }
-    }
+					update_post_meta($entry_id, 'paid_amount', $grand_total);
+				}
+			}
+		}
+	}
 }
 
 function ts_login_logo_url() {
 
-    return home_url();
+	return home_url();
 }
 
 function ts_login_logo_url_title() {
-    
-    return get_bloginfo('name');
+
+	return get_bloginfo('name');
 }
 
 function ts_get_current_user_role() {
@@ -207,18 +207,18 @@ function ts_get_current_user_role() {
 }
 
 function ts_is_author($postid) {
-    $current_user = wp_get_current_user();
-    if (empty($current_user))
-        return false;
-    $user_id = $current_user->ID;
+	$current_user = wp_get_current_user();
+	if (empty($current_user))
+		return false;
+	$user_id = $current_user->ID;
 
-    $post = get_post($postid);
-    $post_author = $post->post_author;
+	$post = get_post($postid);
+	$post_author = $post->post_author;
 
-    if($user_id==$post_author)
-    	return true;
-    else
-    	return false;
+	if($user_id==$post_author)
+		return true;
+	else
+		return false;
 }
 
 function ts_get_posts($post_type='ts_entry', $count=-1, $moreargs=array()) {
@@ -230,9 +230,9 @@ function ts_get_posts($post_type='ts_entry', $count=-1, $moreargs=array()) {
 
 	$args = array_merge($args, $moreargs);
 
-	$post = get_posts($args);	
+	$posts = get_posts($args);
 
-	return $post;
+	return $posts;
 }
 
 function ts_get_user_posts($post_type='ts_entry', $count=-1, $user_id=false, $moreargs=array()) {
@@ -248,9 +248,9 @@ function ts_get_user_posts($post_type='ts_entry', $count=-1, $user_id=false, $mo
 
 	$args = array_merge($args, $moreargs);
 
-	$post = get_posts($args);	
+	$posts = get_posts($args);
 
-	return $post;
+	return $posts;
 }
 
 
@@ -266,7 +266,7 @@ function ts_remove_personal_options($options) {
 		$options = preg_replace('#<h3>'. __("Custom Gravatar") .'</h3>#s', '<h2>Profile Image</h2>', $options, 1);
 		$options = preg_replace('#'. __("Use Custom Gravatar") .'#s', 'Use Custom Profile Image', $options, 1);
 		$options = preg_replace('#<h3>Studio Information</h3>#s', '<h2>Studio Information</h2>', $options, 1);
-	}	
+	}
 	return $options;
 }
 
@@ -278,93 +278,93 @@ function ts_profile_subject_start() {
 function ts_profile_subject_end() {
 	ob_end_flush();
 	if(current_user_can('is_custom_user')){
-	?>
-	<script type="text/javascript">
-	jQuery(document).ready(function($) {
-		var acf = $('#acf-form-data');
-		var title = acf.next();
-		var table = title.next();
-		$(table).prependTo('#your-profile');
-		$(title).prependTo('#your-profile');
-		$(acf).prependTo('#your-profile');
-	});	
-	</script>
-	<?php
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function($) {
+				var acf = $('#acf-form-data');
+				var title = acf.next();
+				var table = title.next();
+				$(table).prependTo('#your-profile');
+				$(title).prependTo('#your-profile');
+				$(acf).prependTo('#your-profile');
+			});
+		</script>
+		<?php
 	}
 }
 
 function ts_filter_editable_roles($roles) {
-    if(isset($roles['administrator']) && ! current_user_can('administrator')){
-    	unset($roles['administrator']);
-    }
-    return $roles;
+	if(isset($roles['administrator']) && ! current_user_can('administrator')){
+		unset($roles['administrator']);
+	}
+	return $roles;
 }
 
 function ts_map_meta_cap($caps, $cap, $user_id, $args){
 	switch($cap){
-	    case 'edit_user':
-	    case 'remove_user':
-	    case 'promote_user':
-	        if(isset($args[0]) && $args[0] == $user_id)
-	            break;
-	        elseif(!isset($args[0]))
-	            $caps[] = 'do_not_allow';
-	        $other = new WP_User(absint($args[0]));
-	        if($other->has_cap('administrator')){
-	            if(!current_user_can('administrator')){
-	                $caps[] = 'do_not_allow';
-	            }
-	        }
-	        break;
-	    case 'delete_user':
-	    case 'delete_users':
-	        if(!isset($args[0]))
-	            break;
-	        $other = new WP_User(absint($args[0]));
-	        if($other->has_cap('administrator')){
-	            if(!current_user_can('administrator')){
-	                $caps[] = 'do_not_allow';
-	            }
-	        }
-	        break;
-	    default:
-	        break;
+		case 'edit_user':
+		case 'remove_user':
+		case 'promote_user':
+			if(isset($args[0]) && $args[0] == $user_id)
+				break;
+			elseif(!isset($args[0]))
+				$caps[] = 'do_not_allow';
+			$other = new WP_User(absint($args[0]));
+			if($other->has_cap('administrator')){
+				if(!current_user_can('administrator')){
+					$caps[] = 'do_not_allow';
+				}
+			}
+			break;
+		case 'delete_user':
+		case 'delete_users':
+			if(!isset($args[0]))
+				break;
+			$other = new WP_User(absint($args[0]));
+			if($other->has_cap('administrator')){
+				if(!current_user_can('administrator')){
+					$caps[] = 'do_not_allow';
+				}
+			}
+			break;
+		default:
+			break;
 	}
 	return $caps;
 }
 
 function ts_pre_user_query($user_search) {
-    $user = wp_get_current_user();
-    if (! current_user_can('manage_options')) {
-        global $wpdb;
-        $user_search->query_where = 
-            str_replace('WHERE 1=1', 
-            "WHERE 1=1 AND {$wpdb->users}.ID IN (
+	$user = wp_get_current_user();
+	if (! current_user_can('manage_options')) {
+		global $wpdb;
+		$user_search->query_where =
+			str_replace('WHERE 1=1',
+				"WHERE 1=1 AND {$wpdb->users}.ID IN (
                  SELECT {$wpdb->usermeta}.user_id FROM $wpdb->usermeta 
                     WHERE {$wpdb->usermeta}.meta_key = '{$wpdb->prefix}capabilities'
-                    AND {$wpdb->usermeta}.meta_value NOT LIKE '%administrator%')", 
-            $user_search->query_where
-       );
-    }
+                    AND {$wpdb->usermeta}.meta_value NOT LIKE '%administrator%')",
+				$user_search->query_where
+			);
+	}
 }
 
 function ts_remove_admin_footer() {
-    if (current_user_can('is_customer')) {
-		add_filter('admin_footer_text', '__return_empty_string', 11); 
+	if (current_user_can('is_customer')) {
+		add_filter('admin_footer_text', '__return_empty_string', 11);
 		add_filter('update_footer', '__return_empty_string', 11);
-    }
+	}
 }
 
 function ts_remove_help_tabs() {
 
 	if (current_user_can('is_customer')) {
-	    $screen = get_current_screen();
-	    $screen->remove_help_tabs();
-	}    
+		$screen = get_current_screen();
+		$screen->remove_help_tabs();
+	}
 }
 
 function ts_remove_core_updates(){
-	
+
 	if(current_user_can('is_custom_user')) {
 		global $wp_version;
 		return(object) array('last_checked'=> time(),'version_checked'=> $wp_version,);
@@ -375,17 +375,17 @@ function ts_remove_admin_notices() {
 
 	if(current_user_can('is_custom_user')) {
 
-	    global $wp_filter;
+		global $wp_filter;
 
-        if (isset($wp_filter['user_admin_notices'])) {
-            unset($wp_filter['user_admin_notices']);
-        }
-	    if (isset($wp_filter['admin_notices'])) {
-	        unset($wp_filter['admin_notices']);
-	    }
-	    if (isset($wp_filter['all_admin_notices'])) {
-	        unset($wp_filter['all_admin_notices']);
-	    }
+		if (isset($wp_filter['user_admin_notices'])) {
+			unset($wp_filter['user_admin_notices']);
+		}
+		if (isset($wp_filter['admin_notices'])) {
+			unset($wp_filter['admin_notices']);
+		}
+		if (isset($wp_filter['all_admin_notices'])) {
+			unset($wp_filter['all_admin_notices']);
+		}
 	}
 }
 
@@ -403,7 +403,7 @@ function ts_admin_body_class($classes) {
 		$classes.= ' folded';
 	}
 
-    return $classes;
+	return $classes;
 }
 
 function ts_frontend_body_class($classes) {
@@ -413,18 +413,18 @@ function ts_frontend_body_class($classes) {
 	if(is_page(ts_get_register_page_id()))
 		$classes[] = 'ts-event-registration';
 
-    return $classes;
+	return $classes;
 }
 
 function ts_count_user_login($user_login, $user) {
 
-    if(get_user_meta($user->ID, 'ts_login_count', true)) {
-        $login_count = get_user_meta($user->ID, 'ts_login_count', true);
-        update_user_meta($user->ID, 'ts_login_count', ((int) $login_count + 1));
-    } 
-    else {
-        update_user_meta($user->ID, 'ts_login_count', 1);
-    }	
+	if(get_user_meta($user->ID, 'ts_login_count', true)) {
+		$login_count = get_user_meta($user->ID, 'ts_login_count', true);
+		update_user_meta($user->ID, 'ts_login_count', ((int) $login_count + 1));
+	}
+	else {
+		update_user_meta($user->ID, 'ts_login_count', 1);
+	}
 }
 
 function ts_login_redirect($redirect_to, $request, $user) {
@@ -432,7 +432,7 @@ function ts_login_redirect($redirect_to, $request, $user) {
 	if (isset($user->roles) && is_array($user->roles)) {
 		if (in_array('event_organizer', $user->roles)) {
 			return TS_ORGANIZER_DASHBOARD;
-		} 
+		}
 		else if (in_array('studio', $user->roles) ||  in_array('individual', $user->roles)) {
 			if(absint(get_user_meta($user->ID, 'ts_login_count', true)) > 0){
 				return TS_STUDIO_DASHBOARD;
@@ -440,7 +440,7 @@ function ts_login_redirect($redirect_to, $request, $user) {
 			else{
 				return $redirect_to;
 			}
-		} 
+		}
 		else {
 			if($redirect_to == get_permalink(ts_get_register_page_id())) {
 				return TS_ADMIN_DASHBOARD;
@@ -449,14 +449,14 @@ function ts_login_redirect($redirect_to, $request, $user) {
 				return $redirect_to;
 			}
 		}
-	} 
+	}
 	else {
 		return $redirect_to;
 	}
 }
 
 function ts_redirect_dashboard(){
-	
+
 	global $pagenow;
 
 	if(is_admin() && $pagenow == 'index.php'){
@@ -480,26 +480,26 @@ function ts_get_register_page_id() {
 function ts_restrict_media_to_user($wp_query) {
 
 	$query = $wp_query->query;
-	
-    if ($query['post_type'] == 'attachment') {
-        if (! current_user_can('manage_options')) {
-            global $current_user;
-            $wp_query->set('author', $current_user->ID);
-            if(current_user_can('is_customer')) {
-	            $mime_types = array('audio/mpeg','audio/x-realaudio','audio/wav','audio/ogg','audio/midi','audio/x-ms-wma','audio/x-ms-wax','audio/x-matroska');
-	            $wp_query->set('post_mime_type', $mime_types);
-        	}
-        }
-    }
+
+	if ($query['post_type'] == 'attachment') {
+		if (! current_user_can('manage_options')) {
+			global $current_user;
+			$wp_query->set('author', $current_user->ID);
+			if(current_user_can('is_customer')) {
+				$mime_types = array('audio/mpeg','audio/x-realaudio','audio/wav','audio/ogg','audio/midi','audio/x-ms-wma','audio/x-ms-wax','audio/x-matroska');
+				$wp_query->set('post_mime_type', $mime_types);
+			}
+		}
+	}
 }
 
 function ts_modify_nodes($wp_admin_bar) {
 
 	if(current_user_can('is_custom_user')) {
-	    $wp_admin_bar->remove_node('wp-logo');
-	    $wp_admin_bar->remove_node('new-content');
-	    $wp_admin_bar->remove_node('gform-forms');
-	    
+		$wp_admin_bar->remove_node('wp-logo');
+		$wp_admin_bar->remove_node('new-content');
+		$wp_admin_bar->remove_node('gform-forms');
+
 	}
 }
 
@@ -508,14 +508,14 @@ function ts_admin_header_nav() {
 	if(current_user_can('is_custom_user')) {
 
 		global $typenow, $pagenow;
-		
+
 		$user_id      = get_current_user_id();
 		$current_user = wp_get_current_user();
 		$profile_url  = get_edit_profile_url($user_id);
 
 		if (! $user_id)
 			return;
-	}	
+	}
 }
 
 function ts_update_term_order($term_id, $term_name, $tax='ts_agediv') {
@@ -551,20 +551,20 @@ function ts_update_term_order($term_id, $term_name, $tax='ts_agediv') {
 			$order = 2;
 		}
 		update_term_meta($term_id, 'type_order', $order);
-	}	
+	}
 }
 
 function ts_edit_admin_menus() {
 
-    /*global $menu;
+	/*global $menu;
 
     $menu[6][6] = 'dashicons-groups';
     $menu[7][6] = 'dashicons-calendar-alt';*/
-    
+
 }
 
 function ts_update_roster_order() {
-	
+
 	$roster = ts_get_posts('ts_studio_roster');
 	$siblings = ts_get_posts('ts_sibling');
 
@@ -576,11 +576,11 @@ function ts_update_roster_order() {
 		$div_id = $age_div[0]->term_id;
 		$div_order = get_term_meta($div_id, 'div_order', true);
 		update_post_meta($rid, 'age_cat_order', $div_order);
-	}	
+	}
 }
 
 function ts_update_roster_agedivs() {
-	
+
 	$roster = ts_get_posts('ts_studio_roster');
 	$siblings = ts_get_posts('ts_sibling');
 
@@ -590,7 +590,7 @@ function ts_update_roster_agedivs() {
 		$rid = $r->ID;
 		$birth_date = get_post_meta($rid, 'birth_date', true);
 		ts_set_age_division($rid, $birth_date);
-	}	
+	}
 }
 
 function ts_update_age_division($id, $age_division) {
@@ -687,13 +687,13 @@ function ts_get_routine_agediv_name($age_ave) {
 }
 
 function ts_change_post_status($post_id, $status) {
-    $post = array(
-    	'ID' => $post_id, 
-    	'post_status' => $status, 
-   );
-    remove_action('save_post', 'ts_save_custom_meta_box');
-    wp_update_post($post);
-    add_action('save_post', 'ts_save_custom_meta_box');
+	$post = array(
+		'ID' => $post_id,
+		'post_status' => $status,
+	);
+	remove_action('save_post', 'ts_save_custom_meta_box');
+	wp_update_post($post);
+	add_action('save_post', 'ts_save_custom_meta_box');
 }
 
 function ts_set_session_entry_data($entry_data, $eid, $user_id=false) {
@@ -701,7 +701,7 @@ function ts_set_session_entry_data($entry_data, $eid, $user_id=false) {
 	if(! $user_id)
 		$user_id = get_current_user_id();
 
-	$_SESSION['user_temp'][$user_id]['entry'][$eid] = $entry_data;	
+	$_SESSION['user_temp'][$user_id]['entry'][$eid] = $entry_data;
 }
 
 function ts_get_session_entry_data($eid, $user_id=false) {
@@ -719,6 +719,8 @@ function ts_load_entry_data_from_post($eid, $user_id=false) {
 
 	$entry_data = ts_get_entry_data_from_post($eid, $user_id);
 	$_SESSION['user_temp'][$user_id]['entry'][$eid] = $entry_data;
+
+	return $entry_data;
 }
 
 function ts_get_entry_data_from_post($entry_id, $user_id=false) {
@@ -730,7 +732,7 @@ function ts_get_entry_data_from_post($entry_id, $user_id=false) {
 
 	if(get_post_status($entry_id) !== false) {
 		$entry_data['profile'] = get_post_meta($entry_id, 'profile', true);
-		$entry_data['workshop'] = get_post_meta($entry_id, 'workshop', true);		
+		$entry_data['workshop'] = get_post_meta($entry_id, 'workshop', true);
 		$entry_data['competition'] = get_post_meta($entry_id, 'competition', true);
 		$entry_data['grand_total'] = get_post_meta($entry_id, 'grand_total', true);
 		$entry_data['discount_code'] = get_post_meta($entry_id, 'discount_code', true);
@@ -822,7 +824,7 @@ function ts_get_workshop_fee($id, $duration_id=1, $eid, $tour_city=false) {
 		$fee_standard 			= get_term_meta($age_div[0]->term_id, 'fee_standard', true);
 		$fee_standard_oneday 	= get_term_meta($age_div[0]->term_id, 'fee_standard_oneday', true);
 	}
-		
+
 	return $duration_id==2 ? $fee_standard_oneday : $fee_standard;
 }
 
@@ -891,7 +893,7 @@ function ts_get_total_workshop_fee($eid, $data=false) {
 		}
 	}
 
-	return $workshop_fee;	
+	return $workshop_fee;
 }
 
 function ts_get_discounted_total_workshop_fee($eid, $data=false) {
@@ -902,7 +904,7 @@ function ts_get_discounted_total_workshop_fee($eid, $data=false) {
 
 	$workshop_fee = $total_workshop_fee - $total_scholarship_discount - $total_teacher_discount;
 
-	return $workshop_fee;	
+	return $workshop_fee;
 }
 
 function ts_get_total_scholarship_discount($eid, $data=false) {
@@ -922,8 +924,8 @@ function ts_get_total_scholarship_discount($eid, $data=false) {
 			$total_discount = $total_discount+$discount;
 		}
 	}
-		
-	return $total_discount;	
+
+	return $total_discount;
 }
 
 function ts_count_teachers($eid, $data=false) {
@@ -934,7 +936,7 @@ function ts_count_teachers($eid, $data=false) {
 	$participants 	= ts_check_value($entry_data, 'workshop', 'participants');
 
 	if(is_array($participants) && ! empty($participants)){
-		
+
 		$teacher = get_term_by('name', 'Teacher', 'ts_agediv');
 		$teacher_id = $teacher->term_id;
 
@@ -942,7 +944,7 @@ function ts_count_teachers($eid, $data=false) {
 			$agediv = $value['age_division'];
 			if($agediv==$teacher_id) {
 				$countTeachers++;
-			}			
+			}
 		}
 	}
 	return $countTeachers;
@@ -990,11 +992,11 @@ function ts_get_free_teacher_ids($eid, $data=false) {
 			if($agediv==$teacher_id && $count_teacher < $free_count) {
 				$count_teacher++;
 				$teacher_ids[] = $key;
-			}			
+			}
 		}
 	}
 
-	return $teacher_ids;	
+	return $teacher_ids;
 }
 
 function ts_count_dancers($participants, $teacher_id) {
@@ -1006,11 +1008,11 @@ function ts_count_dancers($participants, $teacher_id) {
 			$agediv = (int)$value['age_division'];
 			if($agediv!=$teacher_id) {
 				$count_dancers++;
-			}			
+			}
 		}
 	}
 
-	return $count_dancers;	
+	return $count_dancers;
 }
 
 function ts_get_total_teacher_discount($eid, $data=false) {
@@ -1041,11 +1043,11 @@ function ts_get_total_teacher_discount($eid, $data=false) {
 				$base_fee = ts_get_workshop_fee($key, $duration, $eid);
 				$discounted = ts_get_discounted_workshop_fee($base_fee, $discount);
 				$total_discount = $total_discount+$discounted;
-			}			
+			}
 		}
 	}
 
-	return $total_discount;	
+	return $total_discount;
 }
 
 function ts_get_routine_fee($count) {
@@ -1126,7 +1128,10 @@ function ts_mark_as_paid($entry_id, $user_id, $payment_method='stripe_payment') 
 	}
 	else {
 		ts_change_post_status($entry_id, 'paidcheck');
-	}	
+	}
+
+	$date_paid = date_format(date_create('now'),'Y/m/d');
+	update_post_meta($entry_id, 'date_paid', $date_paid);
 }
 
 function ts_save_paid_amount($entry_id, $user_id, $payment_method='stripe_payment', $grand_total) {
@@ -1170,24 +1175,24 @@ function ts_forgot_username_text($translated_text, $text, $domain) {
 
 	if (isset($_GET['forgotusername'])){
 		$msg_txt = 'Please enter your username or email address. You will receive a link to create a new password via email.';
-	    if (false !== strpos($translated_text, $msg_txt)){
-	        $translated_text = str_replace($msg_txt, 'Enter the email associated with your account and you will receive your username via email.', $translated_text);	
-	    }
+		if (false !== strpos($translated_text, $msg_txt)){
+			$translated_text = str_replace($msg_txt, 'Enter the email associated with your account and you will receive your username via email.', $translated_text);
+		}
 
 		$msg_txt2 = 'Enter your provided username or email and you will receive a link to create a new password via email.';
-	    if (false !== strpos($translated_text, $msg_txt2)){
-	        $translated_text = str_replace($msg_txt2, 'Enter the email associated with your account and you will receive your username via email.', $translated_text);	
-	    }
+		if (false !== strpos($translated_text, $msg_txt2)){
+			$translated_text = str_replace($msg_txt2, 'Enter the email associated with your account and you will receive your username via email.', $translated_text);
+		}
 
 		$username_txt = 'Username or Email';
-	    if (false !== strpos($translated_text, $username_txt)){
-	        $translated_text = str_replace($username_txt, 'Email', $translated_text);	
-	    }
+		if (false !== strpos($translated_text, $username_txt)){
+			$translated_text = str_replace($username_txt, 'Email', $translated_text);
+		}
 	}
 
-    if (false !== strpos($translated_text, 'Howdy,')){
-        $translated_text = str_replace('Howdy,', '', $translated_text);	
-    }
+	if (false !== strpos($translated_text, 'Howdy,')){
+		$translated_text = str_replace('Howdy,', '', $translated_text);
+	}
 
 	if (false !== strpos($translated_text, 'Reset Password')){
 		$translated_text = str_replace('Reset Password', 'Create Password', $translated_text);
@@ -1200,17 +1205,17 @@ function ts_footer_scripts() {
 	if (isset($_GET['forgotusername'])) {
 		?>
 		<script type="text/javascript">
-		jQuery('.fl-post-title span').text('Forgot Username');
-		jQuery('#lostpasswordform .tml-lostpassword .message').text('Enter the email associated with your account and you will receive your username via email.');
-		jQuery('#lostpasswordform .tml-user-login-wrap label').text('Email');
-		jQuery('#lostpasswordform .tml-submit-wrap #wp-submit').val('Get Username');
+			jQuery('.fl-post-title span').text('Forgot Username');
+			jQuery('#lostpasswordform .tml-lostpassword .message').text('Enter the email associated with your account and you will receive your username via email.');
+			jQuery('#lostpasswordform .tml-user-login-wrap label').text('Email');
+			jQuery('#lostpasswordform .tml-submit-wrap #wp-submit').val('Get Username');
 		</script>
-		<?php 
+		<?php
 	}
-} 
+}
 
 function ts_media_library_default_tab($tab) {
-    return 'type_url';
+	return 'type_url';
 }
 
 function ts_display_entry_details($entry_id, $user_id=false) {
@@ -1230,7 +1235,7 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 	$countTeachers 			 		= absint(ts_check_value($workshop,'count_teachers'));
 	$countObservers 		 		= absint(ts_check_value($workshop,'count_observer'));
 	$countMunchkinObservers 		= absint(ts_check_value($workshop,'count_munchkinobserver'));
-	
+
 	$routines 						= ts_check_value($competition,'routines');
 
 	$workshop_fee 					= ts_get_total_workshop_fee($entry_id, $entry_data);
@@ -1239,7 +1244,7 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 	$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($entry_id, $entry_data);
 	$competition_fee 				= ts_get_total_competition_fee($entry_id, $entry_data);
 	$grand_total        			= ts_grand_total($entry_id, $entry_data);
-    $amount_credited                = absint(ts_check_value($entry_data,'amount_credited'));
+	$amount_credited                = absint(ts_check_value($entry_data,'amount_credited'));
 
 	if(! empty($discount_code)){
 		$discount_value	= absint(ts_get_discount_value($discount_code));
@@ -1250,7 +1255,7 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 	<table style="width: 100%; max-width: 800px; margin: 0 auto; padding: 50px 0;" cellspacing="0" cellpadding="0" border="0">
 		<tr class="tour-city">
 			<td colspan="3" align="center"><strong><?php echo get_the_title($workshop['tour_city']); ?></strong></td>
-		</tr>	
+		</tr>
 		<tr>
 			<td colspan="3">&nbsp;</td>
 		</tr>
@@ -1322,15 +1327,15 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 					</tr>
 					<?php
 					if(is_array($routines)) {
-						foreach ($routines as $r) { 
+						foreach ($routines as $r) {
 							$name = $r['name'];
-							$dancersCount = count(explode(",",$r['dancers'])); 
+							$dancersCount = count(explode(",",$r['dancers']));
 							?>
 							<tr>
 								<td><?php echo $name; ?></td>
 								<td align="right"><strong>$<?php echo number_format(ts_get_routine_fee($dancersCount),2); ?></strong></td>
 							</tr>
-						<?php
+							<?php
 						}
 					}
 					?>
@@ -1339,7 +1344,7 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 						<td align="right"><strong><span class="total-routines f-right"><?php echo count($routines); ?></span></strong></td>
 					</tr>
 					<tr>
-						<td><strong style="text-decoration:underline;">Competition Total</strong> 
+						<td><strong style="text-decoration:underline;">Competition Total</strong>
 						<td align="right"><strong><span class="total-competition-fee f-right">$<?php echo number_format($competition_fee, 2); ?></span></strong></td>
 					</tr>
 				</table>
@@ -1350,12 +1355,12 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 		</tr>
 		<?php
 		if(! empty($discount_code)) { ?>
-		<tr>
-			<td align="right" colspan="3">
-				Discount Code: <strong><?php echo $discount_code; ?></strong> <span style="color:red;"> (-$<?php echo number_format($discount_value, 2);?>)</span>
-			</td>
-		</tr>
-		<?php
+			<tr>
+				<td align="right" colspan="3">
+					Discount Code: <strong><?php echo $discount_code; ?></strong> <span style="color:red;"> (-$<?php echo number_format($discount_value, 2);?>)</span>
+				</td>
+			</tr>
+			<?php
 		} ?>
 		<tr>
 			<td align="right" colspan="3">
@@ -1377,10 +1382,9 @@ function ts_display_entry_details($entry_id, $user_id=false) {
 			<td align="right" colspan="3"><a class="btn btn-blue btn-addinvoice" href="javascript:void(0);">Create Invoice</a></td>
 		</tr>
 		<tr>
-			<td colspan="3"> </td>
+			<td colspan="3">&nbsp;</td>
 		</tr>
 	</table>
-
 	<?php
 	ts_create_invoice($entry_id);
 	$output = ob_get_contents();
@@ -1393,51 +1397,51 @@ function ts_modify_admin_bar($wp_admin_bar) {
 
 	if(current_user_can('is_custom_user')) {
 
-	    $wp_admin_bar->remove_node('wp-logo');
-	    $wp_admin_bar->remove_node('new-content');
-	    $wp_admin_bar->remove_node('site-name');
+		$wp_admin_bar->remove_node('wp-logo');
+		$wp_admin_bar->remove_node('new-content');
+		$wp_admin_bar->remove_node('site-name');
 
 		$site_logo = array(
-		    'id' => 'site-logo',
-		    'title' => '<img src="'. TS_URI .'assets/images/logo.png" />',
+			'id' => 'site-logo',
+			'title' => '<img src="'. TS_URI .'assets/images/logo.png" />',
 			'href' => get_home_url(),
-            'meta' => array(
-                'class' => 'site-logo',
-                'target' => '_blank',
-                'title' => get_option('blogname')
-            )		    
+			'meta' => array(
+				'class' => 'site-logo',
+				'target' => '_blank',
+				'title' => get_option('blogname')
+			)
 		);
-		$wp_admin_bar->add_node($site_logo);	
+		$wp_admin_bar->add_node($site_logo);
 	}
 }
 
 function ts_remove_medialibrary_tab($strings) {
-    if ( !current_user_can( 'administrator' ) ) {
-        unset($strings["mediaLibraryTitle"]);
-    return $strings;
-    }
-    else {
-        return $strings;
-    }
+	if ( !current_user_can( 'administrator' ) ) {
+		unset($strings["mediaLibraryTitle"]);
+		return $strings;
+	}
+	else {
+		return $strings;
+	}
 }
 
 function ts_restrict_non_Admins(){
 
-    if(!current_user_can('administrator')){
-        exit;
-    }
+	if(!current_user_can('administrator')){
+		exit;
+	}
 }
 
 function ts_redirect_after_logout() {
-     
-    if (current_user_can('is_custom_user')) { 
-     	$redirect_url = get_permalink(ts_get_register_page_id()); 
-    } 
-    else { 
-     	$redirect_url = home_url();
-    }
-    wp_safe_redirect($redirect_url);
-    exit;
+
+	if (current_user_can('is_custom_user')) {
+		$redirect_url = get_permalink(ts_get_register_page_id());
+	}
+	else {
+		$redirect_url = home_url();
+	}
+	wp_safe_redirect($redirect_url);
+	exit;
 }
 
 function ts_get_local_timestamp($date) {
@@ -1512,23 +1516,39 @@ function ts_update_meta_after_invoice_creation($entry_id, $invoice_id) {
 }
 
 function ts_invoice_mark_as_paid(  $entry_id, $user_id, $payment_method='stripe_payment', $iv_amount, $invoice_id ) {
-    $ts_entry_previous_status = get_post_meta( $entry_id, 'ts_entry_hidden_post_status', true);
-    ts_change_post_status($entry_id, $ts_entry_previous_status );
+	$ts_entry_previous_status = get_post_meta( $entry_id, 'ts_entry_hidden_post_status', true);
+	ts_change_post_status($entry_id, $ts_entry_previous_status );
 
-    update_post_meta($entry_id, 'invoice_due', false);
-    ts_change_post_status($invoice_id, 'paid' );
+	update_post_meta($entry_id, 'invoice_due', false);
+	ts_change_post_status($invoice_id, 'paid' );
 
 }
 
+function ts_is_paid($entry_id) {
+	$entry_status = get_post_status($entry_id);
+	if($entry_status=='paid' || $entry_status=='paidcheck')
+		return true;
+	else
+		return false;
+}
+
+function ts_is_noworkshopentry($entry_data) {
+	$participants = ts_check_value($entry_data, 'workshop', 'participants');
+	if(! empty($participants) )
+		return false;
+	else
+		return true;
+}
+
 function ts_get_form_action() {
-    $action = '';
-    if(current_user_can('is_studio')) {
-        $action = 'studio_registration';
-    }
-    else if(current_user_can('is_individual')) {
-        $action = 'individual_registration';
-    }
-    return $action;
+	$action = '';
+	if(current_user_can('is_studio')) {
+		$action = 'studio_registration';
+	}
+	else if(current_user_can('is_individual')) {
+		$action = 'individual_registration';
+	}
+	return $action;
 }
 
 function ts_disable_random_password( $password ) {
@@ -1540,10 +1560,10 @@ function ts_disable_random_password( $password ) {
 
 function ts_get_discount_value($voucher_code=false) {
 	$discount_value = 0;
-    $voucher_id  = ts_post_exists($voucher_code, '', '', 'ts_coupon');
+	$voucher_id  = ts_post_exists($voucher_code, '', '', 'ts_coupon');
 
 	if($voucher_code) {
-        $discount_value = get_post_meta($voucher_id, 'discount', true);
+		$discount_value = get_post_meta($voucher_id, 'discount', true);
 	}
 
 	return $discount_value;
@@ -1568,71 +1588,71 @@ function ts_clear_remaining_amount($entry_id, $user_id, $method, $grand_total, $
 }
 
 function ts_copy_meta_data($entry_id) {
-    $workshop = get_post_meta($entry_id, 'workshop',true);
-    $competition = get_post_meta($entry_id, 'competition',true);
+	$workshop = get_post_meta($entry_id, 'workshop',true);
+	$competition = get_post_meta($entry_id, 'competition',true);
 
-    update_post_meta($entry_id,'paid_workshop',$workshop);
-    update_post_meta($entry_id,'paid_competition',$competition);
+	update_post_meta($entry_id,'paid_workshop',$workshop);
+	update_post_meta($entry_id,'paid_competition',$competition);
 }
 
 function ts_return_credit_total($grand_total, $entry_id) {
-    $credit_amount = 0;
-    $workshop_participants = $paid_workshop_participants = array();
-    $competition_routines = $paid_competition_routines = array();
+	$credit_amount = 0;
+	$workshop_participants = $paid_workshop_participants = array();
+	$competition_routines = $paid_competition_routines = array();
 
-    $workshop = get_post_meta($entry_id, 'workshop',true);
-    $paid_workshop = get_post_meta($entry_id, 'paid_workshop',true);
+	$workshop = get_post_meta($entry_id, 'workshop',true);
+	$paid_workshop = get_post_meta($entry_id, 'paid_workshop',true);
 
-    $competition = get_post_meta($entry_id, 'competition',true);
-    $paid_competition = get_post_meta($entry_id, 'paid_competition',true);
+	$competition = get_post_meta($entry_id, 'competition',true);
+	$paid_competition = get_post_meta($entry_id, 'paid_competition',true);
 
-    if( $competition && ! empty( $competition['routines'] ) ) {
-        $competition_routines = $competition['routines'];
-    }
-    if( $paid_competition && ! empty( $paid_competition['routines'] ) ) {
-        $paid_competition_routines = $paid_competition['routines'];
-    }
+	if( $competition && ! empty( $competition['routines'] ) ) {
+		$competition_routines = $competition['routines'];
+	}
+	if( $paid_competition && ! empty( $paid_competition['routines'] ) ) {
+		$paid_competition_routines = $paid_competition['routines'];
+	}
 
-    if( $workshop && ! empty( $workshop['participants'] ) ) {
-        $workshop_participants = $workshop['participants'];
-    }
-    if( $paid_workshop && ! empty( $paid_workshop['participants'] ) ) {
-        $paid_workshop_participants = $paid_workshop['participants'];
-    }
+	if( $workshop && ! empty( $workshop['participants'] ) ) {
+		$workshop_participants = $workshop['participants'];
+	}
+	if( $paid_workshop && ! empty( $paid_workshop['participants'] ) ) {
+		$paid_workshop_participants = $paid_workshop['participants'];
+	}
 
-    $participant_results = array_diff_key($paid_workshop_participants,$workshop_participants);
-    if( $participant_results && is_array( $participant_results ) ) {
-        foreach( $participant_results as $key => $participant_result ) {
-            if( 'observers' !== $key && 'munchkin_observers' !== $key ) {
-                $credit_amount +=  absint($participant_result['fee']);
-            }
-        }
-    }
+	$participant_results = array_diff_key($paid_workshop_participants,$workshop_participants);
+	if( $participant_results && is_array( $participant_results ) ) {
+		foreach( $participant_results as $key => $participant_result ) {
+			if( 'observers' !== $key && 'munchkin_observers' !== $key ) {
+				$credit_amount +=  absint($participant_result['fee']);
+			}
+		}
+	}
 
-    $routines_results = array_diff_key($paid_competition_routines,$competition_routines);
-    if( $routines_results && is_array( $routines_results ) ) {
-        foreach( $routines_results as $routines_result ) {
-            $credit_amount +=  absint($routines_result['fee']);
-        }
-    }
+	$routines_results = array_diff_key($paid_competition_routines,$competition_routines);
+	if( $routines_results && is_array( $routines_results ) ) {
+		foreach( $routines_results as $routines_result ) {
+			$credit_amount +=  absint($routines_result['fee']);
+		}
+	}
 
-    return $credit_amount;
+	return $credit_amount;
 }
 
 function ts_create_credit_post( $entry_id, $amount_credited ) {
 
-    $credit_id = (int) get_post_meta($entry_id,'credit_id',true);
-    $credit_status = ts_post_exists_by_id($credit_id);
+	$credit_id = (int) get_post_meta($entry_id,'credit_id',true);
+	$credit_status = ts_post_exists_by_id($credit_id);
 	$credit_expiry_timestamp = ts_get_local_timestamp(date('Y/m/d', strtotime('+1 year')));
 
-    if( $credit_status ) {
+	if( $credit_status ) {
 
 		wp_clear_scheduled_hook( 'ts_autodelete_credit', array( $credit_id ) );
 		wp_schedule_single_event($credit_expiry_timestamp, 'ts_autodelete_credit', array( $credit_id ) );
-        update_post_meta( $credit_id,'amount_credited',$amount_credited );
+		update_post_meta( $credit_id,'amount_credited',$amount_credited );
 		update_post_meta( $credit_id,'amount_expiry_date',date('Y/m/d', strtotime('+1 year')));
 
-    } else {
+	} else {
 		$user_id 	= get_current_user_id();
 
 		$creditArgs = array(
@@ -1652,7 +1672,7 @@ function ts_create_credit_post( $entry_id, $amount_credited ) {
 			update_post_meta( $entry_id,'credit_id',$newCredit );
 		}
 
-    }
+	}
 
 	delete_post_meta($entry_id, 'remaining_due');
 	delete_post_meta($entry_id, 'remaining_amount');

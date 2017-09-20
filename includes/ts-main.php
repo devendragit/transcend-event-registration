@@ -25,7 +25,7 @@ add_action('admin_footer-profile.php', 'ts_profile_subject_end', 1);
 add_action('pre_user_query','ts_pre_user_query');
 add_action('admin_menu', 'ts_remove_admin_footer');
 add_action('admin_head', 'ts_remove_help_tabs');
-add_action('admin_print_scripts', 'ts_remove_admin_notices', 1); 
+add_action('admin_print_scripts', 'ts_remove_admin_notices', 1);
 add_action('admin_bar_menu', 'ts_modify_admin_bar', 999);
 add_action('wp_logout', 'ts_redirect_after_logout');
 add_action('wp_ajax_query-attachments','ts_restrict_non_Admins',1);
@@ -55,13 +55,13 @@ add_action('registration_completed', 'ts_addto_mailchimp_list', 10, 2);
 add_action('registration_edited', 'ts_reg_edited_notification', 10, 2);
 add_action('registration_paid', 'ts_mark_as_paid', 10, 3);
 add_action('registration_paid', 'ts_save_paid_amount', 10, 4);
-add_action('registration_paid', 'ts_clear_remaining_amount', 10, 6);
-add_action('registration_paid', 'ts_copy_meta_data', 10, 1);
 add_action('ts_cron_jobs', 'ts_auto_delete_music_cron', 10, 1);
 add_action('ts_invoice_created', 'ts_new_invoice_user_notification', 10, 2);
 add_action('ts_invoice_created', 'ts_update_meta_after_invoice_creation', 10, 2);
 add_action('invoice_paid', 'ts_mark_as_paid', 10, 3);
 add_action('invoice_paid', 'ts_invoice_mark_as_paid', 10, 5);
+add_action('registration_paid', 'ts_clear_remaining_amount', 10, 6);
+add_action('registration_paid', 'ts_copy_meta_data', 10, 1);
 add_action('registration_edited', 'ts_set_remaining_amount_meta', 10, 3);
 add_action('registration_recompleted', 'ts_set_entry_meta', 10, 1);
 add_action('registration_amount_credited', 'ts_create_credit_post', 10, 2);
@@ -102,289 +102,291 @@ add_shortcode('ts-pay-invoice-form', 'ts_pay_invoice_shortcode');
 register_activation_hook(__FILE__, 'ts_plugin_activate');
 
 function ts_plugin_activate() {
-	ts_remove_roles();
-	ts_add_new_roles();
-	ts_add_role_caps();
-	ts_create_terms();
-	ts_create_tour_posts();
-	flush_rewrite_rules();
+    ts_remove_roles();
+    ts_add_new_roles();
+    ts_add_role_caps();
+    ts_create_terms();
+    ts_create_tour_posts();
+    flush_rewrite_rules();
 }
 
 function ts_remove_roles() {
-	//remove_role('subscriber');
-	remove_role('author');
-	remove_role('contributor');
-	remove_role('editor');
+    //remove_role('subscriber');
+    remove_role('author');
+    remove_role('contributor');
+    remove_role('editor');
 }
 
 function ts_add_new_roles() {
 
-	remove_role('event_organizer');
-	remove_role('studio');
-	remove_role('individual');
+    remove_role('event_organizer');
+    remove_role('studio');
+    remove_role('individual');
 
-	add_role(
-	    'event_organizer',
-	    __('Event Organizer'),
-	    array(
-			'read' => true,
-			'upload_files' => true,
-	        'list_users' => true,
-	        'add_users' => true,
-	        'create_users' => true,
-	        'edit_users' => true,
-	        'promote_users' => true,
-	        'delete_users' => true,
-	        'is_organizer' => true,
-	        'is_custom_user' => true,
-	  )
-	);
+    add_role(
+        'event_organizer',
+        __('Event Organizer'),
+        array(
+            'read' => true,
+            'upload_files' => true,
+            'list_users' => true,
+            'add_users' => true,
+            'create_users' => true,
+            'edit_users' => true,
+            'promote_users' => true,
+            'delete_users' => true,
+            'is_organizer' => true,
+            'is_custom_user' => true,
+        )
+    );
 
-	add_role(
-	    'studio',
-	    __('Studio'),
-	    array(
-			'read' => true,
-			'upload_files' => true,
-			'add_ts_entry' => true,
-			'add_ts_observer' => true,
-			'add_ts_roster' => true,
-	        'is_custom_user' => true,
-	        'is_customer' => true,
-			'is_studio' => true,
-	  )
-	);
+    add_role(
+        'studio',
+        __('Studio'),
+        array(
+            'read' => true,
+            'upload_files' => true,
+            'add_ts_entry' => true,
+            'add_ts_observer' => true,
+            'add_ts_roster' => true,
+            'is_custom_user' => true,
+            'is_customer' => true,
+            'is_studio' => true,
+        )
+    );
 
-	add_role(
-	    'individual',
-	    __('Individual'),
-	    array(
-			'read' => true,
-			'upload_files' => true,
-			'add_ts_entry' => true,
-			'add_ts_observer' => true,
-			'add_ts_indiv_dancer' => true,
-	        'is_custom_user' => true,
-	        'is_customer' => true,
-			'is_individual' => true,
-	  )
-	);
+    add_role(
+        'individual',
+        __('Individual'),
+        array(
+            'read' => true,
+            'upload_files' => true,
+            'add_ts_entry' => true,
+            'add_ts_observer' => true,
+            'add_ts_indiv_dancer' => true,
+            'is_custom_user' => true,
+            'is_customer' => true,
+            'is_individual' => true,
+        )
+    );
 }
 
 function ts_add_role_caps() {
 
-	$roles = array('event_organizer', 'studio', 'individual');
+    $roles = array('event_organizer', 'studio', 'individual');
 
-	foreach($roles as $r) { 
+    foreach($roles as $r) {
 
-	    $role = get_role($r);
+        $role = get_role($r);
 
-		$capability_types = array(
-			array('tour','tours'),
-			array('event','events'),
-			array('entry','entries'),
-			array('studio_roster','studio_rosters'),
-			array('indiv_sibling','indiv_siblings'),
-			array('routine','routines'),
-			array('coupon','coupons'),
+        $capability_types = array(
+            array('tour','tours'),
+            array('event','events'),
+            array('entry','entries'),
+            array('studio_roster','studio_rosters'),
+            array('indiv_sibling','indiv_siblings'),
+            array('routine','routines'),
+            array('coupon','coupons'),
             array('invoice','invoices'),
             array('credit','credits'),
-		);
+        );
 
-		foreach ($capability_types  as $type) {
+        foreach ($capability_types  as $type) {
 
-			$s = $type[0];
-			$p = $type[1];
+            $s = $type[0];
+            $p = $type[1];
 
-			$role->add_cap('read_'. $s);
+            $role->add_cap('read_'. $s);
 
-		    if($r == 'studio') {
-		    	if($s=='entry' || $s=='studio_roster' || $s=='routine') {
-					$role->add_cap('read_private_'. $p);
-					$role->add_cap('edit_'. $s);
-					$role->add_cap('edit_'. $p);
-					$role->add_cap('edit_published_'. $p);
-					$role->add_cap('publish_'. $p);
-					$role->add_cap('delete_private_'. $p);
-					$role->add_cap('delete_published_'. $p);
-					$role->add_cap('delete_'. $p);
-				}		
-			}	
+            if($r == 'studio') {
+                if($s=='entry' || $s=='studio_roster' || $s=='routine') {
+                    $role->add_cap('read_private_'. $p);
+                    $role->add_cap('edit_'. $s);
+                    $role->add_cap('edit_'. $p);
+                    $role->add_cap('edit_published_'. $p);
+                    $role->add_cap('publish_'. $p);
+                    $role->add_cap('delete_private_'. $p);
+                    $role->add_cap('delete_published_'. $p);
+                    $role->add_cap('delete_'. $p);
+                }
+            }
 
-		    if($r == 'individual') {
-		    	if($s=='entry' || $s=='indiv_sibling' || $s=='routine') {
-					$role->add_cap('read_private_'. $p);
-					$role->add_cap('edit_'. $s);
-					$role->add_cap('edit_'. $p);
-					$role->add_cap('edit_published_'. $p);
-					$role->add_cap('publish_'. $p);
-					$role->add_cap('delete_private_'. $p);
-					$role->add_cap('delete_published_'. $p);
-					$role->add_cap('delete_'. $p);
-				}		
-			}	
+            if($r == 'individual') {
+                if($s=='entry' || $s=='indiv_sibling' || $s=='routine') {
+                    $role->add_cap('read_private_'. $p);
+                    $role->add_cap('edit_'. $s);
+                    $role->add_cap('edit_'. $p);
+                    $role->add_cap('edit_published_'. $p);
+                    $role->add_cap('publish_'. $p);
+                    $role->add_cap('delete_private_'. $p);
+                    $role->add_cap('delete_published_'. $p);
+                    $role->add_cap('delete_'. $p);
+                }
+            }
 
-		    if($r == 'event_organizer') {
-				$role->add_cap('read_private_'. $p);
-				$role->add_cap('edit_'. $s);
-				$role->add_cap('edit_'. $p);
-				$role->add_cap('edit_published_'. $p);
-				$role->add_cap('publish_'. $p);
-				$role->add_cap('delete_private_'. $p);
-				$role->add_cap('delete_published_'. $p);
-				$role->add_cap('delete_'. $p);
-				$role->add_cap('edit_others_'. $p);
-				$role->add_cap('delete_others_'. $p);
-			}	
-		}
-    }     
+            if($r == 'event_organizer') {
+                $role->add_cap('read_private_'. $p);
+                $role->add_cap('edit_'. $s);
+                $role->add_cap('edit_'. $p);
+                $role->add_cap('edit_published_'. $p);
+                $role->add_cap('publish_'. $p);
+                $role->add_cap('delete_private_'. $p);
+                $role->add_cap('delete_published_'. $p);
+                $role->add_cap('delete_'. $p);
+                $role->add_cap('edit_others_'. $p);
+                $role->add_cap('delete_others_'. $p);
+            }
+        }
+    }
 }
 
 function ts_register_ts_scripts() {
 
-	if(current_user_can('is_custom_user')) {
+    if(current_user_can('is_custom_user')) {
 
-		/*CSS*/
-		wp_register_style('jquery-ui-css', TS_URI .'assets/css/jquery-ui.css');
-		wp_register_style('jquery-dataTables-style', TS_URI .'assets/js/jquery.dataTables/css/jquery.dataTables.min.css');
-		wp_register_style('jquery-validationEngine-style', TS_URI .'assets/js/jquery.validationEngine/css/validationEngine.jquery.css');
-		wp_register_style('grid12', TS_URI .'assets/css/grid12.css');
-		wp_register_style('bootstrap', TS_URI .'assets/css/bootstrap.min.css');
-		wp_register_style('font-awesome', TS_URI .'assets/css/font-awesome.min.css');
-		wp_register_style('ts-admin-style', TS_URI .'assets/css/ts-admin-style.css');
-		wp_register_style('ts-custom-style', TS_URI .'assets/css/ts-custom-style.css');
-		wp_register_style('ts-frontend-style', TS_URI .'assets/css/ts-frontend-style.css');
-		wp_register_style('ts-fonts', TS_URI .'assets/fonts/fonts.css');
+        /*CSS*/
+        wp_register_style('jquery-ui-css', TS_URI .'assets/css/jquery-ui.css');
+        wp_register_style('jquery-dataTables-style', TS_URI .'assets/js/jquery.dataTables/css/jquery.dataTables.min.css');
+        wp_register_style('jquery-validationEngine-style', TS_URI .'assets/js/jquery.validationEngine/css/validationEngine.jquery.css');
+        wp_register_style('grid12', TS_URI .'assets/css/grid12.css');
+        wp_register_style('bootstrap', TS_URI .'assets/css/bootstrap.min.css');
+        wp_register_style('font-awesome', TS_URI .'assets/css/font-awesome.min.css');
+        wp_register_style('ts-admin-style', TS_URI .'assets/css/ts-admin-style.css');
+        wp_register_style('ts-custom-style', TS_URI .'assets/css/ts-custom-style.css');
+        wp_register_style('ts-frontend-style', TS_URI .'assets/css/ts-frontend-style.css');
+        wp_register_style('ts-fonts', TS_URI .'assets/fonts/fonts.css');
 
-		/*JS*/
-		wp_register_script('jquery-dataTables', TS_URI .'assets/js/jquery.dataTables/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core'), '', true);
-		wp_register_script('jquery-validationEngine-languages', TS_URI .'assets/js/jquery.validationEngine/languages/jquery.validationEngine-en.js', array('jquery'), '', true);
-		wp_register_script('jquery-validationEngine', TS_URI .'assets/js/jquery.validationEngine/jquery.validationEngine.js', array('jquery'), '', true);
-		wp_register_script('jquery-maskedinput', TS_URI .'assets/js/jquery.maskedinput.js', array('jquery'), '', true);
-		wp_register_script('bootstrap', TS_URI .'assets/js/bootstrap.min.js', array('jquery'), '', true);
-		wp_register_script('ts-custom-script', TS_URI .'assets/js/ts-custom-script.js', array('jquery'), '', false);
-	}
+        /*JS*/
+        wp_register_script('jquery-dataTables', TS_URI .'assets/js/jquery.dataTables/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core'), '', true);
+        wp_register_script('jquery-validationEngine-languages', TS_URI .'assets/js/jquery.validationEngine/languages/jquery.validationEngine-en.js', array('jquery'), '', true);
+        wp_register_script('jquery-validationEngine', TS_URI .'assets/js/jquery.validationEngine/jquery.validationEngine.js', array('jquery'), '', true);
+        wp_register_script('jquery-maskedinput', TS_URI .'assets/js/jquery.maskedinput.js', array('jquery'), '', true);
+        wp_register_script('bootstrap', TS_URI .'assets/js/bootstrap.min.js', array('jquery'), '', true);
+        wp_register_script('ts-custom-script', TS_URI .'assets/js/ts-custom-script.js', array('jquery'), '', false);
+    }
 }
 
 function ts_enqueue_admin_scripts() {
 
-	if(current_user_can('is_custom_user')) {
+    if(current_user_can('is_custom_user')) {
 
-		global $pagenow;
+        global $pagenow;
 
-		if($pagenow != 'users.php') {
-			wp_enqueue_style('jquery-ui-css');
-			wp_enqueue_style('jquery-dataTables-style');
-			wp_enqueue_style('jquery-validationEngine-style');
-			wp_enqueue_style('grid12');
-			wp_enqueue_style('bootstrap');
-			wp_enqueue_style('font-awesome');
-			wp_enqueue_style('ts-custom-style');
-			
-			wp_enqueue_script('jquery-ui-datepicker');
-			wp_enqueue_script('jquery-dataTables');
-			wp_enqueue_script('jquery-validationEngine-languages');
-			wp_enqueue_script('jquery-validationEngine');
-			wp_enqueue_script('jquery-maskedinput');
-			wp_enqueue_script('bootstrap');
-			wp_enqueue_script('ts-custom-script');
-		}
-		wp_enqueue_style('ts-admin-style');
-		wp_enqueue_style('ts-fonts');
-	}
+        if($pagenow != 'users.php') {
+            wp_enqueue_style('jquery-ui-css');
+            wp_enqueue_style('jquery-dataTables-style');
+            wp_enqueue_style('jquery-validationEngine-style');
+            wp_enqueue_style('grid12');
+            wp_enqueue_style('bootstrap');
+            wp_enqueue_style('font-awesome');
+            wp_enqueue_style('ts-custom-style');
+
+            wp_enqueue_script('jquery-ui-datepicker');
+            wp_enqueue_script('jquery-dataTables');
+            wp_enqueue_script('jquery-validationEngine-languages');
+            wp_enqueue_script('jquery-validationEngine');
+            wp_enqueue_script('jquery-maskedinput');
+            wp_enqueue_script('bootstrap');
+            wp_enqueue_script('ts-custom-script');
+        }
+        wp_enqueue_style('ts-admin-style');
+        wp_enqueue_style('ts-fonts');
+    }
 }
 
 function ts_enqueue_frontend_scripts() {
 
-	if(current_user_can('is_custom_user') && is_page('register')) {
+    if(current_user_can('is_custom_user') && is_page('register')) {
 
-		wp_enqueue_style('jquery-ui-css');
-		wp_enqueue_style('jquery-dataTables-style');
-		wp_enqueue_style('jquery-validationEngine-style');
-		wp_enqueue_style('grid12');
-		wp_enqueue_style('bootstrap');
-		wp_enqueue_style('font-awesome');
-		wp_enqueue_style('ts-custom-style');
-		wp_enqueue_style('ts-fonts');
+        wp_enqueue_style('jquery-ui-css');
+        wp_enqueue_style('jquery-dataTables-style');
+        wp_enqueue_style('jquery-validationEngine-style');
+        wp_enqueue_style('grid12');
+        wp_enqueue_style('bootstrap');
+        wp_enqueue_style('font-awesome');
+        wp_enqueue_style('ts-custom-style');
+        wp_enqueue_style('ts-fonts');
 
-		wp_enqueue_script('jquery-ui-datepicker');
-		wp_enqueue_script('jquery-validationEngine-languages');
-		wp_enqueue_script('jquery-validationEngine');
-		wp_enqueue_script('jquery-maskedinput');
-		wp_enqueue_script('bootstrap');
-		wp_enqueue_script('ts-custom-script');
-	}
+        wp_enqueue_script('jquery-ui-datepicker');
+        wp_enqueue_script('jquery-validationEngine-languages');
+        wp_enqueue_script('jquery-validationEngine');
+        wp_enqueue_script('jquery-maskedinput');
+        wp_enqueue_script('bootstrap');
+        wp_enqueue_script('ts-custom-script');
+    }
 }
 
 function ts_login_scripts() {
-	wp_register_style('ts-frontend-style', TS_URI .'assets/css/ts-frontend-style.css');
-	wp_enqueue_style('ts-frontend-style');
+    wp_register_style('ts-frontend-style', TS_URI .'assets/css/ts-frontend-style.css');
+    wp_enqueue_style('ts-frontend-style');
 }
 
 function ts_remove_default_menus() {
 
-	if(current_user_can('is_custom_user')) {
-		remove_menu_page('separator1');
-		remove_menu_page('separator2');
-		remove_menu_page('separator-last');
-		remove_menu_page('index.php');
-		remove_menu_page('upload.php');
-		remove_menu_page('tools.php');
-		remove_menu_page('wpcf7');
-		remove_menu_page('gf_edit_forms');
-	}	
+    if(current_user_can('is_custom_user')) {
+        remove_menu_page('separator1');
+        remove_menu_page('separator2');
+        remove_menu_page('separator-last');
+        remove_menu_page('index.php');
+        remove_menu_page('upload.php');
+        remove_menu_page('tools.php');
+        remove_menu_page('wpcf7');
+        remove_menu_page('gf_edit_forms');
+    }
 
-	if(current_user_can('is_organizer')) {
-		remove_menu_page('ts-view-entry');
-	}
+    if(current_user_can('is_organizer')) {
+        remove_menu_page('ts-view-entry');
+    }
 
-	if(current_user_can('is_customer')) {
-		remove_menu_page('ts-edit-entry');
-		remove_menu_page('ts-post-entry');
-	}
+    if(current_user_can('is_customer')) {
+        remove_menu_page('ts-edit-entry');
+        remove_menu_page('ts-post-entry');
+    }
 
-	/* ts_event, ts_tour, hidden for now */
-	$post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon', 'ts_invoice', 'ts_credit');
+    $post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon', 'ts_invoice', 'ts_credit');
 
-	foreach ($post_types  as $p) {
-		if(current_user_can('is_custom_user')) { 
-			remove_menu_page('edit.php?post_type='. $p);
-			remove_submenu_page('edit.php?post_type='. $p, 'post-new.php?post_type='. $p);	
-			remove_submenu_page('edit.php?post_type='. $p, 'edit.php?post_type='. $p);
-		}	
-	}
+    /*foreach ($post_types  as $p) {
+        if(current_user_can('is_custom_user')) {
+            remove_menu_page('edit.php?post_type='. $p);
+            remove_submenu_page('edit.php?post_type='. $p, 'post-new.php?post_type='. $p);
+            remove_submenu_page('edit.php?post_type='. $p, 'edit.php?post_type='. $p);
+        }
+    }*/
 }
 
 function ts_register_custom_menu_pages() {
 
-	if(current_user_can('is_customer')) {
-		add_menu_page('My Dashboard', 'My Dashboard', 'add_ts_entry', 'ts-my-entries', 'ts_my_entries_page', 'dashicons-dashboard', 6);
-		add_menu_page('Add Registration', 'Add Registration', 'add_ts_entry', 'ts-post-entry', 'ts_post_entry_page', '', 101);
-		add_menu_page('Edit Registration', 'Edit Registration', 'add_ts_entry', 'ts-edit-entry', 'ts_post_entry_page', '', 102);
+    if(current_user_can('is_customer')) {
+        add_menu_page('My Dashboard', 'My Dashboard', 'add_ts_entry', 'ts-my-entries', 'ts_my_entries_page', 'dashicons-dashboard', 6);
+        add_menu_page('Add Registration', 'Add Registration', 'add_ts_entry', 'ts-post-entry', 'ts_post_entry_page', '', 101);
+        add_menu_page('Edit Registration', 'Edit Registration', 'add_ts_entry', 'ts-edit-entry', 'ts_post_entry_page', '', 102);
         add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 104);
         add_menu_page('Credits', 'My Credits', 'is_custom_user', 'ts-credits', 'ts_credits_page', 'dashicons-cart', 105);
-	}
-	else if (current_user_can('is_organizer')) {
-		add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
-		add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
-		add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 104);
-        add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 105);
-	}
+    }
+    else if (current_user_can('is_organizer')) {
+        add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
+        add_submenu_page( 'ts-entries', 'Workshop Participants', 'Workshop Participants', 'is_organizer', 'ts-workshop-entries', 'ts_workshopentries_page');
+        add_submenu_page( 'ts-entries', 'Competition Routines', 'Competition Routines', 'is_organizer', 'ts-competition-entries', 'ts_competitionentries_page');
+        add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
+        add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 104);
+        add_menu_page('Tours', 'Tours', 'is_organizer', 'ts-tours', 'ts_tours_page', 'dashicons-admin-site', 105);
+        add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 106);
+    }
 }
 
 function ajax_post_init() {
 
-    wp_register_script('ajax-post-script', TS_URI .'assets/js/ajax-post-script.js', array('jquery', 'jquery-ui-dialog')); 
-	wp_enqueue_script('ajax-post-script');
+    wp_register_script('ajax-post-script', TS_URI .'assets/js/ajax-post-script.js', array('jquery', 'jquery-ui-dialog'));
+    wp_enqueue_script('ajax-post-script');
     wp_localize_script('ajax-post-script', 'ajax_post_object', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'delete_item' => 'Are you sure you want to delete this item? This can not be undone!',
-		'tokens' => array(
-			'default' => wp_create_nonce('ts-default'), 
-			'save_item' => wp_create_nonce('ts-save-item'), 
-			'delete_item' => wp_create_nonce('ts-delete-item'),
-		)
-  	));
+        'tokens' => array(
+            'default' => wp_create_nonce('ts-default'),
+            'save_item' => wp_create_nonce('ts-save-item'),
+            'delete_item' => wp_create_nonce('ts-delete-item'),
+        )
+    ));
 
     add_action('wp_ajax_new_registration', 'ajax_new_registration');
     add_action('wp_ajax_studio_registration', 'ajax_studio_registration');
@@ -407,6 +409,7 @@ function ajax_post_init() {
     add_action('wp_ajax_delete_all', 'ajax_delete_all');
     add_action('wp_ajax_save_voucher', 'ajax_save_voucher');
     add_action('wp_ajax_pay_invoice', 'ajax_pay_invoice');
+    add_action('wp_ajax_save_tour', 'ajax_save_tour');
     add_action('wp_ajax_create_invoice', 'ajax_create_invoice');
 }
 

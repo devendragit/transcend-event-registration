@@ -27,7 +27,7 @@ define('TS_STUDIO_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 define('TS_INDIVIDUAL_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 
 /* API */ /*NOT SURE IF IT'S SAFE TO ADD IT HERE, PLEASE ADVISE*/
-define('MC_API_KEY', 'ec0fc565f994c790d14bc6f9d783defe-us15');
+define('MC_API_KEY', '3afbad4ea0d6293c8743a81a40986356-us15');
 
 require_once(TS_INCLUDES . 'ts-main.php');
 require_once(TS_INCLUDES . 'ts-post-types.php');

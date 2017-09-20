@@ -21,12 +21,12 @@ jQuery(document).ready(function($) {
 		e.preventDefault();
 		var row = $(this).closest('.row');
 		/*var siblings = row.siblings();
-		if(siblings.length==0){
-			location.reload();
-		}
-		else{
-			row.remove();
-		}*/
+		 if(siblings.length==0){
+		 location.reload();
+		 }
+		 else{
+		 row.remove();
+		 }*/
 		row.remove();
 	});
 
@@ -35,31 +35,31 @@ jQuery(document).ready(function($) {
 		form[0].reset();
 	});
 
- 	$('.check-all').on('change',function(e){
- 		if($(this).is(':checked') == true){
- 			$('.select-item').prop('checked', true);
- 		}else{
- 			$('.select-item').prop('checked', false);
- 		}
- 	});
+	$('.check-all').on('change',function(e){
+		if($(this).is(':checked') == true){
+			$('.select-item').prop('checked', true);
+		}else{
+			$('.select-item').prop('checked', false);
+		}
+	});
 
 	$('.ts-registrationform-wrapper').on('focusout', 'input.formatted-date', function(e) {
 		var field = $(this);
-        var date = field.val();
-        var validate = validateDate(date);
-        var parent = field.parent();
-        if(validate && (date!='' || date!='MM/DD/YYYY')) {
-        	parent.find('.formError').hide();
-        }
-        else{
-        	if(parent.find('.formError').length==0)
+		var date = field.val();
+		var validate = validateDate(date);
+		var parent = field.parent();
+		if(validate && (date!='' || date!='MM/DD/YYYY')) {
+			parent.find('.formError').hide();
+		}
+		else{
+			if(parent.find('.formError').length==0)
 				parent.prepend('<div class="formError" style="opacity: 0.87; position: absolute; top: 0px; left: -13.875px; margin-top: -68px;"><div class="formErrorContent">* Invalid date or format, must be in MM/DD/YYYY format</div><div class="formErrorArrow"><div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div></div></div>');
-        }
-    });    
+		}
+	});
 
 	$('#individual-profile').on('click', '.btn-addsibling', function(e) {
 		e.preventDefault();
-		
+
 		var list = $('.siblings-container .sibling-info').length;
 		var last_id = list > 0 ? $('.siblings-container .sibling-info:last-child').attr('data-id') : 0;
 		var tempid = parseInt(last_id)+1;
@@ -69,8 +69,8 @@ jQuery(document).ready(function($) {
 		clone.removeClass('sibling-base hidden');
 		clone.find('.dancer-name').attr('name', 'newsiblings['+tempid+'][name]').val('');
 		clone.find('.dancer-birthdate').attr('name', 'newsiblings['+tempid+'][birth_date]').val('')
-			 .mask('99/99/9999',{placeholder:'MM/DD/YYYY'});
-			 //.datepicker({dateFormat:'mm/dd/yy', changeMonth:true, changeYear:true, yearRange:'-100:+0', maxDate: '-5Y'});
+			.mask('99/99/9999',{placeholder:'MM/DD/YYYY'});
+		//.datepicker({dateFormat:'mm/dd/yy', changeMonth:true, changeYear:true, yearRange:'-100:+0', maxDate: '-5Y'});
 		clone.find('.dancer-parent').attr('name', 'newsiblings['+tempid+'][parent]').val('');
 		clone.find('.dancer-studio').attr('name', 'newsiblings['+tempid+'][studio]').val('');
 		clone.find('.dancer-address').attr('name', 'newsiblings['+tempid+'][address]').val('');
@@ -82,11 +82,11 @@ jQuery(document).ready(function($) {
 			.mask('(999) 999-9999');
 		clone.find('.dancer-email').attr('name', 'newsiblings['+tempid+'][email]').val('');
 		clone.appendTo('.siblings-container');
-	});		
+	});
 
 	$('#studio-roster').on('click', 'a.btn-adddancer', function(e) {
 		e.preventDefault();
-		
+
 		var last = $('.roster-container .row:last-child');
 		var last_id = last.attr('data-id');
 		var tempid = parseInt(last_id)+1;
@@ -97,16 +97,16 @@ jQuery(document).ready(function($) {
 		clone.find('.rosternew-first_name').attr('name', 'rosternew['+tempid+'][first_name]').removeClass('rosternew-first_name');
 		clone.find('.rosternew-last_name').attr('name', 'rosternew['+tempid+'][last_name]').removeClass('rosternew-last_name');
 		clone.find('.rosternew-birth_date').attr('name', 'rosternew['+tempid+'][birth_date]').removeClass('rosternew-birth_date')
-			 .mask('99/99/9999',{placeholder:'MM/DD/YYYY'});
-			 //.datepicker({dateFormat:'mm/dd/yy', changeMonth:true, changeYear:true, yearRange:'-100:+0', maxDate: '-5Y'});
+			.mask('99/99/9999',{placeholder:'MM/DD/YYYY'});
+		//.datepicker({dateFormat:'mm/dd/yy', changeMonth:true, changeYear:true, yearRange:'-100:+0', maxDate: '-5Y'});
 		clone.find('.rosternew-roster_type').attr('name', 'rosternew['+tempid+'][roster_type]').removeClass('rosternew-roster_type');
 		clone.find('.rosternew-selected').attr('name', 'rosternew['+tempid+'][selected]').removeClass('rosternew-selected');
 		clone.appendTo('.roster-container');
-	});		
+	});
 
 	$('#studio-roster').on('click', 'a.btn-adddancerrow', function(e) {
 		e.preventDefault();
-		
+
 		var last = $('.roster-container .row:last-child');
 		var last_id = last.attr('data-id');
 		var tempid = parseInt(last_id)+1;
@@ -117,12 +117,12 @@ jQuery(document).ready(function($) {
 		clone.find('.rosternew-first_name').attr('name', 'rosternew['+tempid+'][first_name]').removeClass('rosternew-first_name');
 		clone.find('.rosternew-last_name').attr('name', 'rosternew['+tempid+'][last_name]').removeClass('rosternew-last_name');
 		clone.find('.rosternew-birth_date').attr('name', 'rosternew['+tempid+'][birth_date]').removeClass('rosternew-birth_date')
-			 .mask('99/99/9999',{placeholder:'MM/DD/YYYY'});
-			 //.datepicker({dateFormat:'mm/dd/yy', changeMonth:true, changeYear:true, yearRange:'-100:+0', maxDate: '-5Y'});
+			.mask('99/99/9999',{placeholder:'MM/DD/YYYY'});
+		//.datepicker({dateFormat:'mm/dd/yy', changeMonth:true, changeYear:true, yearRange:'-100:+0', maxDate: '-5Y'});
 		clone.find('.rosternew-roster_type').attr('name', 'rosternew['+tempid+'][roster_type]').removeClass('rosternew-roster_type');
 		clone.find('.rosternew-selected').attr('name', 'rosternew['+tempid+'][selected]').removeClass('rosternew-selected');
 		clone.appendTo('.roster-container');
-	});		
+	});
 
 	$('#studio-roster').on('click', 'a.btn-editroster', function(e) {
 		e.preventDefault();
@@ -155,17 +155,17 @@ jQuery(document).ready(function($) {
 		var rostertype_id = rostertype.attr('data-id');
 		var rostertype_select = $('.rosternew-roster_type').clone();
 		rostertype_select.removeClass('rosternew-roster_type')
-						.attr('name', 'rosteredit['+id+'][roster_type]')
-						.find('option[value="'+rostertype_id+'"]').attr('selected',true);
+			.attr('name', 'rosteredit['+id+'][roster_type]')
+			.find('option[value="'+rostertype_id+'"]').attr('selected',true);
 		rostertype.html(rostertype_select);
 
 		var select = row.find('.select-item');
 		select.attr({'name':'rosteredit['+id+'][selected]', 'value':1});
-	});		
+	});
 
 	$('.ts-registrationform-wrapper').on('click', 'a.btn-addroutine', function(e) {
 		e.preventDefault();
-		
+
 		$('#add-routine-dancers')[0].reset();
 
 		var last = $('.routine-container .row:last-child');
@@ -174,7 +174,7 @@ jQuery(document).ready(function($) {
 		var clone = last.clone();
 
 		clone.attr('id', 'item-'+tempid);
-		clone.attr('data-id', tempid); 
+		clone.attr('data-id', tempid);
 		clone.find('.btn-addroutinedancers').attr('data-id', tempid);
 		clone.find('.btn-addroutinemusics').attr('data-id', tempid);
 		clone.find('.btn-delete').addClass('remove-routine');
@@ -194,19 +194,19 @@ jQuery(document).ready(function($) {
 		clone.find('.btn-delete-routine').removeClass('btn-delete-routine').addClass('btn-remove').attr('data-id', tempid);
 		clone.find('.formError').remove();
 		clone.appendTo('.routine-container');
-	});		
+	});
 
 	$('.ts-registrationform-wrapper').on('click', '.btn-remove', function(e) {
 		e.preventDefault();
 		var button = $(this);
 		button.closest('.row').remove();
-	});	
+	});
 
 	$('.ts-registrationform-wrapper').on('click', '.btn-removesibling', function(e) {
 		e.preventDefault();
 		var button = $(this);
 		button.closest('.sibling-info').remove();
-	});	
+	});
 
 	$('.ts-registrationform-wrapper').on('click', '.btn-addroutinedancers', function(e) {
 		e.preventDefault();
@@ -230,7 +230,7 @@ jQuery(document).ready(function($) {
 		e.preventDefault();
 		$('#add-fromroster').modal('show');
 	});
-	
+
 	$('.ts-registrationform-wrapper').on('click', '.btn-addroutinemusic', function(e){
 		e.preventDefault();
 
@@ -239,9 +239,9 @@ jQuery(document).ready(function($) {
 		var custom_uploader;
 
 		if(custom_uploader) {
-            custom_uploader.open();
-            return;
-        }		
+			custom_uploader.open();
+			return;
+		}
 
 		custom_uploader = wp.media.frames.file_frame = wp.media({
 			title    : 'Add Routine Music',
@@ -264,7 +264,7 @@ jQuery(document).ready(function($) {
 		custom_uploader.open();
 
 		$('.media-modal-content .media-menu-item:first-child').click();
-	});	
+	});
 
 	$('.ts-registrationform-wrapper').on('click', '.btn-removeroutinemusic', function(e){
 		var button = $(this);
@@ -274,12 +274,12 @@ jQuery(document).ready(function($) {
 		button.remove();
 		currroutine.next('div').remove();
 		$('<a href="javascript:void(0);" class="btn-addroutinemusic btn btn-green" data-id="'+id+'"><small>Add</small></a>').insertAfter(currroutine);
-	});	
+	});
 
 	$('.ts-registrationform-wrapper').on('click', '.btn-popupwaiver', function(e){
 		e.preventDefault();
 		$('#popup-waiver').modal('show');
-	});	
+	});
 
 	$('.ts-registrationform-wrapper').on('click', '.btn-pagenumber', function(e){
 		e.preventDefault();
@@ -307,6 +307,7 @@ jQuery(document).ready(function($) {
 
 	$('.btn-addvoucher').on('click', function(e) {
 		e.preventDefault();
+		$('#form-save-voucher')[0].reset();
 		$('#popup-save-voucher').modal('show');
 	});
 
@@ -320,12 +321,60 @@ jQuery(document).ready(function($) {
 		$('#voucher-id').val(id);
 		$('#voucher-code').val(code);
 		$('#voucher-discount').val(discount);
-		if(workshop==1)
-			$('#voucher-workshop').prop('checked',true);
-		if(competition==1)
-			$('#voucher-competition').prop('checked',true);
+		if(workshop==1) $('#voucher-workshop').prop('checked',true);
+		if(competition==1) $('#voucher-competition').prop('checked',true);
 		$('#popup-save-voucher .modal-title').text('Edit Voucher');
 		$('#popup-save-voucher').modal('show');
+	});
+
+	$('.btn-addtour').on('click', function(e) {
+		e.preventDefault();
+		$('#form-save-tour')[0].reset();
+		$('#popup-save-tour').modal('show');
+	});
+
+	$('.btn-edittour').on('click', function(e) {
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		var title = $(this).attr('data-title');
+		var datefrom = $(this).attr('data-datefrom');
+		var dateto = $(this).attr('data-dateto');
+		var city = $(this).attr('data-city');
+		var venue = $(this).attr('data-venue');
+		var listid = $(this).attr('data-listid');
+		var workshop = $(this).attr('data-workshop');
+		var status = $(this).attr('data-status');
+		$('#tour-id').val(id);
+		$('#tour-title').val(title);
+		$('#tour-datefrom').val(datefrom);
+		$('#tour-dateto').val(dateto);
+		$('#tour-city').val(city);
+		$('#tour-venue').val(venue);
+		$('#tour-listid').val(listid);
+		if(status!=2) {
+			$('#tour-status').prop('checked',true);
+		}
+		else {
+			$('#tour-status').prop('checked',false);
+		}
+		if(workshop!=2) {
+			$('#tour-workshop').prop('checked',true);
+		}
+		else {
+			$('#tour-workshop').prop('checked',false);
+		}
+		$('#popup-save-tour .modal-title').text('Edit Tour');
+		$('#popup-save-tour').modal('show');
+	});
+
+	$('#tour-status').on('change', function(e) {
+		e.preventDefault();
+		if(false==$(this).is(':checked')){
+			$('#tour-workshop').prop('disabled',true);
+		}
+		else {
+			$('#tour-workshop').prop('disabled',false);
+		}
 	});
 
 	$('.btn-addinvoice').on('click', function(e) {
@@ -338,23 +387,22 @@ jQuery(document).ready(function($) {
 function callback(data) {
 	if(data.success==true) {
 		jQuery('#popup-refresh').modal('hide');
-		if(data.redirect)
+		if(data.redirect){
 			window.location.href = data.redirect;
+		}
 	}
 }
 
-function callbackAddVoucher(data) {
+function callbackSaveVoucher(data) {
 	if(data.success==true) {
 		//jQuery('#popup-save-voucher').modal('hide');
 		location.reload();
 	}
 }
 
-function callbackCreateInvoice(data) {
+function callbackSaveTour(data) {
 	if(data.success==true) {
-		jQuery('#popup-refresh').modal('hide');
-		if(data.redirect)
-			window.location.href = data.redirect;
+		location.reload();
 	}
 }
 
@@ -366,7 +414,7 @@ function callbackForLater(data) {
 			jQuery('#popup-refresh').modal('hide');
 			if(data.redirect)
 				window.location.href = data.redirect;
-	    }, 2000);
+		}, 2000);
 	}
 }
 
@@ -395,7 +443,7 @@ function callbackSaveRoster(data) {
 function callbackAdjustFee(data) {
 	if(data.success==true) {
 		var id 					= data.id;
-		var onedaydisabled 		= data.onedaydisabled; 
+		var onedaydisabled 		= data.onedaydisabled;
 		var fee_new 			= parseFloat(data.new_value);
 		var fee_new_preview 	= data.new_value_preview;
 		var total_new 			= parseFloat(data.new_total);
@@ -428,7 +476,7 @@ function callbackAddWorkshopParticipants(data) {
 			var fee = parseFloat(value.fee);
 			var last = jQuery('.participants-list .row:last-child');
 			var clone = last.clone();
-			
+
 			clone.attr('data-id', id);
 			clone.attr('id', 'item-'+id);
 			clone.find('.participant-name').val(name);
@@ -443,7 +491,7 @@ function callbackAddWorkshopParticipants(data) {
 
 		jQuery('#popup-refresh').modal('hide');
 		location.reload();
-	}	
+	}
 }
 
 function callbackAddObserver(data) {
@@ -477,7 +525,7 @@ function callbackAddObserver(data) {
 		jQuery('#total-fee-preview').text(total.formatMoney(2));
 
 		jQuery('#popup-refresh').modal('hide');
-	}	
+	}
 }
 
 function callbackAddMunchkinObserver(data) {
@@ -511,7 +559,7 @@ function callbackAddMunchkinObserver(data) {
 		jQuery('#total-fee-preview').text(total.formatMoney(2));
 
 		jQuery('#popup-refresh').modal('hide');
-	}	
+	}
 }
 
 function callbackAddRoutineDancers(data) {
@@ -537,7 +585,7 @@ function callbackAddRoutineDancers(data) {
 		jQuery('#routine-dancers-'+id).val(dancer_ids);
 		jQuery('#routine-agediv-'+id).val(age_div_name);
 		jQuery('#routine-cat-'+id).val(routine_cat_id);
-		jQuery('#routine-fee-'+id).val(fee);	
+		jQuery('#routine-fee-'+id).val(fee);
 
 		jQuery('#total-fee').val(total);
 		jQuery('#total-fee-preview').text(total_preview);
@@ -548,7 +596,7 @@ function callbackAddRoutineDancers(data) {
 		var row = jQuery('.routine-container #item-'+id);
 
 		row.attr('id', 'item-'+routine_id);
-		row.attr('data-id', routine_id); 
+		row.attr('data-id', routine_id);
 		row.find('.btn-addroutinedancers').attr('data-id', routine_id);
 		row.find('.btn-addroutinemusics').attr('data-id', routine_id);
 		row.find('.routine-name').attr({'name':'routinecurr['+routine_id+'][name]', 'id': 'routine-name-'+routine_id});
@@ -567,7 +615,7 @@ function callbackAddRoutineDancers(data) {
 		row.find('.btn-addroutinemusic').attr('data-id', routine_id);
 		row.find('.btn-remove').removeClass('btn-remove').addClass('btn-delete-routine').attr('data-id', routine_id);
 		row.find('.parentFormstudio-competition.formError').remove();
-	}	
+	}
 	jQuery('#add-routine-dancers').find('input[type="submit"]').val('Add/Edit');
 }
 
@@ -592,7 +640,7 @@ function callbackRemoveCoupon(data) {
 		jQuery('.coupon-container').html(button_html);
 		jQuery('#grand-total').text(new_grand_total.formatMoney(2));
 		jQuery('#popup-refresh').modal('hide');
-	}	
+	}
 }
 
 function callbackRemoveParticipant(data) {
@@ -606,7 +654,7 @@ function callbackRemoveParticipant(data) {
 		jQuery('#item-'+id).remove();
 		jQuery('#add-workshop-participants').find('#participant-'+id).attr({'disabled':false, 'checked':false});
 	}
-	jQuery('#popup-refresh').modal('hide');	
+	jQuery('#popup-refresh').modal('hide');
 	location.reload();
 }
 
@@ -615,7 +663,7 @@ function callbackRemoveObserver(data) {
 		var id = data.id;
 		var newtotal = data.new_total;
 		location.reload();
-	}	
+	}
 }
 
 function callbackRemoveMunchkinObserver(data) {
@@ -623,7 +671,7 @@ function callbackRemoveMunchkinObserver(data) {
 		var id = data.id;
 		var newtotal = data.new_total;
 		location.reload();
-	}	
+	}
 }
 
 function callbackDeleteRoutine(data) {
@@ -631,87 +679,120 @@ function callbackDeleteRoutine(data) {
 		var new_total = data.new_total_fee;
 		var new_total_preview = data.new_total_fee_preview;
 		var this_item = jQuery('#item-'+data.id);
-		this_item.fadeOut('fast', 
-			function(){ 
-				this_item.remove();                    
-		});
+		this_item.fadeOut('fast',
+			function(){
+				this_item.remove();
+			});
 		jQuery('#total-fee').val(new_total);
 		jQuery('#total-fee-preview').text(new_total_preview);
 		if(this_item.siblings().length==0)
 			location.reload();
 	}
-	jQuery('#popup-refresh').modal('hide');				
+	jQuery('#popup-refresh').modal('hide');
 }
 
 function callbackDelete(data) {
 	if(data.success==true){
 		var this_item = jQuery('#item-'+data.id);
-		this_item.fadeOut('fast', 
-			function(){ 
-				this_item.remove();                    
-		});
+		this_item.fadeOut('fast',
+			function(){
+				this_item.remove();
+			});
 		if(this_item.siblings().length==0)
 			location.reload();
 	}
-	jQuery('#popup-refresh').modal('hide');		
+	jQuery('#popup-refresh').modal('hide');
 }
 
 function callbackSelectTourCity(data) {
 	if(data.success==true) {
 		location.reload();
-	}	
+	}
+}
+
+function callbackCreateInvoice(data) {
+	if(data.success==true) {
+		jQuery('#popup-refresh').modal('hide');
+		if(data.redirect)
+			window.location.href = data.redirect;
+	}
 }
 
 var init_dataTable = function() {
- 	if(jQuery('.ts-data-table').length > 0) {
+	if(jQuery('.ts-data-table').length > 0) {
 		jQuery('.ts-data-table').each(function() {
-	 		var orderby = jQuery(this).attr('data-orderby') !=null ? jQuery(this).attr('data-orderby') : 0;
-	 		var sort 	= jQuery(this).attr('data-sort') !=null ? jQuery(this).attr('data-sort').toString() : 'desc';
-	 		var length 	= jQuery(this).attr('data-length') !=null ? jQuery(this).attr('data-length') : 5;
-			jQuery(this).DataTable({
+			var orderby = jQuery(this).attr('data-orderby') !=null ? jQuery(this).attr('data-orderby') : 0;
+			var sort 	= jQuery(this).attr('data-sort') !=null ? jQuery(this).attr('data-sort').toString() : 'desc';
+			var length 	= jQuery(this).attr('data-length') !=null ? jQuery(this).attr('data-length') : 5;
+			var filter 	= jQuery(this).attr('data-filter') !=null ? true : false;
+			var colfilter = jQuery(this).attr('data-colfilter') !=null ? true : false;
+
+			var table = jQuery(this).DataTable({
 				'bLengthChange' : true,
-				'bFilter' : false,
+				'bFilter' : filter,
 				'bInfo' : true,
 				'iDisplayLength' : parseInt(length),
 				'aLengthMenu' : [[10, 25, 50, -1], [10, 25, 50, 'All']],
 				'order' : [[orderby, sort]],
-				'dom' : 'rt<"table-footer clearfix"pl>',
+				'dom' : 'frt<"table-footer clearfix"pl>',
 				'language': {
-		            'lengthMenu': '_MENU_ Records per page',
-		        	}
+					'sSearch' : '',
+					'sSearchPlaceholder' : 'Search',
+					'lengthMenu': '_MENU_ Records per page',
+				}
 			});
+
+			if(colfilter) {
+				table.columns().every( function () {
+					var column = this;
+					var select = jQuery('<select><option value="">All '+jQuery(column.footer()).text()+'</option></select>')
+						.appendTo( jQuery(column.footer()).empty() )
+						.on( 'change', function () {
+							var val = jQuery.fn.dataTable.util.escapeRegex(
+								jQuery(this).val()
+							);
+							column
+								.search( val ? '^'+val+'$' : '', true, false )
+								.draw();
+						} );
+
+					column.data().unique().sort().each( function ( d, j ) {
+						d = d.replace(/(<([^>]+)>)/ig,"");
+						select.append( '<option value="'+d+'">'+d+'</option>' )
+					});
+				});
+			}
 		});
 	}
-
 }
 
 /*var init_datePicker = function() {
-	if(jQuery('.ts-date-picker').length > 0) {
-		jQuery('.ts-date-picker').each(function() {
-			var maxdate = jQuery(this).attr('data-maxdate') !=null ? jQuery(this).attr('data-maxdate') : new Date();
-	 		var dateformat = jQuery(this).attr('data-dateformat') !=null ? jQuery(this).attr('data-dateformat') : 'mm/dd/yy';
-			jQuery(this).datepicker({
-		        dateFormat : dateformat,
-		        maxDate: maxdate,
-		        changeMonth: true,
-    			changeYear: true,
-    			showButtonPanel: true,
-    			yearRange: "-100:+0",
-		    });
-		});
-	}
-}
+ if(jQuery('.ts-date-picker').length > 0) {
+ jQuery('.ts-date-picker').each(function() {
+ var maxdate = jQuery(this).attr('data-maxdate') !=null ? jQuery(this).attr('data-maxdate') : new Date();
+ var dateformat = jQuery(this).attr('data-dateformat') !=null ? jQuery(this).attr('data-dateformat') : 'mm/dd/yy';
+ jQuery(this).datepicker({
+ dateFormat : dateformat,
+ maxDate: maxdate,
+ changeMonth: true,
+ changeYear: true,
+ showButtonPanel: true,
+ yearRange: "-100:+0",
+ });
+ });
+ }
+ }
 
-var init_dateTimePicker = function() {
-	if(jQuery('.ts-datetime-picker').length > 0) {
-		jQuery('.ts-datetime-picker').each(function() {
-	 		var timeformat = jQuery(this).attr('data-timeformat') !=null ? jQuery(this).attr('data-timeformat') : 'hh:mm tt z';
-			jQuery(this).datetimepicker({
-		        timeFormat : timeformat
-		    });
-		});
-	}
-}*/
+ var init_dateTimePicker = function() {
+ if(jQuery('.ts-datetime-picker').length > 0) {
+ jQuery('.ts-datetime-picker').each(function() {
+ var timeformat = jQuery(this).attr('data-timeformat') !=null ? jQuery(this).attr('data-timeformat') : 'hh:mm tt z';
+ jQuery(this).datetimepicker({
+ timeFormat : timeformat
+ });
+ });
+ }
+ }*/
 
 var getParameterByName = function(name) {
 	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
@@ -725,64 +806,64 @@ var getParameterByName = function(name) {
 }
 
 function getSelectedIds(container) {
-	var ids = new Array(); 
+	var ids = new Array();
 	var cont = container!=null ? '#'+container : 'body';
 	var selected = jQuery(cont+' .select-item:checked');
 	if(selected.length > 0){
 		selected.each(function(){
 			ids.push(jQuery(this).val());
-		});	
-	}	
-	return ids;	
+		});
+	}
+	return ids;
 }
 
 Number.prototype.formatMoney = function(c, d, t){
-	var n = this, 
-		c = isNaN(c = Math.abs(c)) ? 2 : c, 
-		d = d == undefined ? "." : d, 
-		t = t == undefined ? "," : t, 
-		s = n < 0 ? "-" : "", 
-		i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))), 
+	var n = this,
+		c = isNaN(c = Math.abs(c)) ? 2 : c,
+		d = d == undefined ? "." : d,
+		t = t == undefined ? "," : t,
+		s = n < 0 ? "-" : "",
+		i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
 		j = (j = i.length) > 3 ? j % 3 : 0;
 	return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
 }
 
 function dateFormat(el){
-    value = el.value;       
-    el.value = value.replace(/^([\d]{4})([\d]{2})([\d]{2})$/,"$1/$2/$3");        
+	value = el.value;
+	el.value = value.replace(/^([\d]{4})([\d]{2})([\d]{2})$/,"$1/$2/$3");
 }
 
 function validateDate(dateValue) {
 
-    var selectedDate = dateValue;
-    if(selectedDate == '')
-        return false;
-    
-    var regExp = /^(\d{1,2})(\/|-)(\d{1,2})(\/|-)(\d{4})$/;
-    var dateArray = selectedDate.match(regExp);
-    
-    if (dateArray == null){
-        return false;
+	var selectedDate = dateValue;
+	if(selectedDate == '')
+		return false;
+
+	var regExp = /^(\d{1,2})(\/|-)(\d{1,2})(\/|-)(\d{4})$/;
+	var dateArray = selectedDate.match(regExp);
+
+	if (dateArray == null){
+		return false;
 	}
- 
-    month = dateArray[1];
-    day= dateArray[3];
-    year = dateArray[5];        
-    
-    if (month < 1 || month > 12){
-       return false;
-    }
-    else if (day < 1 || day> 31){ 
-       return false;
-    }
-    else if ((month==4 || month==6 || month==9 || month==11) && day ==31){
-       return false;
-    }
-    else if (month == 2){
-        var isLeapYear = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
-    	if (day> 29 || (day ==29 && !isLeapYear)){
-           return false;
-	 	}
-    }
-    return true;
+
+	month = dateArray[1];
+	day= dateArray[3];
+	year = dateArray[5];
+
+	if (month < 1 || month > 12){
+		return false;
+	}
+	else if (day < 1 || day> 31){
+		return false;
+	}
+	else if ((month==4 || month==6 || month==9 || month==11) && day ==31){
+		return false;
+	}
+	else if (month == 2){
+		var isLeapYear = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+		if (day> 29 || (day ==29 && !isLeapYear)){
+			return false;
+		}
+	}
+	return true;
 }
