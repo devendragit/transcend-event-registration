@@ -1748,3 +1748,41 @@ function ts_create_invoice($entry_id){
 	</div>
 	<?php
 }
+
+function ts_custom_admin_head() {
+
+    global $pagenow;
+
+    if($pagenow == 'admin.php' && ($_GET['page'] == 'ts-new-schedule' || $_GET['page'] == 'ts-view-schedule')) {
+        acf_form_head();
+    }
+}
+
+function ts_pre_save_schedule($schedule_id ){
+
+    $city_id = $_POST['acf']['field_59ce6df7ae6eb'];
+
+    $schedule = array(
+        'post_status'  => 'publish' ,
+        'post_title'  => get_the_title($city_id),
+        'post_type'  => 'ts_event' ,
+    );  
+
+    if( $schedule_id != 'new_schedule' ){
+
+		wp_update_post($schedule);
+
+        return $schedule_id;
+    }
+
+    $schedule_id = wp_insert_post($schedule); 
+
+    do_action('acf/save_post', $schedule_id);
+
+    wp_redirect(add_query_arg( array(
+    	'schedule_id' => $schedule_id,
+    ), admin_url('admin.php?page=ts-view-schedule')));
+    exit; 
+
+    return $schedule_id;
+}

@@ -4,10 +4,9 @@ function ts_entries_page() {
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<table id="entries-list" class="ts-data-table" data-length="10" data-sort="asc" data-filter="true" data-colfilter="true">
+			<table id="entries-list" class="ts-data-table" data-length="10" data-sort="asc" data-filter="true" data-colfilter="true" data-exportcol="0,1,2,3,4" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
-					<th style="width:80px; text-align:center; display:none;">#</th>
 					<th>City</th>
 					<th style="text-align:center;">Type</th>
 					<th style="text-align:center;">Studio</th>
@@ -45,7 +44,6 @@ function ts_entries_page() {
 						$date_paid 		= $date_paid ? date_format(date_create($date_paid),'m/d/Y') : '';
 						?>
 						<tr id="item-<?php echo $entry_id; ?>">
-							<td style="text-align:center; display:none;"><?php echo $count; ?></td>
 							<td><?php echo get_the_title($tour_city); ?></td>
 							<td style="text-align:center;"><?php echo $entry_type[0]->name; ?></td>
 							<td style="text-align:center;"><?php echo $studio; ?></td>
@@ -78,7 +76,6 @@ function ts_entries_page() {
 				</tbody>
 				<tfoot>
 				<tr>
-					<th class="hidden"></th>
 					<th>Cities</th>
 					<th>Types</th>
 					<th>Studios</th>
@@ -100,7 +97,7 @@ function ts_workshopentries_page() {
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<table id="entries-list" class="ts-data-table" data-length="25" data-sort="asc" data-filter="true" data-colfilter="true">
+			<table style="width: 100%;" id="entries-list" class="ts-data-table" data-length="25" data-sort="asc" data-orderby="1" data-filter="true" data-colfilter="true" data-exportcol="0,1,2,3,4" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
 					<th>Name</th>
@@ -118,6 +115,9 @@ function ts_workshopentries_page() {
 				$entries = ts_get_posts('ts_entry', -1, $args);
 
 				if($entries) {
+					$agedivname = '';
+					$roster_posts = array();
+
 					foreach ($entries as $entry) {
 						setup_postdata($entry);
 						$entry_id 		= $entry->ID;
@@ -138,24 +138,37 @@ function ts_workshopentries_page() {
 							else if($entrytype_name=='Individual'){
 								$post_type = 'ts_sibling';
 							}
-							$roster_posts = ts_get_posts($post_type, -1, $args);
-
-							foreach ($roster_posts as $rp) {
-								$rid 			= $rp->ID;
-								$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
-								$agediv_name 	= $age_div[0]->name;
-								$name 			= get_the_title($rid);
-								?>
-								<tr id="item-<?php echo $entry_id; ?>">
-									<td><?php echo $name; ?></td>
-									<td style="text-align:center;"><?php echo $agediv_name; ?></td>
-									<td style="text-align:center;"><?php echo $entrytype_name; ?></td>
-									<td style="text-align:center;"><?php echo $studio; ?></td>
-									<td style="text-align:center;"><?php echo $city; ?></td>
-								</tr>
-								<?php
-							}
+							$roster_posts = array_merge(ts_get_posts($post_type, -1, $args), $roster_posts);
 						}
+					}
+				}
+				if(! empty($roster_posts)) {
+					$roster_posts = ts_trim_duplicate_objects($roster_posts);
+					//$roster_posts = array_filter($roster_posts,'unique_obj');
+					//print_r($roster_posts);
+
+
+					foreach ($roster_posts as $rp) {
+						$rid 			= $rp->ID;
+						$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
+						$agediv_name 	= $age_div[0]->name;
+						$name 			= get_the_title($rid);
+						
+						/*if($agedivname!==$agediv_name) {
+							echo '
+							<tr class="agediv-sep"><td colspan="5" align="center"><strong>'. $agediv_name .'<strong></td></tr>
+							';
+							$agedivname = $agediv_name;
+						}*/
+						?>
+						<tr id="item-<?php echo $entry_id; ?>">
+							<td><?php echo $name; ?></td>
+							<td style="text-align:center;"><?php echo $agediv_name; ?></td>
+							<td style="text-align:center;"><?php echo $entrytype_name; ?></td>
+							<td style="text-align:center;"><?php echo $studio; ?></td>
+							<td style="text-align:center;"><?php echo $city; ?></td>
+						</tr>
+						<?php
 					}
 					?>
 					<?php
@@ -1139,3 +1152,229 @@ function ts_credits_page() {
 	</div>
 	<?php
 }
+
+function ts_schedules_page() {
+	?>
+	<div id="schedules-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-schedule'); ?>">Add New</a></h1>
+		<div class="ts-admin-wrapper schedules-wrapper">
+			<table id="schedules-list" class="ts-data-table" data-length="50" data-sort="asc">
+				<thead>
+				<tr>
+					<th style="text-align:left;">City</th>
+					<th style="text-align:center;">Date Start</th>
+					<th style="text-align:center;">Date End</th>
+					<th style="text-align:center;">Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php
+				$schedules = ts_get_posts('ts_event');
+				if($schedules) {
+					foreach ($schedules as $schedule) {
+						setup_postdata($schedule);
+						$schedule_id 	= $schedule->ID;
+						$title 			= $schedule->post_title;
+						$tour_id 		= get_post_meta($schedule_id, 'event_city', true);
+						$city 			= get_post_meta($tour_id, 'city', true);
+						$date_from 		= date('m/d/Y', strtotime(get_post_meta($tour_id, 'date_from', true)));
+						$date_to 		= date('m/d/Y', strtotime(get_post_meta($tour_id, 'date_to', true)));
+						?>
+						<tr id="item-<?php echo $schedule_id; ?>">
+							<td style="text-align:left;"><?php echo $city; ?></td>
+							<td style="text-align:center;"><?php echo $date_from; ?></td>
+							<td style="text-align:center;"><?php echo $date_to; ?></td>
+							<td style="text-align:center;">
+								<a title="edit" href="<?php echo admin_url('admin.php?page=ts-view-schedule&schedule_id='. $schedule_id); ?>"
+									class="btn btn-blue"
+								><small>Edit</small></a>
+								<a title="delete" href="javascript:void(0);"
+								   class="btn btn-red btn-delete"
+								   data-id="<?php echo $schedule_id; ?>"
+								   data-type="post"
+								><small>Delete</small></a>
+							</td>
+						</tr>
+						<?php
+					}
+				}else{
+					echo '<tr><td colspan="3">No Schedule Found</td></tr>';
+				}
+				?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<?php	
+}
+
+function ts_view_schedule_page() {
+
+	$schedule_id 	= $_GET['schedule_id'];
+
+	if (isset($schedule_id) && $schedule_id != '') {
+		$schedule 		= get_post($schedule_id);
+		$title 			= $schedule->post_title;
+		$date 			= date_format(date_create(get_post_meta($schedule_id, 'event_date', true)),'m/d/Y');
+		?>
+		<div id="view-schedule-page" class="wrap">
+			<h1 class="admin-page-title"><?php echo $title; ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-schedule'); ?>">Add New</a></h1>
+			<div class="ts-admin-wrapper schedule-wrapper">
+	        	<?php
+                $options = array(
+                    'post_id'  => $schedule_id,
+                    'form_attributes'  => array(
+                        'class'  => 'schedule_settings'
+                    ),
+                    'html_field_open'  => '<div class="field">',
+                    'html_field_close'  => '</div>',
+                    'html_before_fields'  => '',
+                    'html_after_fields'  => '',
+                    'submit_value'  => 'Update Schedule',
+                    'updated_message'  => 'Schedule Updated.',
+                );
+                acf_form($options);
+                ?>  
+			</div>
+		</div>
+		<?php	
+	}
+	else {
+		?>
+		<div id="view-schedule-page" class="wrap">
+			<h1 class="admin-page-title">New Schedule</h1>
+			<div class="ts-admin-wrapper schedule-wrapper">
+	        	<?php
+                $options = array(
+                    'post_id'  => 'new_schedule',
+                    'form_attributes'  => array(
+                        'class'  => 'schedule_settings'
+                    ),
+                    'field_groups' => array('group_59c21e47cc2b5'),
+                    'html_field_open'  => '<div class="field">',
+                    'html_field_close'  => '</div>',
+                    'html_before_fields'  => '',
+                    'html_after_fields'  => '',
+                    'submit_value'  => 'Save Schedule',
+                    'updated_message'  => 'Schedule Saved.',
+                );
+                acf_form($options);
+                ?>  
+			</div>
+		</div>
+		<?php		
+	}
+}
+
+function ts_schedpreview_page() {
+	?>
+	<div id="schedules-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<div class="ts-admin-wrapper schedules-wrapper">
+		</div>
+	</div>	
+	<div class="inner SampleSched">
+		<?php 
+        $args = array(
+            'post_status' => array('paid', 'paidcheck'),
+            'meta_key' => 'tour_date',
+            'meta_type' => 'DATE',
+            'orderby' => 'meta_value',
+            'order' => 'ASC',
+        );
+        $my_entries = ts_get_user_posts('ts_entry', -1, false, $args);
+        if($my_entries) {
+            $city_array = array();
+            foreach ($my_entries as $entry) {
+                setup_postdata($entry);
+                $entry_id = $entry->ID;
+                $workshop = get_post_meta($entry_id, 'workshop', true);
+                $city_array[] = $workshop['tour_city'];
+            } 
+            $city_array = ts_trim_duplicate($city_array);
+        	
+			$args = array(
+				'meta_query' => array(
+					array(
+						'key'     => 'event_city',
+						'value'   => $city_array,
+						'compare' => 'IN',
+					),
+				),
+			);
+
+        	$schedules = ts_get_posts('ts_event', -1, $args);
+
+        	foreach ($schedules as $schedule) {
+				$schedule_id = $schedule->ID;
+				$counter = 1; 
+
+				echo '
+				<h1 class="t-center">'. $schedule->post_title .'</h1>';
+
+		        while(has_sub_field('event_schedules', $schedule_id)): 
+			        ?>
+			        <div class="SchedTable">
+			        	<div class="TableCont">
+				            <div id="Day_<?php echo $counter; ?>" class="TableHeading">
+				                <?php echo get_sub_field('day'); ?>	
+				            </div>
+				            <div class="TableBody text-center">
+				            	<div class="clearfix RowHeading">
+				                	<div>
+				                    	<span>Time</span>
+				                    </div>
+				                    <div>
+				                    	<span>Seniors</span>
+				                    </div>
+				                    <div>
+				                    	<span>Teens</span>
+				                    </div>
+				                    <div>
+				                    	<span>Juniors</span>
+				                    </div>
+				                    <div>
+				                    	<span>Minis</span>
+				                    </div>
+				                    <div>
+				                    	<span>Munchkins/Pro/Teachers</span>
+				                    </div>
+				                </div>
+				                <?php $c = 1;  
+				                while(has_sub_field('lineup')): ?>
+				                    <div class="clearfix Row_<?php echo $c; ?> <?php echo get_sub_field('columns');?>"">
+				                        <div>
+				                            <span><?php echo get_sub_field('time'); ?></span>    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('seniors'); ?></span>	    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('teens'); ?></span>	    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('juniors'); ?></span>	    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('minis'); ?></span>	    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('munchkinsproteachers'); ?></span>    
+				                        </div>
+				                    </div>
+				                <?php 
+				                $c++; 
+				                endwhile; 
+				                ?> 
+				            </div>
+			            </div>
+			        </div>
+		        <?php
+		        $counter++; 
+		        endwhile; 
+        	}
+        }
+        ?>
+    </div>
+	<?php
+}		

@@ -32,6 +32,7 @@ add_action('wp_ajax_query-attachments','ts_restrict_non_Admins',1);
 add_action('wp_ajax_nopriv_query-attachments','ts_restrict_non_Admins',1);
 add_action("add_meta_boxes", "ts_custom_meta_boxes");
 add_action("save_post", "ts_save_custom_meta_box", 10, 3);
+add_action('admin_init', 'ts_custom_admin_head');
 
 /* Temp */
 //add_action('init', 'ts_import_studios');
@@ -88,6 +89,7 @@ add_filter('media_upload_default_tab', 'ts_media_library_default_tab', 99);
 add_filter('gettext', 'ts_forgot_username_text', 1, 3);
 add_filter('media_view_strings','ts_remove_medialibrary_tab');
 add_filter('random_password', 'ts_disable_random_password', 10, 2);
+add_filter('acf/pre_save_post', 'ts_pre_save_schedule');
 
 /** Front-end **/
 add_action('wp_footer', 'ts_footer_scripts');
@@ -247,6 +249,7 @@ function ts_register_ts_scripts() {
         /*CSS*/
         wp_register_style('jquery-ui-css', TS_URI .'assets/css/jquery-ui.css');
         wp_register_style('jquery-dataTables-style', TS_URI .'assets/js/jquery.dataTables/css/jquery.dataTables.min.css');
+        wp_register_style('buttons-dataTables', TS_URI .'assets/js/jquery.dataTables/css/buttons.dataTables.min.css');
         wp_register_style('jquery-validationEngine-style', TS_URI .'assets/js/jquery.validationEngine/css/validationEngine.jquery.css');
         wp_register_style('grid12', TS_URI .'assets/css/grid12.css');
         wp_register_style('bootstrap', TS_URI .'assets/css/bootstrap.min.css');
@@ -258,9 +261,17 @@ function ts_register_ts_scripts() {
 
         /*JS*/
         wp_register_script('jquery-dataTables', TS_URI .'assets/js/jquery.dataTables/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core'), '', true);
+        wp_register_script('dataTables-buttons', TS_URI .'assets/js/jquery.dataTables/js/dataTables.buttons.min.js', array('jquery'), '', true);
+        wp_register_script('buttons-html5', TS_URI .'assets/js/jquery.dataTables/js/buttons.html5.min.js', array('jquery'), '', true);
+        wp_register_script('buttons-print', TS_URI .'assets/js/jquery.dataTables/js/buttons.print.min.js', array('jquery'), '', true);
+        wp_register_script('buttons-flash', TS_URI .'assets/js/jquery.dataTables/js/buttons.flash.min.js', array('jquery'), '', true);
+        wp_register_script('vfs-fonts', TS_URI .'assets/js/jquery.dataTables/js/vfs_fonts.js', array('jquery'), '', true);
+        wp_register_script('jszip', TS_URI .'assets/js/jquery.dataTables/js/jszip.min.js', array('jquery'), '', true);
+        wp_register_script('pdfmake', TS_URI .'assets/js/jquery.dataTables/js/pdfmake.min.js', array('jquery'), '', true);
         wp_register_script('jquery-validationEngine-languages', TS_URI .'assets/js/jquery.validationEngine/languages/jquery.validationEngine-en.js', array('jquery'), '', true);
         wp_register_script('jquery-validationEngine', TS_URI .'assets/js/jquery.validationEngine/jquery.validationEngine.js', array('jquery'), '', true);
         wp_register_script('jquery-maskedinput', TS_URI .'assets/js/jquery.maskedinput.js', array('jquery'), '', true);
+        wp_register_script('jquery-moment', TS_URI .'assets/js/moment.min.js', array('jquery'), '', true);
         wp_register_script('bootstrap', TS_URI .'assets/js/bootstrap.min.js', array('jquery'), '', true);
         wp_register_script('ts-custom-script', TS_URI .'assets/js/ts-custom-script.js', array('jquery'), '', false);
     }
@@ -275,6 +286,7 @@ function ts_enqueue_admin_scripts() {
         if($pagenow != 'users.php') {
             wp_enqueue_style('jquery-ui-css');
             wp_enqueue_style('jquery-dataTables-style');
+            wp_enqueue_style('buttons-dataTables');
             wp_enqueue_style('jquery-validationEngine-style');
             wp_enqueue_style('grid12');
             wp_enqueue_style('bootstrap');
@@ -282,12 +294,19 @@ function ts_enqueue_admin_scripts() {
             wp_enqueue_style('ts-custom-style');
 
             wp_enqueue_script('jquery-ui-datepicker');
-            wp_enqueue_script('jquery-dataTables');
             wp_enqueue_script('jquery-validationEngine-languages');
             wp_enqueue_script('jquery-validationEngine');
             wp_enqueue_script('jquery-maskedinput');
+            wp_enqueue_script('jquery-dataTables');
+            wp_enqueue_script('dataTables-buttons');
+            wp_enqueue_script('buttons-html5');
+            wp_enqueue_script('buttons-print');
+            wp_enqueue_script('jszip');
+            wp_enqueue_script('pdfmake');
+            wp_enqueue_script('vfs-fonts');
             wp_enqueue_script('bootstrap');
             wp_enqueue_script('ts-custom-script');
+            wp_enqueue_script('jquery-moment');
         }
         wp_enqueue_style('ts-admin-style');
         wp_enqueue_style('ts-fonts');
@@ -336,6 +355,8 @@ function ts_remove_default_menus() {
 
     if(current_user_can('is_organizer')) {
         remove_menu_page('ts-view-entry');
+        remove_menu_page('ts-new-schedule');
+        remove_menu_page('ts-view-schedule');
     }
 
     if(current_user_can('is_customer')) {
@@ -362,6 +383,7 @@ function ts_register_custom_menu_pages() {
         add_menu_page('Edit Registration', 'Edit Registration', 'add_ts_entry', 'ts-edit-entry', 'ts_post_entry_page', '', 102);
         add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 104);
         add_menu_page('Credits', 'My Credits', 'is_custom_user', 'ts-credits', 'ts_credits_page', 'dashicons-cart', 105);
+        add_menu_page('Schedules', 'Schedules', 'is_custom_user', 'ts-schedules', 'ts_schedpreview_page', 'dashicons-calendar-alt', 106);
     }
     else if (current_user_can('is_organizer')) {
         add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
@@ -371,6 +393,9 @@ function ts_register_custom_menu_pages() {
         add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 104);
         add_menu_page('Tours', 'Tours', 'is_organizer', 'ts-tours', 'ts_tours_page', 'dashicons-admin-site', 105);
         add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 106);
+        add_menu_page('Schedules', 'Schedules', 'is_organizer', 'ts-schedules', 'ts_schedules_page', 'dashicons-calendar-alt', 107);
+        add_menu_page('New Schedule', 'New Schedule', 'is_organizer', 'ts-new-schedule', 'ts_view_schedule_page', '', 108);
+        add_menu_page('View Schedule', 'View Schedule', 'is_organizer', 'ts-view-schedule', 'ts_view_schedule_page', '', 109);
     }
 }
 
