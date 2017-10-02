@@ -10,6 +10,17 @@ function ts_trim_duplicate($array) {
 	return $array;
 }
 
+function ts_trim_duplicate_objects($objects) {
+	$filtered = array();
+
+	foreach ($objects as $current) {
+	    if ( ! in_array($current, $filtered)) {
+	        $filtered[] = $current;
+	    }
+	}    
+	return $filtered;
+}
+
 function ts_session_start() {
     if(!session_id()) {
         session_start();

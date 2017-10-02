@@ -2190,3 +2190,122 @@ function ajax_create_invoice() {
 
     die();
 }
+
+function ajax_download_all_music(){
+    if($_POST) :
+
+        check_ajax_referer('ts-default', 'token');
+
+        $id				= intval(sanitize_text_field($_POST['id']));
+        $has_error 		= true;
+
+        $response = array(
+            'success' => false,
+            'id' => $id,
+            'redirect' => false,
+        );
+
+        $entry_id 		= $id;
+        $entry = get_post($entry_id);
+        $competition 	= get_post_meta($entry_id, 'competition', true);
+        $routines 		= $competition['routines'];
+        $author 		= $entry->post_author;
+        $user_meta 		= get_userdata($author);
+        $user_roles = $user_meta->roles;
+
+        if(in_array('studio', $user_roles)) {
+            $name = get_field('director', 'user_'. $author);
+        }
+        else if(in_array('individual', $user_roles)){
+            $name = get_field('name', 'user_'. $author);
+        }
+
+        $pretty_filename = get_the_title($entry_id);
+        $pretty_filename.=  '-'.$name;
+        if(! empty($routines) ){
+            // Prepare File
+            $upload_dir = wp_upload_dir();
+            $file = tempnam($upload_dir['path'], "zip");
+            $zip = new ZipArchive();
+            $zip->open($file, ZipArchive::OVERWRITE);
+            foreach( $routines as  $routine ) {
+                // Get the file name
+                $music_id = (int)$routine['music'];
+                if($music_id) {
+                    $name = explode('/', get_attached_file($music_id) );
+                    $name = $name[sizeof($name) - 1];
+                    $zip->addFile(get_attached_file($music_id), $name);
+                }
+            }
+            // Store the filename before closing the file
+
+            $filename_array = explode('/', $zip->filename);
+            $filename = $filename_array[sizeof($filename_array) - 1];
+
+            //Close the file
+            $zip->close();
+            $has_error = false;
+        }
+
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+            $response['redirect'] = TS_ZIP_ATTACHMENTS_URL."/ts-music-download.php?ts_pretty_filename=".sanitize_file_name($pretty_filename)."&ts_real_filename=".$filename;
+        }
+        echo json_encode($response);
+
+    endif;
+
+    die();
+}
+
+function ajax_save_music_info() {
+    if($_POST) :
+
+        check_ajax_referer('ts-save-item', 'token');
+
+        $music_id		= $_POST['music-id'];
+        $music_title 	= sanitize_text_field($_POST['music-title']);
+
+        $music_id		= absint($music_id);
+        $has_error 		= true;
+
+        $response = array(
+            'success' => false,
+            'id' => $music_id,
+        );
+
+        if( get_the_title($music_id) && $music_title ) {
+            $file = get_attached_file($music_id);
+            $path = pathinfo($file);
+
+            $newfilename = $music_title;
+            $newfile = $path['dirname']."/".$newfilename.".".$path['extension'];
+
+            rename($file, $newfile);
+            $check = update_attached_file( $music_id, $newfile );
+            if( $check ) {
+                $has_error = false;
+                $music_meta = array(
+                    'ID'		=> $music_id,
+                    'post_title'	=> $music_title,
+                );
+                wp_update_post( $music_meta );
+            }
+        }
+
+        if($has_error === true) {
+            $response['message'][] = __('Unable to rename.');
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+        }
+        echo json_encode($response);
+
+    endif;
+
+    die();
+}

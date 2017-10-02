@@ -243,7 +243,7 @@ table.dataTable thead th {
     font-size: 14px;
     font-weight: bold;
     font-family: 'Omnes-Semibold';
-    background-color: #f9f9f9;
+    background-color: #f1f1f1;
     border-bottom: 0 !important;
     padding-bottom: 14px !important;
     padding-top: 14px !important;
@@ -916,6 +916,192 @@ sup.required {
 #popup-waiver-form input[type="checkbox"]:checked + span {
     background: url(../images/icon_check_black.png) no-repeat center center;
 }
+
+.SchedTable {
+    margin: 45px 0 0;
+    font-family: 'Omnes-Semibold';
+    font-size: 14px;
+    color: #000;
+    background-image: url(img/TableBg.png);
+    background-size: cover;
+    background-repeat: repeat-y;
+    background-position: center center;
+    border-radius: 16px;
+    border: 3px solid #cecece;
+}
+.TableHeading {
+    font-size: 14px;
+    color: #fff;
+    background: #3d3d3d;
+    padding: 20px 30px;
+    text-transform: uppercase;
+    font-family: 'Omnes-Semibold';
+    border-radius: 14px 14px 0 0;
+}
+.CompetitionSched .SchedTable {
+    font-family: 'Omnes-Medium';
+}
+
+.TableBody > .clearfix {
+    border-bottom: 1px solid #d2d1d1;
+}
+
+.TableBody > .clearfix:last-child {
+    border-bottom: 0;
+}
+
+.TableBody > .clearfix > div {
+    border-right: 1px solid #d2d1d1 !important;
+    width: 14.5%;
+    padding: 6px 6px;
+    float: left;
+}
+
+.SampleSched .SchedTable {
+    font-size: 14px;
+    text-align: center;
+    margin-right: 30px;
+}
+
+.SampleSched h1 {
+    margin-top: 30px;
+}
+
+.TableBody > .clearfix > div:last-child {
+    border-right: none !important;
+}
+
+.TableBody > .clearfix.Col_1_5 > div:nth-child(2) {
+    border-right: none !important;
+}
+
+.TableBody > .clearfix > div i {
+    float: right;
+    margin-top: -10px;
+    margin-bottom: -10px;
+    height: 45px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-style: normal;
+    margin-right: -10px;
+    padding: 10px 0px;
+    border-left: 1px solid #d2d1d1 !important;
+    display: none;
+    width: 56%;
+    margin-left: 2%;
+    background: #f5f5f5;
+    font-size: 15px;
+}
+
+.TableBody > .clearfix > div:last-child {
+    border-right: none !important;
+}
+
+.TableBody > .clearfix > div:first-child {
+    width: 20%;
+}
+
+.TableBody > .clearfix > div:last-child {
+    width: 22%;
+}
+
+.RowHeading {
+    text-transform: uppercase;
+}
+
+.TourStopsInner .RowHeading, .SampleSched .RowHeading {
+    background: #fff;
+}
+
+.TableBody .Highlighted {
+    background: #f5f5f5;
+}
+
+.TableBody .Col_1_5 > div:nth-child(2) {
+    width: 80% !important;
+    text-transform: uppercase;
+    color: #6d6d6d;
+}
+
+.TableBody .Col_1_5 > div:nth-child(3),
+.TableBody .Col_1_5 > div:nth-child(4),
+.TableBody .Col_1_5 > div:nth-child(5),
+.TableBody .Col_1_5 > div:nth-child(6) {
+    display: none !important;
+}
+
+.Col_1_2_2_1 > div:nth-child(2), .Col_1_2_2_1 > div:nth-child(4) {
+    width: 29% !important;
+}
+
+.Row_2.Col_1_2_2_1 > div {
+    font-family: 'Omnes-Bold';
+}
+
+.Col_1_2_2_1 > div:nth-child(3),
+.Col_1_2_2_1 > div:nth-child(5),
+.Col_1_4_1 > div:nth-child(3),
+.Col_1_4_1 > div:nth-child(4),
+.Col_1_4_1 > div:nth-child(5) {
+    display: none !important;
+}
+
+.Col_1_4_1 > div:nth-child(2) {
+    width: 58%;
+    color: #6d6d6d;
+    text-transform: uppercase;
+}
+
+.CompetitionSched .TableBody > .clearfix > div {
+    width: 12%;
+}
+
+.CompetitionSched .TableBody > .clearfix > div:nth-child(1) {
+    width: 8%;
+    font-family: 'Omnes-Semibold';
+}
+
+.CompetitionSched .TableBody > .clearfix > div:nth-child(3) {
+    width: 22%;
+}
+
+.CompetitionSched .TableBody > .clearfix > div:nth-child(4) {
+    width: 20%;
+}
+
+.CompetitionSched .RowHeading {
+    background: #f5f5f5;
+    font-family: 'Omnes-Semibold';
+}
+
+.CompetitionSched .TableBody .Col_1 > div {
+    display: none;
+}
+
+.CompetitionSched .TableBody .Col_1 > div:first-child {
+    display: block;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 20px;
+    color: #3d3d3d;
+}
+
+.CompetitionSched .DownloadSched {
+    display: block;
+    width: 235px;
+    height: 46px;
+    background-image: url(img/DownloadSchedBtnSmall.png);
+    margin-top: -4px;
+}
+
+.CompetitionSched .HeaderLinks {
+    padding-top: 20px;
+}
+
+.CompetitionSched .HeaderLinks .pull-right {
+    margin-top: -20px;
+}
+
 
 /* =Responsive Structure
 ----------------------------------------------- */

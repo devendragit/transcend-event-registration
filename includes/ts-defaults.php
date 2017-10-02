@@ -427,3 +427,4 @@ function ts_get_competition_categories() {
 
 	return $categories;
 }
+

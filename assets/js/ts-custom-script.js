@@ -382,6 +382,15 @@ jQuery(document).ready(function($) {
 		$('#popup-create-invoice').modal('show');
 	});
 
+	$('.btn-editmusicinfo').on('click', function(e) {
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		var title = $(this).attr('data-title');
+		$('#music-id').val(id);
+		$('#music-title').val(title);
+		$('#popup-save-music-info').modal('show');
+	});
+
 });
 
 function callback(data) {
@@ -718,14 +727,30 @@ function callbackCreateInvoice(data) {
 	}
 }
 
+function callbackDownloadAllMusic(data) {
+	if(data.success==true) {
+		jQuery('#popup-refresh').modal('hide');
+		if(data.redirect)
+			window.location.href = data.redirect;
+	}
+}
+
+function callbackSaveMusicInfo(data) {
+	if(data.success==true) {
+		location.reload();
+	}
+}
+
 var init_dataTable = function() {
 	if(jQuery('.ts-data-table').length > 0) {
 		jQuery('.ts-data-table').each(function() {
-			var orderby = jQuery(this).attr('data-orderby') !=null ? jQuery(this).attr('data-orderby') : 0;
-			var sort 	= jQuery(this).attr('data-sort') !=null ? jQuery(this).attr('data-sort').toString() : 'desc';
-			var length 	= jQuery(this).attr('data-length') !=null ? jQuery(this).attr('data-length') : 5;
-			var filter 	= jQuery(this).attr('data-filter') !=null ? true : false;
-			var colfilter = jQuery(this).attr('data-colfilter') !=null ? true : false;
+			var dom 		= jQuery(this).attr('data-dom') !=null ? jQuery(this).attr('data-dom') : 'frt<"table-footer clearfix"pl>';
+			var orderby 	= jQuery(this).attr('data-orderby') !=null ? jQuery(this).attr('data-orderby') : 0;
+			var sort 		= jQuery(this).attr('data-sort') !=null ? jQuery(this).attr('data-sort').toString() : 'desc';
+			var length 		= jQuery(this).attr('data-length') !=null ? jQuery(this).attr('data-length') : 5;
+			var filter 		= jQuery(this).attr('data-filter') !=null ? true : false;
+			var colfilter 	= jQuery(this).attr('data-colfilter') !=null ? true : false;
+			var exportcol 	= jQuery(this).attr('data-exportcol') !=null ? jQuery(this).attr('data-exportcol') : '0';
 
 			var table = jQuery(this).DataTable({
 				'bLengthChange' : true,
@@ -734,12 +759,26 @@ var init_dataTable = function() {
 				'iDisplayLength' : parseInt(length),
 				'aLengthMenu' : [[10, 25, 50, -1], [10, 25, 50, 'All']],
 				'order' : [[orderby, sort]],
-				'dom' : 'frt<"table-footer clearfix"pl>',
+				'buttons' : [
+                    {
+                        'extend': 'print',
+                        'exportOptions': {
+                    		'columns': [exportcol]
+                		}
+                    },
+                    {
+                        'extend': 'pdf',
+                        'exportOptions': {
+                    		'columns': [exportcol]
+                		}
+                    }
+                ],
+				'dom' : dom,
 				'language': {
 					'sSearch' : '',
 					'sSearchPlaceholder' : 'Search',
 					'lengthMenu': '_MENU_ Records per page',
-				}
+				},
 			});
 
 			if(colfilter) {

@@ -47,6 +47,22 @@ function ts_register_custom_taxonomies() {
 			'capabilities' =>  array('add_ts_roster', 'add_ts_indiv_dancer'),
 			'show_admin_column' => true,
 		) 
-	); 	
+	);
+
+    register_taxonomy(
+        'ts_schedules_type',
+        array('ts_event'),
+        array(
+            'public' => false,
+            'hierarchical' => false,
+            'label' => 'Type',
+            'show_ui' => true,
+            'show_in_menu' => true,
+            'query_var' => true,
+            'rewrite' => array('slug' => 'schedules-type'),
+            'capabilities' =>  array('is_organizer'),
+            'show_admin_column' => true,
+        )
+    );
 
 }

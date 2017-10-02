@@ -4,18 +4,19 @@ function ts_entries_page() {
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<table id="entries-list" class="ts-data-table" data-length="10" data-sort="asc" data-filter="true" data-colfilter="true">
+			<table id="entries-list" class="ts-data-table" data-length="10" data-sort="asc" data-filter="true" data-colfilter="true" data-exportcol="0,1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
-					<th style="width:80px; text-align:center; display:none;">#</th>
 					<th>City</th>
 					<th style="text-align:center;">Type</th>
 					<th style="text-align:center;">Studio</th>
+					<th style="text-align:center;">Name</th>
 					<th style="text-align:center;">Status</th>
 					<th style="text-align:center;">Date Completed</th>
 					<th style="text-align:center;">Payment</th>
 					<th style="width:50px; text-align:center;">View</th>
 					<th style="width:50px; text-align:center;">Delete</th>
+					<th style="width:50px; text-align:center;">Download</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -43,12 +44,22 @@ function ts_entries_page() {
 						$tour_city 		= $workshop['tour_city'];
 						$date_paid 		= get_post_meta($entry_id, 'date_paid', true);
 						$date_paid 		= $date_paid ? date_format(date_create($date_paid),'m/d/Y') : '';
+						$user_meta 		= get_userdata($author);
+						$email 			= $user_meta->user_email;
+						$user_roles 	= $user_meta->roles;
+						$name 			= '';
+						if(in_array('studio', $user_roles)) {
+							$name = get_field('director', 'user_'. $author);
+						}
+						else if(in_array('individual', $user_roles)){
+							$name = get_field('name', 'user_'. $author);
+						}
 						?>
 						<tr id="item-<?php echo $entry_id; ?>">
-							<td style="text-align:center; display:none;"><?php echo $count; ?></td>
 							<td><?php echo get_the_title($tour_city); ?></td>
 							<td style="text-align:center;"><?php echo $entry_type[0]->name; ?></td>
 							<td style="text-align:center;"><?php echo $studio; ?></td>
+							<td style="text-align:center;"><?php echo $name;?></td>
 							<td style="text-align:center;"><?php echo $status_obj->label; ?></td>
 							<td style="text-align:center;"><?php echo $date_paid; ?></td>
 							<td style="text-align:center;">
@@ -66,6 +77,7 @@ function ts_entries_page() {
 							</td>
 							<td style="text-align:center;"><a title="edit" href="<?php echo admin_url('admin.php?page=ts-view-entry&entry_id='. $entry_id); ?>">View</a></td>
 							<td style="text-align:center;"><a title="delete" href="javascript:void(0);" class="btn-delete" data-id="<?php echo $entry_id; ?>" data-type="post">Delete</a></td>
+							<td style="text-align:center;"><a title="downloadallmusic" href="javascript:void(0);" class="btn-downloadallmusic" data-id="<?php echo $entry_id; ?>">Download All Music</a></td>
 						</tr>
 						<?php
 					}
@@ -78,7 +90,6 @@ function ts_entries_page() {
 				</tbody>
 				<tfoot>
 				<tr>
-					<th class="hidden"></th>
 					<th>Cities</th>
 					<th>Types</th>
 					<th>Studios</th>
@@ -100,7 +111,7 @@ function ts_workshopentries_page() {
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<table id="entries-list" class="ts-data-table" data-length="25" data-sort="asc" data-filter="true" data-colfilter="true">
+			<table style="width: 100%;" id="entries-list" class="ts-data-table" data-length="25" data-sort="asc" data-orderby="1" data-filter="true" data-colfilter="true" data-exportcol="0,1,2,3,4" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
 					<th>Name</th>
@@ -118,6 +129,9 @@ function ts_workshopentries_page() {
 				$entries = ts_get_posts('ts_entry', -1, $args);
 
 				if($entries) {
+					$agedivname = '';
+					$roster_posts = array();
+
 					foreach ($entries as $entry) {
 						setup_postdata($entry);
 						$entry_id 		= $entry->ID;
@@ -138,24 +152,37 @@ function ts_workshopentries_page() {
 							else if($entrytype_name=='Individual'){
 								$post_type = 'ts_sibling';
 							}
-							$roster_posts = ts_get_posts($post_type, -1, $args);
-
-							foreach ($roster_posts as $rp) {
-								$rid 			= $rp->ID;
-								$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
-								$agediv_name 	= $age_div[0]->name;
-								$name 			= get_the_title($rid);
-								?>
-								<tr id="item-<?php echo $entry_id; ?>">
-									<td><?php echo $name; ?></td>
-									<td style="text-align:center;"><?php echo $agediv_name; ?></td>
-									<td style="text-align:center;"><?php echo $entrytype_name; ?></td>
-									<td style="text-align:center;"><?php echo $studio; ?></td>
-									<td style="text-align:center;"><?php echo $city; ?></td>
-								</tr>
-								<?php
-							}
+							$roster_posts = array_merge(ts_get_posts($post_type, -1, $args), $roster_posts);
 						}
+					}
+				}
+				if(! empty($roster_posts)) {
+					$roster_posts = ts_trim_duplicate_objects($roster_posts);
+					//$roster_posts = array_filter($roster_posts,'unique_obj');
+					//print_r($roster_posts);
+
+
+					foreach ($roster_posts as $rp) {
+						$rid 			= $rp->ID;
+						$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
+						$agediv_name 	= $age_div[0]->name;
+						$name 			= get_the_title($rid);
+						
+						/*if($agedivname!==$agediv_name) {
+							echo '
+							<tr class="agediv-sep"><td colspan="5" align="center"><strong>'. $agediv_name .'<strong></td></tr>
+							';
+							$agedivname = $agediv_name;
+						}*/
+						?>
+						<tr id="item-<?php echo $entry_id; ?>">
+							<td><?php echo $name; ?></td>
+							<td style="text-align:center;"><?php echo $agediv_name; ?></td>
+							<td style="text-align:center;"><?php echo $entrytype_name; ?></td>
+							<td style="text-align:center;"><?php echo $studio; ?></td>
+							<td style="text-align:center;"><?php echo $city; ?></td>
+						</tr>
+						<?php
 					}
 					?>
 					<?php
@@ -184,7 +211,7 @@ function ts_competitionentries_page() {
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<table id="entries-list" class="ts-data-table" data-length="25" data-sort="asc" data-filter="true" data-colfilter="true">
+			<table id="entries-list" class="ts-data-table" data-length="25" data-sort="asc" data-filter="true" data-colfilter="true" data-exportcol="0,1,2,3,4" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
 					<th>Routine Name</th>
@@ -192,6 +219,8 @@ function ts_competitionentries_page() {
 					<th style="text-align:center;">Age Division</th>
 					<th style="text-align:center;">Category</th>
 					<th style="text-align:center;">City</th>
+					<th style="text-align:center;">Action</th>
+					<th style="text-align:center;">Edit</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -242,6 +271,10 @@ function ts_competitionentries_page() {
 									$age_ave = round($age_total / $count_d);
 									$agediv_name = ts_get_routine_agediv_name($age_ave);
 								}
+								$musicid = (int)$routines[$rpid]['music'];
+								$musicurl = $musicid ? wp_get_attachment_url($musicid) : false;
+								$musicoutput = $musicurl ? '<a download class="btn btn-blue btn-downloadmusic" href="'.$musicurl.'">Download Music</a>' : 'No Music';
+								$musictitle = $musicid ? get_the_title($musicid) : false;
 								?>
 								<tr id="item-<?php echo $entry_id; ?>">
 									<td><?php echo $name; ?></td>
@@ -249,6 +282,16 @@ function ts_competitionentries_page() {
 									<td style="text-align:center;"><?php echo $agediv_name; ?></td>
 									<td style="text-align:center;"><?php echo $cat_name; ?></td>
 									<td style="text-align:center;"><?php echo $city; ?></td>
+									<td style="text-align:center;"><?php echo $musicoutput;?></td>
+									<td style="text-align:center;">
+										<?php if($musicurl) { ?>
+											<a title="edit" href="javascript:void(0);"
+											   class="btn btn-blue btn-editmusicinfo"
+											   data-id="<?php echo $musicid; ?>"
+											   data-title="<?php echo $musictitle; ?>"
+											>Rename Music</a>
+										<?php } ?>
+									</td>
 								</tr>
 								<?php
 							}
@@ -265,12 +308,29 @@ function ts_competitionentries_page() {
 				<tr>
 					<th class="hidden">Routine Name</th>
 					<th class="hidden">Dancers</th>
-					<th class="hidden">Age Division</th>
-					<th class="hidden">Category</th>
+					<th>Age Division</th>
+					<th>Category</th>
 					<th>Cities</th>
 				</tr>
 				</tfoot>
 			</table>
+			<div id="popup-save-music-info" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Edit Music Info</h4>
+						</div>
+						<div class="modal-body">
+							<form method="post" action="" id="form-save-music-info" name="form-save-music-info" >
+								<input type="hidden" name="music-id" id="music-id" value="" />
+								<p>Rename <br /><input type="text" name="music-title" id="music-title" value="" /></p>
+								<input type="submit" value="Save" class="btn btn-blue">
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<?php
@@ -1138,4 +1198,493 @@ function ts_credits_page() {
 		</div>
 	</div>
 	<?php
+}
+
+function ts_schedules_page() {
+	?>
+	<div id="schedules-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<div class="ts-admin-wrapper schedules-wrapper">
+			<table id="schedules-list" class="ts-data-table" data-length="50" data-sort="asc">
+				<thead>
+				<tr>
+					<th style="text-align:left;">City</th>
+					<th style="text-align:left;">Type</th>
+					<th style="text-align:center;">Date Start</th>
+					<th style="text-align:center;">Date End</th>
+					<th style="text-align:center;">Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php
+				$schedules = ts_get_posts('ts_event');
+				if($schedules) {
+					foreach ($schedules as $schedule) {
+						setup_postdata($schedule);
+						$schedule_id 	= $schedule->ID;
+						$title 			= $schedule->post_title;
+						$tour_id 		= get_post_meta($schedule_id, 'event_city', true);
+						$city 			= get_post_meta($tour_id, 'city', true);
+						$date_from 		= date('m/d/Y', strtotime(get_post_meta($tour_id, 'date_from', true)));
+						$date_to 		= date('m/d/Y', strtotime(get_post_meta($tour_id, 'date_to', true)));
+						$schedule_type 	= wp_get_object_terms($schedule_id, 'ts_schedules_type');
+						$schedule_action = isset($schedule_type[0]->name) && 'Competition' === $schedule_type[0]->name ? 'ts-view-competition-schedule' : 'ts-view-schedule';
+						?>
+						<tr id="item-<?php echo $schedule_id; ?>">
+							<td style="text-align:left;"><?php echo $city; ?></td>
+							<td style="text-align:left;"><?php echo $schedule_type[0]->name;?></td>
+							<td style="text-align:center;"><?php echo $date_from; ?></td>
+							<td style="text-align:center;"><?php echo $date_to; ?></td>
+							<td style="text-align:center;">
+								<a title="edit" href="<?php echo admin_url('admin.php?page='.$schedule_action.'&schedule_id='. $schedule_id); ?>"
+									class="btn btn-blue"
+								><small>Edit</small></a>
+								<a title="delete" href="javascript:void(0);"
+								   class="btn btn-red btn-delete"
+								   data-id="<?php echo $schedule_id; ?>"
+								   data-type="post"
+								><small>Delete</small></a>
+							</td>
+						</tr>
+						<?php
+					}
+				}else{
+					echo '<tr><td colspan="3">No Schedule Found</td></tr>';
+				}
+				?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<?php	
+}
+
+function ts_view_schedule_page() {
+
+	$schedule_id 	= $_GET['schedule_id'];
+
+	if (isset($schedule_id) && $schedule_id != '') {
+		$schedule 		= get_post($schedule_id);
+		$title 			= $schedule->post_title;
+		$date 			= date_format(date_create(get_post_meta($schedule_id, 'event_date', true)),'m/d/Y');
+		?>
+		<div id="view-schedule-page" class="wrap">
+			<h1 class="admin-page-title"><?php echo $title; ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-schedule'); ?>">Add New</a></h1>
+			<div class="ts-admin-wrapper schedule-wrapper">
+	        	<?php
+                $options = array(
+                    'post_id'  => $schedule_id,
+                    'form_attributes'  => array(
+                        'class'  => 'schedule_settings'
+                    ),
+                    'html_field_open'  => '<div class="field">',
+                    'html_field_close'  => '</div>',
+                    'html_before_fields'  => '',
+                    'html_after_fields'  => '',
+                    'submit_value'  => 'Update Schedule',
+                    'updated_message'  => 'Schedule Updated.',
+                );
+                acf_form($options);
+                ?>  
+			</div>
+		</div>
+		<?php	
+	}
+	else {
+		?>
+		<div id="view-schedule-page" class="wrap">
+			<h1 class="admin-page-title">New Schedule</h1>
+			<div class="ts-admin-wrapper schedule-wrapper">
+	        	<?php
+                $options = array(
+                    'post_id'  => 'new_schedule',
+                    'form_attributes'  => array(
+                        'class'  => 'schedule_settings'
+                    ),
+                    'field_groups' => array('group_59c21e47cc2b5'),
+                    'html_field_open'  => '<div class="field">',
+                    'html_field_close'  => '</div>',
+                    'html_before_fields'  => '',
+                    'html_after_fields'  => '',
+                    'submit_value'  => 'Save Schedule',
+                    'updated_message'  => 'Schedule Saved.',
+                );
+                acf_form($options);
+                ?>  
+			</div>
+		</div>
+		<?php		
+	}
+}
+
+function ts_schedpreview_page() {
+	?>
+	<div id="schedules-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<div class="ts-admin-wrapper schedules-wrapper">
+		</div>
+	</div>	
+	<div class="inner SampleSched">
+		<?php 
+        $args = array(
+            'post_status' => array('paid', 'paidcheck'),
+            'meta_key' => 'tour_date',
+            'meta_type' => 'DATE',
+            'orderby' => 'meta_value',
+            'order' => 'ASC',
+        );
+        $my_entries = ts_get_user_posts('ts_entry', -1, false, $args);
+        if($my_entries) {
+            $city_array = array();
+            foreach ($my_entries as $entry) {
+                setup_postdata($entry);
+                $entry_id = $entry->ID;
+                $workshop = get_post_meta($entry_id, 'workshop', true);
+                $city_array[] = $workshop['tour_city'];
+            } 
+            $city_array = ts_trim_duplicate($city_array);
+			$args = array(
+				'meta_query' => array(
+					array(
+						'key'     => 'event_city',
+						'value'   => $city_array,
+						'compare' => 'IN',
+					),
+				),
+			);
+
+        	$schedules = ts_get_posts('ts_event', -1, $args);
+
+        	foreach ($schedules as $schedule) {
+				$schedule_id = $schedule->ID;
+				$counter = 1;
+
+		        while(has_sub_field('event_schedules', $schedule_id)):
+					echo '
+						<h1 class="t-center">Workshop - '. $schedule->post_title .'</h1>';
+			        ?>
+			        <div class="SchedTable">
+			        	<div class="TableCont">
+				            <div id="Day_<?php echo $counter; ?>" class="TableHeading">
+				                <?php echo get_sub_field('day'); ?>	
+				            </div>
+				            <div class="TableBody text-center">
+				            	<div class="clearfix RowHeading">
+				                	<div>
+				                    	<span>Time</span>
+				                    </div>
+				                    <div>
+				                    	<span>Seniors</span>
+				                    </div>
+				                    <div>
+				                    	<span>Teens</span>
+				                    </div>
+				                    <div>
+				                    	<span>Juniors</span>
+				                    </div>
+				                    <div>
+				                    	<span>Minis</span>
+				                    </div>
+				                    <div>
+				                    	<span>Munchkins/Pro/Teachers</span>
+				                    </div>
+				                </div>
+				                <?php $c = 1;  
+				                while(has_sub_field('lineup')): ?>
+				                    <div class="clearfix Row_<?php echo $c; ?> <?php echo get_sub_field('columns');?>">
+				                        <div>
+				                            <span><?php echo get_sub_field('time'); ?></span>    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('seniors'); ?></span>	    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('teens'); ?></span>	    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('juniors'); ?></span>	    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('minis'); ?></span>	    
+				                        </div>
+				                        <div>
+				                            <span><?php echo get_sub_field('munchkinsproteachers'); ?></span>    
+				                        </div>
+				                    </div>
+				                <?php 
+				                $c++; 
+				                endwhile; 
+				                ?> 
+				            </div>
+			            </div>
+			        </div>
+		        <?php
+		        $counter++; 
+		        endwhile;
+
+				while(has_sub_field('competition_event_schedules', $schedule_id)):
+					echo '
+						<h1 class="t-center">Competition - '. $schedule->post_title .'</h1>';
+					?>
+					<div class="CompetitionSched SchedTable">
+						<div class="TableCont">
+							<div id="Day_<?php echo $counter; ?>" class="TableHeading">
+								<?php echo get_sub_field('day'); ?>
+							</div>
+							<div class="TableBody text-center">
+								<div class="clearfix RowHeading">
+									<div>
+										<span>Number</span>
+									</div>
+									<div>
+										<span>Time</span>
+									</div>
+									<div>
+										<span>Studio</span>
+									</div>
+									<div>
+										<span>Routine</span>
+									</div>
+									<div>
+										<span>Age Division</span>
+									</div>
+									<div>
+										<span>Category</span>
+									</div>
+									<div>
+										<span>Genre</span>
+									</div>
+								</div>
+								<?php $c = 1;
+								while(has_sub_field('lineup')):
+								$col =  'Judges Break' === get_sub_field('action') || 'Awards' === get_sub_field('action') ? 'Col_1' : '';
+								?>
+								<div class="clearfix Row_<?php echo $c; ?> <?php echo $col;?>">
+								<div>
+									<span><?php echo get_sub_field('number'); ?></span>
+								</div>
+								<div>
+									<span><?php echo get_sub_field('time'); ?></span>
+								</div>
+								<div>
+									<span><?php echo get_sub_field('studio'); ?></span>
+								</div>
+								<div>
+									<span><?php echo get_the_title(get_sub_field('routine')); ?></span>
+								</div>
+								<div>
+									<span><?php echo get_sub_field('age_division'); ?></span>
+								</div>
+								<div>
+									<span><?php echo get_sub_field('category'); ?></span>
+								</div>
+								<div>
+									<span><?php echo get_sub_field('genre'); ?></span>
+								</div>
+							</div>
+							<?php
+							$c++;
+							endwhile;
+							?>
+						</div>
+					</div>
+					</div>
+					<?php
+					$counter++;
+				endwhile;
+			}
+        }
+        ?>
+    </div>
+	<?php
+}
+
+function ts_workshopschedules_page() {
+	?>
+	<div id="schedules-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-schedule'); ?>">Add New</a></h1>
+		<div class="ts-admin-wrapper schedules-wrapper">
+			<table id="schedules-list" class="ts-data-table" data-length="50" data-sort="asc">
+				<thead>
+				<tr>
+					<th style="text-align:left;">City</th>
+					<th style="text-align:center;">Date Start</th>
+					<th style="text-align:center;">Date End</th>
+					<th style="text-align:center;">Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php
+				$args = array(
+					'tax_query' => array(
+						array(
+							'taxonomy' => 'ts_schedules_type',
+							'field' => 'name',
+							'terms' => 'Workshop',
+							'operator' => 'IN'
+						),
+					)
+				);
+				$schedules = ts_get_posts('ts_event',-1,$args);
+				if($schedules) {
+					foreach ($schedules as $schedule) {
+						setup_postdata($schedule);
+						$schedule_id 	= $schedule->ID;
+						$title 			= $schedule->post_title;
+						$tour_id 		= get_post_meta($schedule_id, 'event_city', true);
+						$city 			= get_post_meta($tour_id, 'city', true);
+						$date_from 		= date('m/d/Y', strtotime(get_post_meta($tour_id, 'date_from', true)));
+						$date_to 		= date('m/d/Y', strtotime(get_post_meta($tour_id, 'date_to', true)));
+						?>
+						<tr id="item-<?php echo $schedule_id; ?>">
+							<td style="text-align:left;"><?php echo $city; ?></td>
+							<td style="text-align:center;"><?php echo $date_from; ?></td>
+							<td style="text-align:center;"><?php echo $date_to; ?></td>
+							<td style="text-align:center;">
+								<a title="edit" href="<?php echo admin_url('admin.php?page=ts-view-schedule&schedule_id='. $schedule_id); ?>"
+								   class="btn btn-blue"
+								><small>Edit</small></a>
+								<a title="delete" href="javascript:void(0);"
+								   class="btn btn-red btn-delete"
+								   data-id="<?php echo $schedule_id; ?>"
+								   data-type="post"
+								><small>Delete</small></a>
+							</td>
+						</tr>
+						<?php
+					}
+				}else{
+					echo '<tr><td colspan="3">No Schedule Found</td></tr>';
+				}
+				?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<?php
+}
+
+
+function ts_competitionschedules_page() {
+	?>
+	<div id="schedules-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-competition-schedule'); ?>">Add New</a></h1>
+		<div class="ts-admin-wrapper schedules-wrapper">
+			<table id="schedules-list" class="ts-data-table" data-length="50" data-sort="asc">
+				<thead>
+				<tr>
+					<th style="text-align:left;">City</th>
+					<th style="text-align:center;">Date Start</th>
+					<th style="text-align:center;">Date End</th>
+					<th style="text-align:center;">Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php
+				$args = array(
+					'tax_query' => array(
+						array(
+							'taxonomy' => 'ts_schedules_type',
+							'field' => 'name',
+							'terms' => 'Competition',
+							'operator' => 'IN'
+						),
+					)
+				);
+				$schedules = ts_get_posts('ts_event',-1,$args);
+				if($schedules) {
+					foreach ($schedules as $schedule) {
+						setup_postdata($schedule);
+						$schedule_id 	= $schedule->ID;
+						$title 			= $schedule->post_title;
+						$tour_id 		= get_post_meta($schedule_id, 'event_city', true);
+						$city 			= get_post_meta($tour_id, 'city', true);
+						$date_from 		= date('m/d/Y', strtotime(get_post_meta($tour_id, 'date_from', true)));
+						$date_to 		= date('m/d/Y', strtotime(get_post_meta($tour_id, 'date_to', true)));
+						?>
+						<tr id="item-<?php echo $schedule_id; ?>">
+							<td style="text-align:left;"><?php echo $city; ?></td>
+							<td style="text-align:center;"><?php echo $date_from; ?></td>
+							<td style="text-align:center;"><?php echo $date_to; ?></td>
+							<td style="text-align:center;">
+								<a title="edit" href="<?php echo admin_url('admin.php?page=ts-view-competition-schedule&schedule_id='. $schedule_id); ?>"
+								   class="btn btn-blue"
+								><small>Edit</small></a>
+								<a title="delete" href="javascript:void(0);"
+								   class="btn btn-red btn-delete"
+								   data-id="<?php echo $schedule_id; ?>"
+								   data-type="post"
+								><small>Delete</small></a>
+							</td>
+						</tr>
+						<?php
+					}
+				}else{
+					echo '<tr><td colspan="3">No Schedule Found</td></tr>';
+				}
+				?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<?php
+}
+
+function ts_view_competition_schedule_page() {
+
+	$schedule_id 	= $_GET['schedule_id'];
+
+	if (isset($schedule_id) && $schedule_id != '') {
+		$schedule 		= get_post($schedule_id);
+		$title 			= $schedule->post_title;
+		$date 			= date_format(date_create(get_post_meta($schedule_id, 'event_date', true)),'m/d/Y');
+		?>
+		<div id="view-schedule-page" class="wrap">
+			<h1 class="admin-page-title"><?php echo $title; ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-competition-schedule'); ?>">Add New</a></h1>
+			<div class="ts-admin-wrapper schedule-wrapper">
+				<?php
+				$options = array(
+					'post_id'  => $schedule_id,
+					'form_attributes'  => array(
+						'class'  => 'schedule_settings'
+					),
+					'field_groups' => array('group_59d2674ac404f'),
+					'html_field_open'  => '<div class="field">',
+					'html_field_close'  => '</div>',
+					'html_before_fields'  => '',
+					'html_after_fields'  => '',
+					'submit_value'  => 'Update Schedule',
+					'updated_message'  => 'Schedule Updated.',
+				);
+				acf_form($options);
+				?>
+			</div>
+		</div>
+		<?php
+	}
+	else {
+		?>
+		<div id="view-schedule-page" class="wrap">
+			<h1 class="admin-page-title">New Schedule</h1>
+			<div class="ts-admin-wrapper schedule-wrapper">
+				<?php
+				$options = array(
+					'post_id'  => 'new_schedule',
+					'form_attributes'  => array(
+						'class'  => 'schedule_settings'
+					),
+					'field_groups' => array('group_59d2674ac404f'),
+					'html_field_open'  => '<div class="field">',
+					'html_field_close'  => '</div>',
+					'html_before_fields'  => '',
+					'html_after_fields'  => '',
+					'submit_value'  => 'Save Schedule',
+					'updated_message'  => 'Schedule Saved.',
+				);
+				acf_form($options);
+				?>
+			</div>
+		</div>
+		<?php
+	}
 }

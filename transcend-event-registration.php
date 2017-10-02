@@ -25,6 +25,7 @@ define('TS_ADMIN_DASHBOARD', admin_url('index.php'));
 define('TS_ORGANIZER_DASHBOARD', admin_url('admin.php?page=ts-entries'));
 define('TS_STUDIO_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 define('TS_INDIVIDUAL_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
+define('TS_ZIP_ATTACHMENTS_URL', plugins_url() ."/".dirname( plugin_basename( __FILE__ ) ) ."/includes" );
 
 /* API */ /*NOT SURE IF IT'S SAFE TO ADD IT HERE, PLEASE ADVISE*/
 define('MC_API_KEY', '3afbad4ea0d6293c8743a81a40986356-us15');
