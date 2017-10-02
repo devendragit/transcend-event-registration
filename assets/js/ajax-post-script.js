@@ -424,6 +424,29 @@ jQuery(document).ready(function($) {
 		var form = new TSForm(formdata);
 		form.submitForm(callback);
 	});
+
+	$('.ts-admin-wrapper').on('click', '.btn-downloadallmusic', function(e) {
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'download_all_music');
+		formdata.append('id', id);
+		var form = new TSForm(formdata);
+		form.submitForm(callbackDownloadAllMusic);
+	});
+
+	$('#form-save-music-info').on('submit', function(e){
+		e.preventDefault();
+		$(this).find('input[type="submit"]').val('Saving...');
+		var formdata =  new FormData(this);
+		formdata.append('token', ajax_post_object.tokens.save_item);
+		formdata.append('action', 'save_music_info');
+		var form = new TSForm(formdata);
+		form.submitForm(callbackSaveMusicInfo);
+	});
+
 });
 function TSForm(formdata) {
 	this.formdata = formdata;

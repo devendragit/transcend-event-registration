@@ -47,6 +47,19 @@ function ts_create_terms() {
 			}
 		}
 	}
+
+	$schedule_types = array('Workshop', 'Competition');
+
+	foreach ($schedule_types as $key=>$value) {
+		$order = (int)$key+1;
+		$type = term_exists($value, 'ts_schedules_type');
+		if ($type == 0 || $type == null) {
+			$term = wp_insert_term($value, 'ts_schedules_type');
+			$term_id = $term->term_id;
+			update_term_meta($term_id, 'type_order', $order);
+		}
+	}
+
 }
 
 function ts_create_tour_posts() {
@@ -1747,4 +1760,49 @@ function ts_create_invoice($entry_id){
 		</div>
 	</div>
 	<?php
+}
+
+function ts_custom_admin_head() {
+
+    global $pagenow;
+
+    if($pagenow == 'admin.php' && ($_GET['page'] == 'ts-new-schedule' || $_GET['page'] == 'ts-view-schedule' || $_GET['page'] == 'ts-new-competition-schedule' || $_GET['page'] == 'ts-view-competition-schedule')) {
+        acf_form_head();
+    }
+}
+
+function ts_pre_save_schedule($schedule_id ){
+
+	if( isset( $_POST['acf']['field_59d2697cc385f'] ) ) {
+		$city_id = $_POST['acf']['field_59d2697cc385f'];
+		$redirect_url = admin_url('admin.php?page=ts-view-competition-schedule');
+		$term = 'competition';
+	} else {
+		$city_id = $_POST['acf']['field_59ce6df7ae6eb'];
+		$redirect_url = admin_url('admin.php?page=ts-view-schedule');
+		$term = 'workshop';
+	}
+
+    $schedule = array(
+        'post_status'  => 'publish' ,
+        'post_title'  => get_the_title($city_id),
+        'post_type'  => 'ts_event' ,
+    );  
+
+    if( $schedule_id != 'new_schedule' ){
+
+		wp_update_post($schedule);
+
+        return $schedule_id;
+    }
+
+    $schedule_id = wp_insert_post($schedule);
+	wp_set_object_terms( $schedule_id, $term, 'ts_schedules_type' );
+
+    do_action('acf/save_post', $schedule_id);
+
+    wp_redirect(add_query_arg( array(
+    	'schedule_id' => $schedule_id,
+    ), $redirect_url));
+    exit;
 }

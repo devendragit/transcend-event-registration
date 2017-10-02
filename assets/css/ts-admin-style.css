@@ -136,6 +136,13 @@ table.dataTable tfoot td select {
 .dataTables_wrapper .dataTables_filter input[type="search"] {
     width: 350px;
 }
+.dataTables_wrapper .dt-buttons {
+    float: right;
+}
+.dataTables_wrapper .dt-buttons .buttons-csv,
+.dataTables_wrapper .dt-buttons .buttons-copy {
+    display: none;
+}
 tr.acf-field[data-name="invitees"],
 tr.acf-field[data-name="email"] {
     display: none;
@@ -156,7 +163,8 @@ tr.acf-field[data-name="email"] {
 }
 #popup-save-tour .modal-dialog,
 #popup-save-voucher .modal-dialog,
-#popup-create-invoice .modal-dialog {
+#popup-create-invoice .modal-dialog,
+#popup-save-music-info .modal-dialog {
     max-width: 360px;
 }
 .ts-entry-invoice input,
@@ -171,4 +179,11 @@ tr.acf-field[data-name="email"] {
 }
 .btn-addvoucher {
    margin: -7px 0 0 10px;
+}
+.agediv-sep td {
+    background-color: #f9f9f9;
+    text-transform: uppercase;
+}
+#minor-publishing {
+    display: none;
 }
