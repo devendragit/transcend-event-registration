@@ -37,7 +37,7 @@ add_action('admin_init', 'ts_custom_admin_head');
 /* Temp */
 //add_action('init', 'ts_import_studios');
 //add_action('init', 'ts_import_individual');
-//add_action('init', 'ts_create_terms', 11);
+add_action('init', 'ts_create_terms', 11);
 //add_action('init', 'ts_create_tour_posts');
 //add_action('init', 'ts_update_tour_posts');
 //add_action('init', 'ts_update_entries');
@@ -69,6 +69,9 @@ add_action('registration_amount_credited', 'ts_create_credit_post', 10, 2);
 add_action('ts_autodelete_credit','ts_autodelete_credit_cron_job', 10 ,1 );
 add_action('registration_amount_credited', 'ts_set_entry_meta', 10, 1);
 add_action('invoice_paid', 'ts_set_entry_meta', 10, 1);
+add_action('registration_manually_mark_as_paid', 'ts_registration_manually_mark_as_paid', 10, 1);
+add_action('competition_schedule_updated', 'ts_competition_schedule_updated', 10, 1);
+add_action('competition_score_updated', 'ts_competition_score_updated', 10, 1);
 
 /* Remove */
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
@@ -191,6 +194,8 @@ function ts_add_role_caps() {
             array('coupon','coupons'),
             array('invoice','invoices'),
             array('credit','credits'),
+            array('award','awards'),
+            array('score','scores'),
         );
 
         foreach ($capability_types  as $type) {
@@ -260,6 +265,9 @@ function ts_register_ts_scripts() {
         wp_register_style('ts-fonts', TS_URI .'assets/fonts/fonts.css');
 
         /*JS*/
+        if( !wp_script_is('jquery-ui') ) {
+           wp_register_script( 'jquery-ui' , TS_URI .'assets/js/jquery-ui.js' );
+        }
         wp_register_script('jquery-dataTables', TS_URI .'assets/js/jquery.dataTables/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core'), '', true);
         wp_register_script('dataTables-buttons', TS_URI .'assets/js/jquery.dataTables/js/dataTables.buttons.min.js', array('jquery'), '', true);
         wp_register_script('buttons-html5', TS_URI .'assets/js/jquery.dataTables/js/buttons.html5.min.js', array('jquery'), '', true);
@@ -293,6 +301,7 @@ function ts_enqueue_admin_scripts() {
             wp_enqueue_style('font-awesome');
             wp_enqueue_style('ts-custom-style');
 
+            wp_enqueue_script( 'jquery-ui' );
             wp_enqueue_script('jquery-ui-datepicker');
             wp_enqueue_script('jquery-validationEngine-languages');
             wp_enqueue_script('jquery-validationEngine');
@@ -359,6 +368,8 @@ function ts_remove_default_menus() {
         remove_menu_page('ts-view-schedule');
         remove_menu_page('ts-new-competition-schedule');
         remove_menu_page('ts-view-competition-schedule');
+        remove_menu_page('ts-view-scores');
+        remove_menu_page('ts-view-awards');
     }
 
     if(current_user_can('is_customer')) {
@@ -366,15 +377,15 @@ function ts_remove_default_menus() {
         remove_menu_page('ts-post-entry');
     }
 
-    $post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon', 'ts_invoice', 'ts_credit');
+    $post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon', 'ts_invoice', 'ts_credit', 'ts_score', 'ts_award');
 
-    /*foreach ($post_types  as $p) {
+    foreach ($post_types  as $p) {
         if(current_user_can('is_custom_user')) {
             remove_menu_page('edit.php?post_type='. $p);
             remove_submenu_page('edit.php?post_type='. $p, 'post-new.php?post_type='. $p);
             remove_submenu_page('edit.php?post_type='. $p, 'edit.php?post_type='. $p);
         }
-    }*/
+    }
 }
 
 function ts_register_custom_menu_pages() {
@@ -403,6 +414,12 @@ function ts_register_custom_menu_pages() {
         add_menu_page('View Workshop Schedule', 'View Workshop Schedule', 'is_organizer', 'ts-view-schedule', 'ts_view_schedule_page', '', 109);
         add_menu_page('New Competition Schedule', 'New Competition Schedule', 'is_organizer', 'ts-new-competition-schedule', 'ts_view_competition_schedule_page', '', 110);
         add_menu_page('View Competition Schedule', 'View Competition Schedule', 'is_organizer', 'ts-view-competition-schedule', 'ts_view_competition_schedule_page', '', 111);
+
+        add_menu_page('Scores', 'Scores', 'is_organizer', 'ts-scores', 'ts_score_page', 'dashicons-index-card', 112);
+        add_menu_page('View Scores', 'View Scores', 'is_organizer', 'ts-view-scores', 'ts_view_scores_page', '', 113);
+
+        add_menu_page('Awards', 'Awards', 'is_organizer', 'ts-awards', 'ts_award_page', 'dashicons-awards', 114);
+        add_menu_page('View Awards', 'View Awards', 'is_organizer', 'ts-view-awards', 'ts_view_awards_page', '', 115);
     }
 }
 
@@ -445,6 +462,7 @@ function ajax_post_init() {
     add_action('wp_ajax_create_invoice', 'ajax_create_invoice');
     add_action('wp_ajax_download_all_music', 'ajax_download_all_music');
     add_action('wp_ajax_save_music_info', 'ajax_save_music_info');
+    add_action('wp_ajax_save_mark_as_paid', 'ajax_save_mark_as_paid');
 }
 
 /* Commented Out. Reason: I believe we are not using this function yet.

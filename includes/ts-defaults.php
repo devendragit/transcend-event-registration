@@ -428,3 +428,51 @@ function ts_get_competition_categories() {
 	return $categories;
 }
 
+function ts_get_adjudicated_awards() {
+
+    $adjudicated_awards = array();
+
+    $adjudicated_awards['platinum'] = array(
+        'id' => 1,
+        'title' => 'Platinum',
+        'min_score' => 290,
+        'high_score' => 295,
+    );
+
+    $adjudicated_awards['high-silver'] = array(
+        'id' => 2,
+        'title' => 'High Silver',
+        'min_score' => 250,
+        'high_score' => 264,
+    );
+
+    $adjudicated_awards['high-gold'] = array(
+        'id' => 3,
+        'title' => 'High Gold',
+        'min_score' => 275,
+        'high_score' => 289,
+    );
+
+    $adjudicated_awards['silver'] = array(
+        'id' => 4,
+        'title' => 'Silver',
+        'min_score' => 235,
+        'high_score' => 249,
+    );
+
+    $adjudicated_awards['gold'] = array(
+        'id' => 5,
+        'title' => 'Gold',
+        'min_score' => 265,
+        'high_score' => 274,
+    );
+
+    $adjudicated_awards['bronze'] = array(
+        'id' => 6,
+        'title' => 'Bronze',
+        'min_score' => 200,
+        'high_score' => 234,
+    );
+
+    return $adjudicated_awards;
+}

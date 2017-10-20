@@ -292,6 +292,72 @@ function ts_register_custom_post_types() {
         )
     ));
 
+    register_post_type('ts_score', array(
+        'label' => 'Scores',
+        'description' => '',
+        'public' => true,
+        'menu_position' => 9,
+        'exclude_from_search' => true,
+        'publicly_queryable' => false,
+        'capability_type' => array('score','scores'),
+        'map_meta_cap' => true,
+        'hierarchical' => false,
+        'rewrite' => array('slug' => 'score', 'with_front' => true),
+        'query_var' => true,
+        'supports' => array('title','author'),
+        'taxonomies' => array(),
+        'labels' => array (
+            'name' => 'Scores',
+            'singular_name' => 'Score',
+            'menu_name' => 'Scores',
+            'all_items' => 'Scores',
+            'add_new' => 'Add New',
+            'add_new_item' => 'Add New Score',
+            'edit' => 'Edit',
+            'edit_item' => 'Edit Score',
+            'new_item' => 'New Score',
+            'view' => 'View Score',
+            'view_item' => 'View Score',
+            'search_items' => 'Search Scores',
+            'not_found' => 'No Scores Found',
+            'not_found_in_trash' => 'No Scores Found in Trash',
+            'parent' => 'Parent Score',
+        )
+    ));
+
+    register_post_type('ts_award', array(
+        'label' => 'Awards',
+        'description' => '',
+        'public' => true,
+        'menu_position' => 9,
+        'exclude_from_search' => true,
+        'publicly_queryable' => false,
+        'capability_type' => array('award','awards'),
+        'map_meta_cap' => true,
+        'hierarchical' => false,
+        'rewrite' => array('slug' => 'award', 'with_front' => true),
+        'query_var' => true,
+        'supports' => array('title','author'),
+        'taxonomies' => array(),
+        'labels' => array (
+            'name' => 'My awards',
+            'singular_name' => 'Award',
+            'menu_name' => 'Awards',
+            'all_items' => 'Awards',
+            'add_new' => 'Add New',
+            'add_new_item' => 'Add New Award',
+            'edit' => 'Edit',
+            'edit_item' => 'Edit Award',
+            'new_item' => 'New Award',
+            'view' => 'View Award',
+            'view_item' => 'View Award',
+            'search_items' => 'Search Awards',
+            'not_found' => 'No Awards Found',
+            'not_found_in_trash' => 'No Awards Found in Trash',
+            'parent' => 'Parent Award',
+        )
+    ));
+
 }
 
 function ts_register_custom_post_status() {

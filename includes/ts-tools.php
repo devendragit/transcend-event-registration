@@ -383,3 +383,113 @@ function ts_mailchimp_curl_submit($endpoint, $fields=array(), $method='GET') {
 
     return $output;
 }
+
+function ts_create_scores_array( $schedules ) {
+
+    $scores_array = $schedules;
+
+    for( $i=0 ;$i<count($scores_array); $i++ ){
+        if(is_array($scores_array[$i]['lineup'])) {
+            for( $y=0 ;$y<count($scores_array[$i]['lineup']); $y++ ) {
+                if( 'Judges Break' == $scores_array[$i]['lineup'][$y]['action'] || 'Awards' == $scores_array[$i]['lineup'][$y]['action'] ) {
+                    unset($scores_array[$i]['lineup'][$y]);
+                    $scores_array[$i]['lineup'] = array_values($scores_array[$i]['lineup']);
+                }
+                unset($scores_array[$i]['lineup'][$y]['action']);
+                $scores_array[$i]['lineup'][$y]['score'] = 0;
+            }
+        }
+    }
+
+    return $scores_array;
+}
+
+function ts_search_in_array($SearchArray, $query, $all = 0, $Return = 'direct') {
+    $SearchArray = json_decode(json_encode($SearchArray), true);
+    $ResultArray = array();
+    if (is_array($SearchArray)) {
+        $desen = "@[\s*]?[\'{1}]?([a-zA-Z\ç\Ç\ö\Ö\ş\Ş\ı\İ\ğ\Ğ\ü\Ü[:space:]0-9-_]*)[\'{1}]?[\s*]?(\<\=|\>\=|\=|\!\=|\<|\>)\s*\'([a-zA-Z\ç\Ç\ö\Ö\ş\Ş\ı\İ\ğ\Ğ\ü\Ü[:space:]0-9-_:]*)\'[\s*]?(and|or|\&\&|\|\|)?@si";
+        $DonenSonuc = preg_match_all($desen, $query, $Result);
+        if ($DonenSonuc) {
+            foreach ($SearchArray as $i => $ArrayElement) {
+                if (is_array($ArrayElement)) {
+                    $SearchStatus = 0;
+                    $EvalString = "";
+                    for ($r = 0; $r < count($Result[1]); $r++):
+                        if ($Result[2][$r] == '=') {
+                            $Operator = "==";
+                        } elseif ($Result[2][$r] == '!=') {
+                            $Operator = "!=";
+                        } elseif ($Result[2][$r] == '>=') {
+                            $Operator = ">=";
+                        } elseif ($Result[2][$r] == '<=') {
+                            $Operator = "<=";
+                        } elseif ($Result[2][$r] == '>') {
+                            $Operator = ">";
+                        } elseif ($Result[2][$r] == '<') {
+                            $Operator = "<";
+                        } else {
+                            $Operator = "==";
+                        }
+                        $AndOperator = "";
+                        if ($r != count($Result[1]) - 1) {
+                            $AndOperator = $Result[4][$r] ?: 'and';
+                        }
+                        $EvalString .= '("' . $ArrayElement[$Result[1][$r]] . '"' . $Operator . '"' . $Result[3][$r] . '") ' . $AndOperator . ' ';
+                    endfor;
+                    eval('if( ' . $EvalString . ' ) $SearchStatus = 1;');
+                    if ($SearchStatus === 1) {
+                        if ($all === 1) {
+                            if ($Return == 'direct') :
+                                $ResultArray[$i] = is_array($ResultArray[$i]) ? $ResultArray[$i] : [];
+                                $ResultArray[$i] = array_merge($ResultArray[$i], $ArrayElement);
+                            elseif ($Return == 'array') :
+                                $ResultArray['index'][] = $i;
+                                $ResultArray['array'] = is_array($ResultArray['array']) ? $ResultArray['array'] : [];
+                                $ResultArray['array'] = array_merge($ResultArray['array'], $ArrayElement);
+                            endif;
+                        } else {
+                            if ($Return == 'direct') :
+                                $ResultArray = $i;
+                            elseif ($Return == 'array') :
+                                $ResultArray['index'] = $i;
+                            endif;
+                            return $ResultArray;
+                        }
+                    }
+                    if ($all === 1 && is_array($ArrayElement)) {
+                        if ($Return == 'direct') :
+                            $args = func_get_args();
+                            $ChildResult = ts_search_in_array($ArrayElement, $args[1], $args[2], $args[3]);
+                            if (count($ChildResult) > 0):
+                                $ResultArray[$i] = is_array($ResultArray[$i]) ? $ResultArray[$i] : [];
+                                $ResultArray[$i] = array_merge($ResultArray[$i], $ChildResult);
+                            endif;
+                        endif;
+                    }
+                }
+            }
+            if ($all === 1) {
+                return $ResultArray;
+            }
+        }
+    }
+    return false;
+}
+
+function ts_sort_score($x, $y) {
+    return $x['score'] < $y['score'];
+}
+
+function ts_multi_array_search($array, $search) {
+    $result = array();
+    foreach ($array as $key => $value) {
+        foreach ($search as $k => $v) {
+            if (!isset($value[$k]) || $value[$k] != $v) {
+                continue 2;
+            }
+        }
+        $result[] = $value;
+    }
+    return $result;
+}

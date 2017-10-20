@@ -391,6 +391,7 @@ jQuery(document).ready(function($) {
 		$('#popup-save-music-info').modal('show');
 	});
 
+	$(".tabs_2").tabs();
 });
 
 function callback(data) {
@@ -736,6 +737,12 @@ function callbackDownloadAllMusic(data) {
 }
 
 function callbackSaveMusicInfo(data) {
+	if(data.success==true) {
+		location.reload();
+	}
+}
+
+function callbackMarkAsPaid(data) {
 	if(data.success==true) {
 		location.reload();
 	}

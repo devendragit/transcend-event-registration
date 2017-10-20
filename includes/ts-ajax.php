@@ -2309,3 +2309,40 @@ function ajax_save_music_info() {
 
     die();
 }
+
+
+function ajax_save_mark_as_paid() {
+    if($_POST) :
+
+        check_ajax_referer('ts-default', 'token');
+
+        $id				= (int)$_POST['id'];
+
+        $response = array(
+            'success' => false,
+            'id' => $id,
+        );
+
+        $has_error = true;
+
+        if(current_user_can('edit_post', $id)){
+            do_action('registration_manually_mark_as_paid', $id);
+            $has_error = false;
+        }  else{
+            $response['message'][] = __('Access Denied');
+        }
+
+        if($has_error===true) {
+            $response['message'][] = __('Access Denied');
+            array_unshift($response['message'], 'Error');
+        }else{
+            $response['success'] = true;
+            $response['message'][] = __('Entry is now mark as paid.');
+        }
+
+        echo json_encode($response);
+
+    endif;
+
+    die();
+}
