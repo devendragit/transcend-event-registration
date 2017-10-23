@@ -476,3 +476,45 @@ function ts_get_adjudicated_awards() {
 
     return $adjudicated_awards;
 }
+
+function ts_winners_placeholder() {
+
+	$winners = array();
+
+	$winners[1] = array(
+		'id' => 1,
+		'number' => 1,
+		'name' => 'Routine 1',
+		'studio' => 'Studio Name a',
+	);
+
+	$winners[2] = array(
+		'id' => 2,
+		'number' => 2,
+		'name' => 'Routine 2',
+		'studio' => 'Studio Name 2',
+	);
+
+	$winners[3] = array(
+		'id' => 3,
+		'number' => 3,
+		'name' => 'Routine 3',
+		'studio' => 'Studio Name 3',
+	);
+
+	$winners[4] = array(
+		'id' => 4,
+		'number' => 4,
+		'name' => 'Routine 4',
+		'studio' => 'Studio Name 4',
+	);
+
+	$winners[5] = array(
+		'id' => 5,
+		'number' => 5,
+		'name' => 'Routine 5',
+		'studio' => 'Studio Name 5',
+	);
+
+	return $winners;
+}

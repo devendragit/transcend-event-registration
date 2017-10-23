@@ -100,6 +100,17 @@ function ts_random_password($length=9) {
 	return substr(str_shuffle($chars),0,$length);
 }
 
+function ts_add_suffix($num) {
+	if (!in_array(($num % 100),array(11,12,13))){
+		switch ($num % 10) {
+			case 1:  return $num.'st';
+			case 2:  return $num.'nd';
+			case 3:  return $num.'rd';
+		}
+	}
+	return $num.'th';
+}
+
 /** Wordpress Tools **/
 
 function ts_post_exists_by_id($post_id) {

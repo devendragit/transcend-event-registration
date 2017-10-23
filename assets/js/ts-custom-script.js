@@ -246,7 +246,7 @@ jQuery(document).ready(function($) {
 		custom_uploader = wp.media.frames.file_frame = wp.media({
 			title    : 'Add Routine Music',
 			button   : {
-				text     : 'Use as Routine Music'
+				text     : 'Add Music'
 			},
 			multiple : false
 		});
@@ -391,7 +391,61 @@ jQuery(document).ready(function($) {
 		$('#popup-save-music-info').modal('show');
 	});
 
-	$(".tabs_2").tabs();
+
+  $(".tabs_2").tabs();
+
+  $('.critiques-wrapper').on('click', '.btn-addroutinecritique', function(e){
+		e.preventDefault();
+
+		var button = $(this);
+		var id = button.attr('data-id');
+		var custom_uploader;
+
+		if(custom_uploader) {
+			custom_uploader.open();
+			return;
+		}
+
+		custom_uploader = wp.media.frames.file_frame = wp.media({
+			title    : 'Routine Critique',
+			button   : {
+				text     : 'Add Critique'
+			},
+			multiple : false
+		});
+
+		custom_uploader.on('select', function(){
+			attachment = custom_uploader.state().get('selection').first().toJSON();
+			if ( attachment.url != '' ) {
+				var currroutine = $('#routine-'+id);
+				currroutine.find('.routine-critique-container').html('<div><small>'+attachment.filename+'</small><a href="javascript:void(0);" class="btn-removeroutinecritique btn btn-red" data-id="'+id+'"><small>Remove</small></a></div>');
+				button.remove();
+				addVideoCritique(attachment.id, id);
+			}
+		});
+
+		custom_uploader.open();
+
+		$('.media-modal-content .media-menu-item:first-child').click();
+	});
+
+	$('.scholarship-wrapper').on('click', 'a.btn-addscholarship', function(e) {
+		e.preventDefault();
+
+		var last = $('.scholarship-container').find('.row:last-child');
+		var last_id = last.attr('data-id');
+		var tempid = parseInt(last_id)+1;
+		var clone = last.clone();
+
+		clone.attr('id', 'item-'+tempid);
+		clone.attr('data-id', tempid);
+		clone.find('select').val('').attr('data-id', tempid);
+		clone.find('input').val('');
+		clone.find('.age-division').html('');
+		clone.find('.studio-name').html('');
+		clone.appendTo('.scholarship-container');
+	});
+
 });
 
 function callback(data) {
@@ -400,6 +454,24 @@ function callback(data) {
 		if(data.redirect){
 			window.location.href = data.redirect;
 		}
+	}
+}
+
+function callbackChangeScholar(data) {
+	if(data.success==true) {
+		var id = data.id;
+		var temp_id = data.temp_id;
+		var agediv = data.agediv;
+		var studio = data.studio;
+		jQuery('#item-'+temp_id+' .age-division').html(agediv);
+		jQuery('#item-'+temp_id+' .studio-name').html(studio);
+		jQuery('#item-'+temp_id+' .participant-scholarship').find('input').attr({'name':'scholarships['+id+']'});
+	}
+}
+
+function callbackSaveAndReload(data) {
+	if(data.success==true) {
+		location.reload();
 	}
 }
 
@@ -413,6 +485,44 @@ function callbackSaveVoucher(data) {
 function callbackSaveTour(data) {
 	if(data.success==true) {
 		location.reload();
+	}
+}
+
+function callbackCloseTour(data) {
+	if(data.success==true) {
+		var id = data.id;
+		var stat = data.status;
+		if(stat==2) {
+			jQuery('#item-'+id+' .workshop-status').html('Closed');
+			jQuery('#item-'+id+' .tour-status').html('Closed');
+			jQuery('#item-'+id+' .btn-edittour').attr({'data-status':2, 'data-workshop':2});
+			jQuery('#item-'+id+' .btn-closetour small').text('Open');
+		}
+		else {
+			jQuery('#item-'+id+' .workshop-status').html('Open');
+			jQuery('#item-'+id+' .tour-status').html('Open');
+			jQuery('#item-'+id+' .btn-edittour').attr({'data-status':1, 'data-workshop':1});
+			jQuery('#item-'+id+' .btn-closetour small').text('Close');
+		}
+	}
+}
+
+function callbackSchedStatus(data) {
+	if(data.success==true) {
+		var id = data.id;
+		var stat = data.status;
+		var statustext = stat=='publish' ? 'Published' : 'Draft';
+		var btntext = stat=='publish' ? 'Unpublish' : 'Publish';
+		jQuery('#item-'+id+' .schedule-status').html(statustext);
+		jQuery('#item-'+id+' .btn-publish small').text(btntext);
+	}
+}
+
+function callbackResultStatus(data) {
+	if(data.success==true) {
+		var stat = data.status;
+		var btntext = stat=='publish' ? 'Unpublish Results' : 'Publish Results';
+		jQuery('.btn-publishresults').text(btntext);
 	}
 }
 
@@ -760,6 +870,7 @@ var init_dataTable = function() {
 			var exportcol 	= jQuery(this).attr('data-exportcol') !=null ? jQuery(this).attr('data-exportcol') : '0';
 
 			var table = jQuery(this).DataTable({
+				'aaSorting' : [],
 				'bLengthChange' : true,
 				'bFilter' : filter,
 				'bInfo' : true,

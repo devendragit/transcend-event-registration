@@ -166,6 +166,35 @@ jQuery(document).ready(function($) {
 		}	
     });
 
+	$('.ts-admin-wrapper').on('click', '.btn-closetour', function(e) {
+		e.preventDefault();
+		var btn = $(this);
+		btn.parent().siblings('.workshop-status').html('<small><i class="fa fa-spinner fa-pulse fa-fw"></i></small>');
+		btn.parent().siblings('.tour-status').html('<small><i class="fa fa-spinner fa-pulse fa-fw"></i></small>');
+		var id = btn.attr('data-id');
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'close_tour');
+		formdata.append('id', id);
+		var form = new TSForm(formdata);
+		form.submitForm(callbackCloseTour);
+	});	
+
+	$('.ts-admin-wrapper').on('click', '.btn-publish', function(e) {
+		e.preventDefault();
+		var btn = $(this);
+		btn.parent().siblings('.schedule-status').html('<small><i class="fa fa-spinner fa-pulse fa-fw"></i></small>');
+		var id = btn.attr('data-id');
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'sched_status');
+		formdata.append('id', id);
+		var form = new TSForm(formdata);
+		form.submitForm(callbackSchedStatus);
+	});	
+
 	$('#form-create-invoice').on('submit', function(e){
 		e.preventDefault();
 		$(this).find('input[type="submit"]').val('Creating...');
@@ -375,7 +404,7 @@ jQuery(document).ready(function($) {
 		var eid = $(this).attr('data-eid');
 		var token = ajax_post_object.tokens.delete_item;
 		var formdata =  new FormData();
-		formdata.append('token', ajax_post_object.tokens.delete_item);
+		formdata.append('token', token);
 		formdata.append('action', 'delete_routine');
 		formdata.append('id', id);
 		formdata.append('eid', eid);
@@ -389,7 +418,7 @@ jQuery(document).ready(function($) {
 		var type = $(this).attr('data-type');
 		var token = ajax_post_object.tokens.delete_item;
 		var formdata =  new FormData();
-		formdata.append('token', ajax_post_object.tokens.delete_item);
+		formdata.append('token', token);
 		formdata.append('action', 'delete_item');
 		formdata.append('id', id);
 		formdata.append('type', type);
@@ -449,20 +478,88 @@ jQuery(document).ready(function($) {
 
 	$('.ts-admin-wrapper').on('click', '.btn-markpaid', function(e) {
 		e.preventDefault();
+    formdata.append('action', 'save_mark_as_paid');
+		formdata.append('id', id);
+		var form = new TSForm(formdata);
+		form.submitForm(callbackMarkAsPaid);
+  });  
+
+  $('#form-special-awards').on('submit', function(e){
+		e.preventDefault();
+		var validated = $(this).validationEngine('validate', { 
+			scroll: false, 
+			showArrowOnRadioAndCheckbox: true 
+		});
+		if(validated==true){
+			$(this).find('input[type="submit"]').val('Saving...');
+			var formdata =  new FormData(this);
+			formdata.append('token', ajax_post_object.tokens.save_item);
+			formdata.append('action', 'save_special_awards');
+			var form = new TSForm(formdata);
+			form.submitForm(callbackSaveAndReload);
+		}
+	});
+
+	$('#results-page').on('click', '.btn-publishresults', function(e) {
+		e.preventDefault();
+		$(this).prepend('<small><i class="fa fa-spinner fa-pulse fa-fw"></i></small>');
 		var id = $(this).attr('data-id');
 		var token = ajax_post_object.tokens.default;
 		var formdata =  new FormData();
 		formdata.append('token', token);
-		formdata.append('action', 'save_mark_as_paid');
+		formdata.append('action', 'publish_results');
 		formdata.append('id', id);
 		var form = new TSForm(formdata);
-		form.submitForm(callbackMarkAsPaid);
+		form.submitForm(callbackResultStatus);
 	});
 
-});
+	$('#critiques-page').on('click', '.btn-removeroutinecritique', function(e){
+		var button = $(this);
+		var id = button.attr('data-id');
+		var currroutine = $('#routine-'+id);
+		currroutine.find('.routine-critique-container').html('<a href="javascript:void(0);" class="btn-addroutinecritique btn btn-green" data-id="'+id+'"><small>Upload</small></a>');
+		removeVideoCritique(id);
+	});	
+
+	$('.scholarship-wrapper').on('change', '.scholarship', function(e){
+		e.preventDefault();
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'load_participant_info');
+		formdata.append('id', $(this).val());
+		formdata.append('tempid', $(this).attr('data-id'));
+		var form = new TSForm(formdata);
+		form.submitForm(callbackChangeScholar);	
+	});
+
+
+
+function addVideoCritique(attachment_id, post_id) {
+	var token = ajax_post_object.tokens.default;
+	var formdata =  new FormData();
+	formdata.append('token', token);
+	formdata.append('action', 'add_critique');
+	formdata.append('attachment_id', attachment_id);
+	formdata.append('post_id', post_id);
+	var form = new TSForm(formdata);
+	form.submitForm(callback);	
+}
+
+function removeVideoCritique(post_id) {
+	var token = ajax_post_object.tokens.default;
+	var formdata =  new FormData();
+	formdata.append('token', token);
+	formdata.append('action', 'remove_critique');
+	formdata.append('post_id', post_id);
+	var form = new TSForm(formdata);
+	form.submitForm(callback);	
+}
+
 function TSForm(formdata) {
 	this.formdata = formdata;
 }
+
 TSForm.prototype.submitForm = function(callback, callback2) {
 	jQuery.ajax({
         type: 'POST',

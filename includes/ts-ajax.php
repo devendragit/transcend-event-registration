@@ -441,6 +441,7 @@ function ajax_studio_registration() {
                     $date_to =  get_post_meta($temp_data['workshop']['tour_city'], 'date_to', true);
 	            	update_post_meta($entry_id, 'tour_date', $date_from);
                     update_post_meta($entry_id, 'tour_end_date', $date_to);
+					update_post_meta($updated, 'tour_city', $temp_data['workshop']['tour_city']);				
 	            }
 
 				$eid = $updated;
@@ -737,6 +738,11 @@ function ajax_individual_registration() {
 		}
 		if($tab=='workshop') {
 			if($workshop){
+
+				if((! isset($workshop['tour_city']) || $workshop['tour_city']=='') || ts_is_paid($entry_id) || (isset($workshop['tour_city']) && get_post_meta($workshop['tour_city'], 'status', true)==2) ) {
+					$workshop['tour_city'] = $temp_data['workshop']['tour_city'];
+				}
+				
 				$temp_data['workshop'] = $workshop;
 
 				$participants 		= ts_check_value($workshop, 'participants');
@@ -983,13 +989,14 @@ function ajax_individual_registration() {
 				update_post_meta($updated, 'competition', $temp_data['competition']);
 				update_post_meta($updated, 'grand_total', $grand_total);
 				update_post_meta($updated, 'comfirmed', $comfirmed);
-				update_post_meta($updated, 'save_for_later', $curr_step);				
+				update_post_meta($updated, 'save_for_later', $curr_step);
 
 	            if(isset($temp_data['workshop']['tour_city'])) {
 	            	$date_from 	= get_post_meta($temp_data['workshop']['tour_city'], 'date_from', true);
                     $date_to =  get_post_meta($temp_data['workshop']['tour_city'], 'date_to', true);
                     update_post_meta($entry_id, 'tour_date', $date_from);
                     update_post_meta($entry_id, 'tour_end_date', $date_to);
+					update_post_meta($updated, 'tour_city', $temp_data['workshop']['tour_city']);				
 	            }
 
 				$eid = $updated;
@@ -1741,6 +1748,99 @@ function ajax_save_tour() {
     die();		
 }
 
+function ajax_close_tour() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-default', 'token');
+
+		$id				= $_POST['id'];
+		$tour_id 		= absint($id);
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+			'id' => $tour_id, 
+		);
+
+		if($tour_id && current_user_can('edit_tour', $tour_id)){
+
+			$status = get_post_meta($tour_id, 'status', true);
+
+			if($status == 2) {
+				update_post_meta($tour_id, 'workshop', 1);
+				update_post_meta($tour_id, 'status', 1);
+				$newstat = 1;
+			}
+			else {
+				update_post_meta($tour_id, 'status', 2);
+				update_post_meta($tour_id, 'workshop', 2);
+				$newstat = 2;
+			}
+
+			$has_error = false;
+		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['status'] = $newstat;
+			$response['success'] = true;
+		}
+		echo json_encode($response);
+
+	endif;
+
+    die();		
+}
+
+function ajax_sched_status() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-default', 'token');
+
+		$id				= $_POST['id'];
+		$sched_id 		= absint($id);
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+			'id' => $sched_id, 
+		);
+
+		if($sched_id && current_user_can('edit_event', $sched_id)){
+
+			$status = get_post_status($sched_id);
+			$post_status = $status === 'publish' ? 'draft' : 'publish';
+
+		    $schedule = array(
+		    	'ID' => $sched_id,
+		        'post_status'  => $post_status,
+		        'post_type'  => 'ts_event',
+		    );  
+		    $updated = wp_update_post($schedule);
+
+			if($updated && !is_wp_error($updated)) {
+				$has_error = false;
+			}
+		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['status'] = $post_status;
+			$response['success'] = true;
+		}
+		echo json_encode($response);
+
+	endif;
+
+    die();		
+}
+
 function ajax_remove_coupon() {
 
 	if($_POST) :
@@ -2310,28 +2410,21 @@ function ajax_save_music_info() {
     die();
 }
 
-
 function ajax_save_mark_as_paid() {
     if($_POST) :
-
         check_ajax_referer('ts-default', 'token');
-
         $id				= (int)$_POST['id'];
-
         $response = array(
             'success' => false,
             'id' => $id,
         );
-
         $has_error = true;
-
         if(current_user_can('edit_post', $id)){
             do_action('registration_manually_mark_as_paid', $id);
             $has_error = false;
         }  else{
             $response['message'][] = __('Access Denied');
         }
-
         if($has_error===true) {
             $response['message'][] = __('Access Denied');
             array_unshift($response['message'], 'Error');
@@ -2339,10 +2432,176 @@ function ajax_save_mark_as_paid() {
             $response['success'] = true;
             $response['message'][] = __('Entry is now mark as paid.');
         }
+        echo json_encode($response);
+    endif;
+    die();
+}
 
+function ajax_save_special_awards() {
+
+    if($_POST) :
+
+        check_ajax_referer('ts-save-item', 'token');
+
+        $tour_city 		= $_POST['tour_city'];
+        $special_awards = $_POST['special_awards'];
+        $scholarships 	= $_POST['scholarships'];
+
+        $has_error 		= true;
+
+        $response = array(
+            'success' => false,
+        );
+
+        if($tour_city){
+	        update_post_meta($tour_city, 'special_awards', $special_awards);
+	        update_post_meta($tour_city, 'scholarships', $scholarships);
+	        $has_error = false;
+        }
+
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+        }
         echo json_encode($response);
 
     endif;
 
     die();
+}
+
+function ajax_load_participant_info() {
+
+    if($_POST) :
+
+        check_ajax_referer('ts-default', 'token');
+
+		$id				= absint($_POST['id']);
+		$temp_id		= absint($_POST['tempid']);
+		$has_error 		= true;
+
+        $response = array(
+            'success' => false,
+            'id' => $id,
+            'temp_id' => $temp_id,
+        );
+
+        if(ts_post_exists_by_id($id)){
+        	$response['agediv'] = ts_participant_agediv($id);
+        	$response['studio'] = ts_participant_studio($id);
+	        $has_error = false;
+        }
+
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+        }
+        echo json_encode($response);
+
+    endif;
+
+    die();
+}
+
+function ajax_publish_results() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-default', 'token');
+
+		$id				= $_POST['id'];
+		$tour_id 		= absint($id);
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+			'id' => $tour_id, 
+		);
+
+		if($tour_id && current_user_can('edit_tour', $tour_id)){
+			$status = get_post_meta($tour_id, 'results_status', true);
+			$newval = ! $status || $status=='draft' ? 'publish' : 'draft';
+	        update_post_meta($tour_id, 'results_status', $newval);
+	        $has_error = false;
+		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['status'] = $newval;
+			$response['success'] = true;
+		}
+		echo json_encode($response);
+
+	endif;
+
+    die();	
+}
+
+function ajax_add_critique() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-default', 'token');
+
+		$post_id 		= absint($_POST['post_id']);
+		$attachment_id 	= absint($_POST['attachment_id']);
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+		);
+
+		if($post_id && $attachment_id){
+			update_post_meta($post_id, 'critique', $attachment_id);
+	        $has_error = false;
+		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
+
+	endif;
+
+    die();	
+}
+
+function ajax_remove_critique() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-default', 'token');
+
+		$post_id 		= absint($_POST['post_id']);
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+		);
+
+		if($post_id){
+			delete_post_meta($post_id, 'critique');
+	        $has_error = false;
+		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
+
+	endif;
+
+    die();	
 }
