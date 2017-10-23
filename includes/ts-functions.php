@@ -180,21 +180,26 @@ function ts_update_entries() {
 	if($entries) {
 		foreach ($entries as $entry) {
 			setup_postdata($entry);
-			$entry_id = $entry->ID;
-			$workshop = get_post_meta($entry_id, 'workshop', true);
+			$entry_id 		= $entry->ID;
+			$workshop 		= get_post_meta($entry_id, 'workshop', true);
 			$tour_city 		= $workshop['tour_city'];
 			if(isset($tour_city)) {
 				$date_from 	= get_post_meta($tour_city, 'date_from', true);
 				$date_to 	= get_post_meta($tour_city, 'date_to', true);
 				update_post_meta($entry_id, 'tour_date', date_format(date_create($date_from),'Y/m/d'));
 				update_post_meta($entry_id, 'tour_date', date_format(date_create($date_to),'Y/m/d'));
+				update_post_meta($entry_id, 'tour_city', $tour_city);
 			}
 			$status = get_post_status($entry_id);
-			if($status=='paid' || $status=='paidcheck'){
-				$paid_amount = get_post_meta($entry_id, 'paid_amount', true);
-				$grand_total = get_post_meta($entry_id, 'grand_total', true);
+			if(ts_is_paid($entry_id)){
+				$paid_amount 	= get_post_meta($entry_id, 'paid_amount', true);
+				$grand_total 	= get_post_meta($entry_id, 'grand_total', true);
+				$discount_code 	= get_post_meta($entry_id, 'discount_code', true);
 				if(! $paid_amount) {
 					update_post_meta($entry_id, 'paid_amount', $grand_total);
+				}
+				if($discount_code) {
+					update_post_meta($entry_id, 'discount_code_applied', true);
 				}
 			}
 		}
@@ -1154,6 +1159,9 @@ function ts_save_paid_amount($entry_id, $user_id, $payment_method='stripe_paymen
 
 	update_post_meta($entry_id, 'paid_amount_competition', $competition_fee);
 	update_post_meta($entry_id, 'paid_amount', $grand_total);
+	if(isset($entry_data['discount_code'])) {
+		update_post_meta($entry_id, 'discount_code_applied', true);
+	}
 }
 
 function ts_set_entry_meta($entry_id) {
@@ -1775,28 +1783,32 @@ function ts_pre_save_schedule($schedule_id ){
 
 	if( isset( $_POST['acf']['field_59d2697cc385f'] ) ) {
 		$city_id = $_POST['acf']['field_59d2697cc385f'];
+		$status = $_POST['acf']['field_59e474d5debed'];
 		$redirect_url = admin_url('admin.php?page=ts-view-competition-schedule');
-		$term = 'competition';
+		$term = 'Competition';
 	} else {
 		$city_id = $_POST['acf']['field_59ce6df7ae6eb'];
+		$status = $_POST['acf']['field_59e474d5debee'];
 		$redirect_url = admin_url('admin.php?page=ts-view-schedule');
-		$term = 'workshop';
+		$term = 'Workshop';
 	}
 
+	$post_status = $status==1 ? 'publish' : 'draft';
+
     $schedule = array(
-        'post_status'  => 'publish' ,
+        'post_status'  => $post_status,
         'post_title'  => get_the_title($city_id),
-        'post_type'  => 'ts_event' ,
+        'post_type'  => 'ts_event',
     );  
 
     if( $schedule_id != 'new_schedule' ){
-
+    	$schedule['ID'] = $schedule_id;
 		wp_update_post($schedule);
-
         return $schedule_id;
     }
 
     $schedule_id = wp_insert_post($schedule);
+
 	wp_set_object_terms( $schedule_id, $term, 'ts_schedules_type' );
 
     do_action('acf/save_post', $schedule_id);
@@ -1805,4 +1817,286 @@ function ts_pre_save_schedule($schedule_id ){
     	'schedule_id' => $schedule_id,
     ), $redirect_url));
     exit;
+}
+
+add_filter('acf/load_value/key=field_59e474d5debed', 'ts_load_sched_status', 10, 3);
+
+function ts_load_sched_status( $value, $post_id, $field ) {
+
+	$post_status = get_post_status($post_id);
+    $value = $post_status === 'publish' ? 1 : 0; 
+
+    return $value;
+}
+
+function ts_display_workshop_schedules($schedules) {
+
+	echo '
+	<div class="inner SampleSched">';
+	foreach ($schedules as $schedule) {
+		$schedule_id = $schedule->ID;
+		$counter = 1;
+		echo '
+			<h3 class="t-center">'. $schedule->post_title .'</h3>';
+
+        while(has_sub_field('event_schedules', $schedule_id)):
+	        ?>
+	        <div class="SchedTable">
+	        	<div class="TableCont">
+		            <div id="Day_<?php echo $counter; ?>" class="TableHeading">
+		                <?php echo get_sub_field('day'); ?>	
+		            </div>
+		            <div class="TableBody text-center">
+		            	<div class="clearfix RowHeading">
+		                	<div>
+		                    	<span>Time</span>
+		                    </div>
+		                    <div>
+		                    	<span>Seniors</span>
+		                    </div>
+		                    <div>
+		                    	<span>Teens</span>
+		                    </div>
+		                    <div>
+		                    	<span>Juniors</span>
+		                    </div>
+		                    <div>
+		                    	<span>Minis</span>
+		                    </div>
+		                    <div>
+		                    	<span>Munchkins/Pro/Teachers</span>
+		                    </div>
+		                </div>
+		                <?php $c = 1;  
+		                while(has_sub_field('lineup')): ?>
+		                    <div class="clearfix Row_<?php echo $c; ?> <?php echo get_sub_field('columns');?>">
+		                        <div>
+		                            <span><?php echo get_sub_field('time'); ?>&nbsp;</span>    
+		                        </div>
+		                        <div>
+		                            <span><?php echo get_sub_field('seniors'); ?>&nbsp;</span>	    
+		                        </div>
+		                        <div>
+		                            <span><?php echo get_sub_field('teens'); ?>&nbsp;</span>	    
+		                        </div>
+		                        <div>
+		                            <span><?php echo get_sub_field('juniors'); ?>&nbsp;</span>	    
+		                        </div>
+		                        <div>
+		                            <span><?php echo get_sub_field('minis'); ?>&nbsp;</span>	    
+		                        </div>
+		                        <div>
+		                            <span><?php echo get_sub_field('munchkinsproteachers'); ?></span>    
+		                        </div>
+		                    </div>
+		                <?php 
+		                $c++; 
+		                endwhile; 
+		                ?> 
+		            </div>
+	            </div>
+	        </div>
+        <?php
+        $counter++; 
+        endwhile;
+	}
+	echo '
+	</div>';
+}
+
+function ts_display_competition_schedules($schedules, $routines_array=array()) {
+
+	echo '
+	<div class="inner SampleSched">';
+	foreach ($schedules as $schedule) {
+		$schedule_id = $schedule->ID;
+		$counter = 1;
+		echo '
+			<h3 class="t-center">'. $schedule->post_title .'</h3>';
+
+		while(has_sub_field('competition_event_schedules', $schedule_id)):
+			?>
+			<div class="CompetitionSched SchedTable">
+				<div class="TableCont">
+					<div id="Day_<?php echo $counter; ?>" class="TableHeading">
+						<?php echo get_sub_field('day'); ?>
+					</div>
+					<div class="TableBody text-center">
+						<div class="clearfix RowHeading">
+							<div>
+								<span>Number</span>
+							</div>
+							<div>
+								<span>Time</span>
+							</div>
+							<div>
+								<span>Studio</span>
+							</div>
+							<div>
+								<span>Routine</span>
+							</div>
+							<div>
+								<span>Age Division</span>
+							</div>
+							<div>
+								<span>Category</span>
+							</div>
+							<div>
+								<span>Genre</span>
+							</div>
+						</div>
+						<?php $c = 1;
+						while(has_sub_field('lineup')):
+						$col =  'Judges Break' === get_sub_field('action') || 'Awards' === get_sub_field('action') ? 'Col_1' : '';
+						$highlight = in_array(get_sub_field('routine'), $routines_array) ? 'highlighted-row' : '';
+						?>
+						<div class="clearfix Row_<?php echo $c; ?> <?php echo $col;?> <?php echo $highlight;?>">
+							<div>
+								<span><?php echo get_sub_field('number'); ?>&nbsp;</span>
+							</div>
+							<div>
+								<span><?php echo get_sub_field('time'); ?>&nbsp;</span>
+							</div>
+							<div>
+								<span><?php echo get_sub_field('studio'); ?>&nbsp;</span>
+							</div>
+							<div>
+								<span><?php echo get_the_title(get_sub_field('routine')); ?>&nbsp;</span>
+							</div>
+							<div>
+								<span><?php echo get_sub_field('age_division'); ?>&nbsp;</span>
+							</div>
+							<div>
+								<span><?php echo get_sub_field('category'); ?>&nbsp;</span>
+							</div>
+							<div>
+								<span><?php echo get_sub_field('genre'); ?>&nbsp;</span>
+							</div>
+						</div>
+					<?php
+					$c++;
+					endwhile;
+					?>
+				</div>
+			</div>
+			</div>
+			<?php
+			$counter++;
+		endwhile;
+	}
+	echo '
+	</div>';
+}
+
+function ts_is_tour_close($tour_id) {
+
+	$date_from 	= get_post_meta($tour_id, 'date_from', true);
+	$date_to 	= get_post_meta($tour_id, 'date_to', true);
+	$status 	= get_post_meta($tour_id, 'status', true);
+
+	return ($date_from && ts_get_days_before_date($date_from) <= 0) || $status==2 ? true : false;
+}
+
+function ts_tour_routines_ids($tour_id) {
+
+	$args = array(
+		'post_status' => array('paid', 'paidcheck'),
+		'meta_query' => array(
+			array(
+				'key'     => 'tour_city',
+				'value'   => $tour_id,
+				'compare' => '=',
+			),
+		),
+	);
+
+	$entries = ts_get_posts('ts_entry', -1, $args);
+
+	if(! empty($entries)){
+		$routines_array = array();
+		foreach ($entries as $e) {
+			$competition = get_post_meta($e->ID, 'competition', true);
+			$routines = $competition['routines'];
+            if(! empty($routines)) {
+                $routine_ids = array_keys($routines);
+                $routines_array = array_merge($routine_ids, $routines_array); 
+            }
+		}
+	}
+
+	return $routines_array;
+}
+
+function ts_tour_participants($tour_id) {
+
+	$args = array(
+		'post_status' => array('paid', 'paidcheck'),
+		'meta_query' => array(
+			array(
+				'key'     => 'tour_city',
+				'value'   => $tour_id,
+				'compare' => '=',
+			),
+		),
+	);
+
+	$entries = ts_get_posts('ts_entry', -1, $args);
+
+	if(! empty($entries)){
+		$rparticipants_array = array();
+		foreach ($entries as $e) {
+			$workshop = get_post_meta($e->ID, 'workshop', true);
+			$participants = $workshop['participants'];
+            if(! empty($participants)) {
+                $participants_ids = array_keys($participants);
+                $rparticipants_array = array_merge($participants_ids, $rparticipants_array); 
+            }
+		}
+	}
+
+	return $rparticipants_array;
+}
+
+function ts_participant_studio($participant_id) {
+	$post = get_post($participant_id);
+	$author = $post->post_author;
+	$studio = get_field('studio', 'user_'. $author);
+	return $studio;
+}
+
+function ts_participant_agediv($participant_id) {
+	$agediv = wp_get_object_terms($participant_id, 'ts_agediv');
+	$agediv_name = $agediv[0]->name;
+	return $agediv_name;
+}
+
+function ts_display_awards_table($routines) {
+	?>
+	<div class="table-container table-pad">
+		<div class="row table-head">
+			<div class="col-md-2">#</div>
+			<div class="col-md-4">Name</div>
+			<div class="col-md-4">Studio</div>
+			<div class="col-md-2">Award</div>
+		</div>
+		<div class="table-body">
+			<?php
+			foreach ($routines as $key=>$val) { 
+				$id 	= $val['id'];
+				$number = $val['number'];
+				$name 	= $val['name'];
+				$studio = $val['studio'];
+				$award 	= ts_add_suffix($key);
+				?>
+				<div class="row" id="routine-<?php echo $id; ?>">
+					<div class="col-md-2"><?php echo $number; ?></div>
+					<div class="col-md-4"><?php echo $name; ?></div>
+					<div class="col-md-4"><?php echo $studio; ?></div>
+					<div class="col-md-2"><?php echo $award; ?></div>
+				</div>
+				<?php
+			} ?>
+		</div>
+	</div>
+	<?php	
 }

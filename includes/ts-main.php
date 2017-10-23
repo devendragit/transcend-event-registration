@@ -40,7 +40,7 @@ add_action('admin_init', 'ts_custom_admin_head');
 //add_action('init', 'ts_create_terms', 11);
 //add_action('init', 'ts_create_tour_posts');
 //add_action('init', 'ts_update_tour_posts');
-//add_action('init', 'ts_update_entries');
+add_action('init', 'ts_update_entries');
 //add_action('init', 'ts_update_agedivs');
 //add_action('init', 'ts_update_agediv_fees');
 //add_action('init', 'ts_update_agediv_order');
@@ -100,6 +100,9 @@ add_filter('body_class', 'ts_frontend_body_class');
 /* Shortcodes */
 add_shortcode('ts-event-registration-form', 'ts_event_registration_shortcode');
 add_shortcode('ts-pay-invoice-form', 'ts_pay_invoice_shortcode');
+add_shortcode('ts-workshop-schedules', 'ts_workshop_schedules_shortcode');
+add_shortcode('ts-competition-schedules', 'ts_competition_schedules_shortcode');
+add_shortcode('ts-results', 'ts_results_shortcode');
 
 register_activation_hook(__FILE__, 'ts_plugin_activate');
 
@@ -257,6 +260,7 @@ function ts_register_ts_scripts() {
         wp_register_style('ts-admin-style', TS_URI .'assets/css/ts-admin-style.css');
         wp_register_style('ts-custom-style', TS_URI .'assets/css/ts-custom-style.css');
         wp_register_style('ts-frontend-style', TS_URI .'assets/css/ts-frontend-style.css');
+        wp_register_style('ts-shortcode-style', TS_URI .'assets/css/ts-shortcode-style.css');
         wp_register_style('ts-fonts', TS_URI .'assets/fonts/fonts.css');
 
         /*JS*/
@@ -274,6 +278,7 @@ function ts_register_ts_scripts() {
         wp_register_script('jquery-moment', TS_URI .'assets/js/moment.min.js', array('jquery'), '', true);
         wp_register_script('bootstrap', TS_URI .'assets/js/bootstrap.min.js', array('jquery'), '', true);
         wp_register_script('ts-custom-script', TS_URI .'assets/js/ts-custom-script.js', array('jquery'), '', false);
+        wp_register_script('ts-shortcode-script', TS_URI .'assets/js/ts-shortcode-script.js', array('jquery'), '', false);
     }
 }
 
@@ -310,6 +315,9 @@ function ts_enqueue_admin_scripts() {
         }
         wp_enqueue_style('ts-admin-style');
         wp_enqueue_style('ts-fonts');
+        wp_enqueue_style('ts-shortcode-style');
+
+        wp_enqueue_script('ts-shortcode-script');
     }
 }
 
@@ -381,24 +389,31 @@ function ts_register_custom_menu_pages() {
 
     if(current_user_can('is_customer')) {
         add_menu_page('My Dashboard', 'My Dashboard', 'add_ts_entry', 'ts-my-entries', 'ts_my_entries_page', 'dashicons-dashboard', 6);
-        add_menu_page('Add Registration', 'Add Registration', 'add_ts_entry', 'ts-post-entry', 'ts_post_entry_page', '', 101);
-        add_menu_page('Edit Registration', 'Edit Registration', 'add_ts_entry', 'ts-edit-entry', 'ts_post_entry_page', '', 102);
+        add_menu_page('My Schedules', 'My Schedules', 'is_custom_user', 'ts-schedules', 'ts_mysched_preview', 'dashicons-calendar-alt', 7);
+            add_submenu_page( 'ts-schedules', 'Workshop Schedules', 'Workshop Schedules', 'is_custom_user', 'ts-workshop-schedules', 'ts_workshopsched_preview');
+            add_submenu_page( 'ts-schedules', 'Competition Schedules', 'Competition Schedules', 'is_custom_user', 'ts-competition-schedules', 'ts_competitionsched_preview');
+        add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_preview', 'dashicons-analytics', 7);
         add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 104);
         add_menu_page('Credits', 'My Credits', 'is_custom_user', 'ts-credits', 'ts_credits_page', 'dashicons-cart', 105);
-        add_menu_page('Schedules', 'Schedules', 'is_custom_user', 'ts-schedules', 'ts_schedpreview_page', 'dashicons-calendar-alt', 106);
+
+        add_menu_page('Add Registration', 'Add Registration', 'add_ts_entry', 'ts-post-entry', 'ts_post_entry_page', '', 101);
+        add_menu_page('Edit Registration', 'Edit Registration', 'add_ts_entry', 'ts-edit-entry', 'ts_post_entry_page', '', 102);
     }
     else if (current_user_can('is_organizer')) {
         add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
-        add_submenu_page( 'ts-entries', 'Workshop Participants', 'Workshop Participants', 'is_organizer', 'ts-workshop-entries', 'ts_workshopentries_page');
-        add_submenu_page( 'ts-entries', 'Competition Routines', 'Competition Routines', 'is_organizer', 'ts-competition-entries', 'ts_competitionentries_page');
-        add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
+            add_submenu_page( 'ts-entries', 'Workshop Participants', 'Workshop Participants', 'is_organizer', 'ts-workshop-entries', 'ts_workshopentries_page');
+            add_submenu_page( 'ts-entries', 'Competition Routines', 'Competition Routines', 'is_organizer', 'ts-competition-entries', 'ts_competitionentries_page');
+        add_menu_page('Tour Dates', 'Tour Dates', 'is_organizer', 'ts-tours', 'ts_tours_page', 'dashicons-admin-site', 7);
+        add_menu_page('Schedules', 'Schedules', 'is_organizer', 'ts-schedules', 'ts_schedules_page', 'dashicons-calendar-alt', 8);
+            add_submenu_page( 'ts-schedules', 'Workshop Schedule', 'Workshop Schedule', 'is_organizer', 'ts-workshop-schedules', 'ts_workshopschedules_page');
+            add_submenu_page( 'ts-schedules', 'Competition Schedule', 'Competition Schedule', 'is_organizer', 'ts-competition-schedules', 'ts_competitionschedules_page');
+        add_menu_page('Special Awards', 'Special Awards', 'is_organizer', 'ts-special-awards', 'ts_special_awards_page', 'dashicons-awards', 9);
+        add_menu_page('Critiques', 'Critiques', 'is_custom_user', 'ts-critiques', 'ts_critiques_page', 'dashicons-video-alt3', 11);
+        add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_page', 'dashicons-analytics', 12);
         add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 104);
-        add_menu_page('Tours', 'Tours', 'is_organizer', 'ts-tours', 'ts_tours_page', 'dashicons-admin-site', 105);
         add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 106);
-        add_menu_page('Schedules', 'Schedules', 'is_organizer', 'ts-schedules', 'ts_schedules_page', 'dashicons-calendar-alt', 107);
-        add_submenu_page( 'ts-schedules', 'Workshop Schedule', 'Workshop Schedule', 'is_organizer', 'ts-workshop-schedules', 'ts_workshopschedules_page');
-        add_submenu_page( 'ts-schedules', 'Competition Schedule', 'Competition Schedule', 'is_organizer', 'ts-competition-schedules', 'ts_competitionschedules_page');
 
+        add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
         add_menu_page('New Workshop Schedule', 'New Workshop Schedule', 'is_organizer', 'ts-new-schedule', 'ts_view_schedule_page', '', 108);
         add_menu_page('View Workshop Schedule', 'View Workshop Schedule', 'is_organizer', 'ts-view-schedule', 'ts_view_schedule_page', '', 109);
         add_menu_page('New Competition Schedule', 'New Competition Schedule', 'is_organizer', 'ts-new-competition-schedule', 'ts_view_competition_schedule_page', '', 110);
@@ -442,9 +457,16 @@ function ajax_post_init() {
     add_action('wp_ajax_save_voucher', 'ajax_save_voucher');
     add_action('wp_ajax_pay_invoice', 'ajax_pay_invoice');
     add_action('wp_ajax_save_tour', 'ajax_save_tour');
+    add_action('wp_ajax_close_tour', 'ajax_close_tour');
+    add_action('wp_ajax_sched_status', 'ajax_sched_status');
     add_action('wp_ajax_create_invoice', 'ajax_create_invoice');
     add_action('wp_ajax_download_all_music', 'ajax_download_all_music');
     add_action('wp_ajax_save_music_info', 'ajax_save_music_info');
+    add_action('wp_ajax_save_special_awards', 'ajax_save_special_awards');
+    add_action('wp_ajax_load_participant_info', 'ajax_load_participant_info');
+    add_action('wp_ajax_publish_results', 'ajax_publish_results');
+    add_action('wp_ajax_add_critique', 'ajax_add_critique');
+    add_action('wp_ajax_remove_critique', 'ajax_remove_critique');
 }
 
 /* Commented Out. Reason: I believe we are not using this function yet.
