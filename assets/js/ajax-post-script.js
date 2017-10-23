@@ -476,7 +476,15 @@ jQuery(document).ready(function($) {
 		form.submitForm(callbackSaveMusicInfo);
 	});
 
-	$('#form-special-awards').on('submit', function(e){
+	$('.ts-admin-wrapper').on('click', '.btn-markpaid', function(e) {
+		e.preventDefault();
+    formdata.append('action', 'save_mark_as_paid');
+		formdata.append('id', id);
+		var form = new TSForm(formdata);
+		form.submitForm(callbackMarkAsPaid);
+  });  
+
+  $('#form-special-awards').on('submit', function(e){
 		e.preventDefault();
 		var validated = $(this).validationEngine('validate', { 
 			scroll: false, 
@@ -525,7 +533,7 @@ jQuery(document).ready(function($) {
 		form.submitForm(callbackChangeScholar);	
 	});
 
-});
+
 
 function addVideoCritique(attachment_id, post_id) {
 	var token = ajax_post_object.tokens.default;

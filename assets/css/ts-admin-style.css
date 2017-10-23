@@ -191,6 +191,106 @@ tr.acf-field[data-name="email"] {
 #minor-publishing {
     display: none;
 }
+.score_settings .acf-actions,
+.score_settings .acf-js-tooltip,
+.score_settings [data-name="event_city"]{
+    display: none !important;
+}
+
+.display-individual-day-awards {
+    text-align: center;
+}
+
+.display-individual-day-awards .ui-state-active,
+.display-individual-day-awards .ui-widget-content .ui-state-active,
+.display-individual-day-awards .ui-widget-header .ui-state-active,
+.display-individual-day-awards a.ui-button:active, .ui-button:active,
+.display-individual-day-awards .ui-button.ui-state-active:hover,
+.display-individual-day-awards .ui-button.ui-state-active:focus,
+.display-individual-day-awards .ui-state-default:focus{
+    border: none;
+    background: none;
+    font-weight: normal;
+    outline:none;
+}
+
+.display-individual-day-awards .ui-widget.ui-widget-content {
+    border: 0px;
+    background: #fff !important;
+}
+
+.display-individual-day-awards ul.TabList {
+    padding: 0 0 0 0px !important;
+    border-bottom: 1px solid #babbbe;
+    box-sizing: border-box;
+    background: #fff;
+    border-top: 0px;
+    border-right: 0px;
+    border-left: 0px;
+}
+
+.display-individual-day-awards ul.TabList li a {
+    display: block;
+    font-size: 14px;
+    color: #a3a3a3;
+    text-decoration: none !important;
+    padding: 12px 25px !important;
+    border-radius: 6px 6px 0 0;
+    border: 1px solid #babbbe;
+    font-family: 'Omnes-Semibold';
+    margin-bottom: -1px;
+    outline:none;
+    box-shadow: none;
+}
+
+.display-individual-day-awards .ui-state-default,
+.display-individual-day-awards .ui-widget-content .ui-state-default,
+.display-individual-day-awards .ui-widget-header .ui-state-default,
+.display-individual-day-awards .ui-button,
+html .display-individual-day-awards .ui-button.ui-state-disabled:hover,
+html .display-individual-day-awards .ui-button.ui-state-disabled:active {
+    border: none;
+    background: #fff;
+}
+
+.display-individual-day-awards ul.TabList li:hover a,
+.display-individual-day-awards ul.TabList li.ui-state-active a {
+    color: #000;
+    border-bottom: 1px solid #fff;
+}
+
+.display-individual-day-awards .ui-tabs .ui-tabs-panel {
+    padding: 0px;
+}
+
+.display-individual-day-awards .Results h3 {
+    font-size: 20px;
+    margin: 40px 0 0px;
+    text-align: left;
+    font-family: 'Omnes-Semibold';
+}
+
+.Results .RowHeading > div {
+    float: left;
+    width: 20%;
+}
+
+.display-individual-day-awards + .display-individual-day-awards {
+    margin-top: 60px;
+}
+
+.Results .TableBody > .clearfix > div {
+    border-right: 0 !important;
+    width: 20%;
+}
+
+.Results .ThreeCol .TableBody > .clearfix > div {
+    width: 33.33333333% !important;
+}
+
+.Results .ThreeCol .RowHeading > div {
+    width: 33.33333333%;
+}
 .ts-data-table .btn {
     min-width: 36px;
 }

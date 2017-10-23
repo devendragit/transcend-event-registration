@@ -65,4 +65,20 @@ function ts_register_custom_taxonomies() {
         )
     );
 
+    register_taxonomy(
+        'ts_adjudicated_awards',
+        array('ts_award'),
+        array(
+            'public' => false,
+            'hierarchical' => false,
+            'label' => 'Adjudicated Awards',
+            'show_ui' => false,
+            'show_in_menu' => false,
+            'query_var' => true,
+            'rewrite' => array('slug' => 'adjudicated-awards'),
+            'capabilities' =>  array('is_organizer'),
+            'show_admin_column' => false,
+        )
+    );
+
 }

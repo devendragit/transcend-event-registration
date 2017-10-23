@@ -1554,6 +1554,178 @@ function ts_view_competition_schedule_page() {
 	}
 }
 
+function ts_score_page() {
+	?>
+	<div id="scores-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<div class="ts-admin-wrapper scores-wrapper">
+			<table id="scores-list" class="ts-data-table" data-length="10" data-sort="asc">
+				<thead>
+				<tr>
+					<th style="text-align:left;">Title</th>
+					<th style="text-align:center;">Awards</th>
+					<th style="text-align:center;">Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php
+				$scores = ts_get_posts('ts_score');
+				if($scores) {
+					foreach ($scores as $score) {
+						setup_postdata($score);
+						$score_id 	= $score->ID;
+						$title 		= $score->post_title;
+						$award_id 	= (int) get_post_meta($score_id,'award_id',true);
+						$award_button 	= isset($award_id) && 'publish' === get_post_status($award_id) ? '<a title="edit" href="'.admin_url('admin.php?page=ts-view-awards&award_id='. $award_id).'"
+								   class="btn btn-blue btn-viewaward"
+								><small>View</small></a>' : '';
+						?>
+						<tr id="item-<?php echo $score_id; ?>">
+							<td style="text-align:left;"><?php echo $title; ?></td>
+							<td style="text-align:center;"><?php echo $award_button; ?></td>
+							<td style="text-align:center;">
+								<a title="edit" href="<?php echo admin_url('admin.php?page=ts-view-scores&score_id='. $score_id); ?>"
+								   class="btn btn-blue btn-editscore"
+								><small>Edit</small></a>
+							</td>
+						</tr>
+						<?php
+					}
+				}else{
+					echo '<tr><td colspan="5">No Scores Found</td></tr>';
+				}
+				?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<?php
+}
+
+function ts_view_scores_page() {
+    $score_id 	= $_GET['score_id'];
+
+    if (isset($score_id) && $score_id != '') {
+        $score 		= get_post($score_id);
+        $title 		= $score->post_title;
+        ?>
+        <div id="view-score-page" class="wrap">
+            <h1 class="admin-page-title"><?php echo $title; ?></h1>
+            <div class="ts-admin-wrapper score-wrapper">
+                <?php
+                $options = array(
+                    'post_id'  => $score_id,
+                    'form_attributes'  => array(
+                        'class'  => 'score_settings'
+                    ),
+                    'field_groups' => array('group_19d2674ac404f'),
+                    'html_field_open'  => '<div class="field">',
+                    'html_field_close'  => '</div>',
+                    'html_before_fields'  => '',
+                    'html_after_fields'  => '',
+                    'submit_value'  => 'Update Score',
+                    'updated_message'  => 'Score Updated.',
+                );
+                acf_form($options);
+                ?>
+            </div>
+        </div>
+        <?php
+    }
+    else {
+        ?>
+        <div id="view-score-page" class="wrap">
+            <h1 class="admin-page-title">New Score</h1>
+            <div class="ts-admin-wrapper score-wrapper">
+                <?php
+                $options = array(
+                    'post_id'  => 'new_score',
+                    'form_attributes'  => array(
+                        'class'  => 'score_settings'
+                    ),
+                    'field_groups' => array('group_19d2674ac404f'),
+                    'html_field_open'  => '<div class="field">',
+                    'html_field_close'  => '</div>',
+                    'html_before_fields'  => '',
+                    'html_after_fields'  => '',
+                    'submit_value'  => 'Update Score',
+                    'updated_message'  => 'Score Updated.',
+                );
+                acf_form($options);
+                ?>
+            </div>
+        </div>
+        <?php
+    }
+}
+
+function ts_award_page()
+{
+    ?>
+    <div id="awards-page" class="wrap">
+        <h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+        <div class="ts-admin-wrapper awards-wrapper">
+            <table id="awards-list" class="ts-data-table" data-length="10" data-sort="asc">
+                <thead>
+                <tr>
+                    <th style="text-align:left;">Title</th>
+                    <th style="text-align:center;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                $awards = ts_get_posts('ts_award');
+                if ($awards) {
+                    foreach ($awards as $award) {
+                        setup_postdata($award);
+                        $award_id = $award->ID;
+                        $title = $award->post_title;
+                        ?>
+                        <tr id="item-<?php echo $award_id; ?>">
+                            <td style="text-align:left;"><?php echo $title; ?></td>
+                            <td style="text-align:center;">
+                                <a title="edit"
+                                   href="<?php echo admin_url('admin.php?page=ts-view-awards&award_id=' . $award_id); ?>"
+                                   class="btn btn-blue btn-editaward"
+                                >
+                                    <small>View</small>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                } else {
+                    echo '<tr><td colspan="5">No Awards Generated</td></tr>';
+                }
+                ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php
+}
+
+
+function ts_view_awards_page() {
+	$award_id 	= $_GET['award_id'];
+
+	if (isset($award_id) && $award_id != '') {
+		$score_id 		= (int) get_post_meta($award_id,'score_id',true);
+		$title			= get_the_title($score_id);
+		?>
+		<div id="view-award-page" class="wrap">
+			<h1 class="admin-page-title"><?php echo $title; ?></h1>
+			<div class="ts-admin-wrapper awards-wrapper">
+				<?php ts_display_awards_wrapper($score_id);?>
+			</div>
+		</div>
+		<?php
+	}
+	else {
+		echo 'Score is not generated yet';
+	}
+}
+
 function ts_mysched_preview() {
 	?>
 	<div id="schedules-page" class="wrap">

@@ -391,7 +391,10 @@ jQuery(document).ready(function($) {
 		$('#popup-save-music-info').modal('show');
 	});
 
-	$('.critiques-wrapper').on('click', '.btn-addroutinecritique', function(e){
+
+  $(".tabs_2").tabs();
+
+  $('.critiques-wrapper').on('click', '.btn-addroutinecritique', function(e){
 		e.preventDefault();
 
 		var button = $(this);
@@ -844,6 +847,12 @@ function callbackDownloadAllMusic(data) {
 }
 
 function callbackSaveMusicInfo(data) {
+	if(data.success==true) {
+		location.reload();
+	}
+}
+
+function callbackMarkAsPaid(data) {
 	if(data.success==true) {
 		location.reload();
 	}

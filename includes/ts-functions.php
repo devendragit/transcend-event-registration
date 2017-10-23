@@ -60,6 +60,27 @@ function ts_create_terms() {
 		}
 	}
 
+	$adjudicated_awards = array('Platinum', 'High Silver', 'High Gold', 'Silver', 'Gold', 'Bronze');
+
+	foreach ($adjudicated_awards as $key=>$value) {
+		$order = (int)$key+1;
+		$div = term_exists($value, 'ts_adjudicated_awards');
+		if ($div == 0 || $div == null) {
+			$term = wp_insert_term($value, 'ts_adjudicated_awards');
+			if($term && !is_wp_error($term)) {
+				$term_id 	= $term->term_id;
+				$term 		= get_term($term_id, 'ts_adjudicated_awards');
+				$term_slug 	= $term->slug;
+
+				$awards_meta 	= ts_get_adjudicated_awards();
+
+				update_term_meta($term_id, 'div_order', $order);
+				update_term_meta($term_id, 'min_score', $awards_meta[$term_slug]['min_score']);
+				update_term_meta($term_id, 'high_score', $awards_meta[$term_slug]['high_score']);
+			}
+		}
+	}
+
 }
 
 function ts_create_tour_posts() {
@@ -1486,9 +1507,6 @@ function ts_save_custom_meta_box($post_id, $post, $update) {
 	if ( !current_user_can('edit_post', $post_id) )
 		return $post_id;
 
-	if ( ! isset( $_POST['ts-entry-invoice-meta-box-nonce'] ) || ! wp_verify_nonce( $_POST['ts-entry-invoice-meta-box-nonce'], 'ts-entry-meta-box-security' ))
-		return $post_id;
-
 	if( 'ts_entry' === $post->post_type) {
 
 		$ts_entry_invoice_amount = "";
@@ -1520,6 +1538,20 @@ function ts_save_custom_meta_box($post_id, $post, $update) {
 			update_post_meta($post_id, "ts_entry_hidden_post_status", $ts_entry_hidden_post_status);
 		}
 	}
+
+    if( 'ts_event' === $post->post_type) {
+        $schedule_id = $post_id;
+        $schedule_type_array 	= wp_get_object_terms($schedule_id, 'ts_schedules_type');
+        $competition_schedule = isset($schedule_type_array[0]->name) && 'Competition' === $schedule_type_array[0]->name ? true : false;
+        if( $competition_schedule ) {
+			do_action( 'competition_schedule_updated', $schedule_id );
+        }
+    }
+
+    if( 'ts_score' === $post->post_type) {
+        $score_id = $post_id;
+        do_action( 'competition_score_updated', $score_id );
+    }
 
 }
 
@@ -1774,17 +1806,22 @@ function ts_custom_admin_head() {
 
     global $pagenow;
 
-    if($pagenow == 'admin.php' && ($_GET['page'] == 'ts-new-schedule' || $_GET['page'] == 'ts-view-schedule' || $_GET['page'] == 'ts-new-competition-schedule' || $_GET['page'] == 'ts-view-competition-schedule')) {
+    if($pagenow == 'admin.php' && ($_GET['page'] == 'ts-new-schedule' || $_GET['page'] == 'ts-view-schedule' || $_GET['page'] == 'ts-new-competition-schedule' || $_GET['page'] == 'ts-view-competition-schedule') || $_GET['page'] == 'ts-view-scores') {
         acf_form_head();
     }
 }
 
-function ts_pre_save_schedule($schedule_id ){
+function ts_pre_save_schedule( $schedule_id ){
+
+    if( isset( $_POST['acf']['field_19d2674b099e9'] ) ) {
+        do_action( 'competition_score_updated', $schedule_id );
+    }
 
 	if( isset( $_POST['acf']['field_59d2697cc385f'] ) ) {
 		$city_id = $_POST['acf']['field_59d2697cc385f'];
 		$status = $_POST['acf']['field_59e474d5debed'];
 		$redirect_url = admin_url('admin.php?page=ts-view-competition-schedule');
+		do_action( 'competition_schedule_updated', $schedule_id );
 		$term = 'Competition';
 	} else {
 		$city_id = $_POST['acf']['field_59ce6df7ae6eb'];
@@ -1818,6 +1855,282 @@ function ts_pre_save_schedule($schedule_id ){
     ), $redirect_url));
     exit;
 }
+
+function ts_registration_manually_mark_as_paid( $entry_id ) {
+	$user_id = get_post_field( 'post_author', $entry_id );
+	$grand_total = get_post_meta( 'grand_total', $entry_id, true );
+
+	do_action('registration_paid', $entry_id, $user_id, 'through_dashboard', $grand_total,	false, 0);
+	do_action('registration_completed', $entry_id, $user_id, 'through_dashboard');
+}
+
+function ts_competition_schedule_updated( $schedule_id ) {
+	$schedules	= get_field('competition_event_schedules', $schedule_id);
+	$scores_array = ts_create_scores_array( $schedules );
+
+	$tour_id	= get_post_meta($schedule_id, 'event_city', true);
+	$args = array(
+		'post_status' => array('publish'),
+		'meta_query' => array(
+			array(
+				'key' => 'event_city',
+				'value' => $tour_id
+			),
+		)
+	);
+	$scores = ts_get_posts('ts_score', 1, $args);
+	if( $scores ) {
+		foreach( $scores as $score ) {
+			setup_postdata($score);
+			$score_id = $score->ID;
+			update_field('event_city',$tour_id, $score_id);
+			update_field('tour_scores',$scores_array, $score_id);
+		}
+	} else {
+		$score = array(
+			'post_status'  => 'publish' ,
+			'post_title'  => get_the_title($tour_id),
+			'post_type'  => 'ts_score',
+		);
+
+		$score_id = wp_insert_post($score);
+		if( $score_id and !is_wp_error($score_id) ) {
+			update_field('event_city',$tour_id,$score_id);
+			update_field('tour_scores',$scores_array, $score_id);
+		}
+	}
+
+}
+
+function ts_competition_score_updated( $score_id ) {
+    $tour_id = get_post_meta($score_id, 'event_city', true);
+    $args = array(
+        'post_status' => array('publish'),
+        'meta_query' => array(
+            array(
+                'key' => 'event_city',
+                'value' => $tour_id
+            ),
+        )
+    );
+    $awards = ts_get_posts('ts_award', 1, $args);
+    if( $awards ) {
+        foreach( $awards as $award ) {
+            setup_postdata($award);
+            $award_id = $award->ID;
+            update_post_meta($award_id,'score_id',$score_id);
+            update_post_meta($score_id,'award_id',$award_id);
+			update_post_meta($award_id,'event_city',$tour_id);
+        }
+    } else {
+        $award = array(
+            'post_status'  => 'publish' ,
+            'post_title'  => get_the_title($score_id),
+            'post_type'  => 'ts_award',
+        );
+
+        $award_id = wp_insert_post($award);
+        if( $award_id and !is_wp_error($award_id) ) {
+            update_post_meta($award_id,'score_id',$score_id);
+            update_post_meta($score_id,'award_id',$award_id);
+			update_post_meta($award_id,'event_city',$tour_id);
+        }
+    }
+}
+
+function ts_display_awards_wrapper($score_id){
+    $tour_scores = get_field('tour_scores', $score_id);
+    if( isset( $tour_scores ) && is_array( $tour_scores ) ) {
+        $lineup_days =wp_list_pluck($tour_scores,'lineup','day');
+        foreach($lineup_days as $key=>$value) {
+            $lineup = $value;
+            $date = $key;
+            ts_display_individual_day_awards($date, $lineup);
+        }
+    }
+}
+
+
+function ts_display_individual_day_awards($date, $lineup) {
+    $get_day_name =  date('l', strtotime($date));
+    $age_divisions = array_values(array_unique(wp_list_pluck($lineup, 'age_division')));
+    usort($lineup, 'ts_sort_score');
+    ?>
+        <div class="display-individual-day-awards">
+            <h4 class="text-center"><?php echo $get_day_name;?> Awards Ceremony</h4>
+            <div class="outer Results">
+                <div class="tabs_2">
+                    <ul class="TabList clearfix">
+                        <li><a class="tab_2-1" href="#tab_2-1">Category High Scores</a></li>
+                        <li><a class="tab_2-2" href="#tab_2-2">Overall</a></li>
+                        <li><a class="tab_2-3" href="#tab_2-3">Scholarships</a></li>
+                    </ul><!--FilterList-->
+                    <div id="tab_2-1">
+                        <?php echo ts_display_category_high_scores($age_divisions, $lineup);?>
+                    </div><!--tab_2-1-->
+                    <div id="tab_2-2">
+						<?php echo ts_display_overall_high_scores($lineup);?>
+                    </div><!--tab_2-2-->
+                    <div id="tab_2-3">
+
+                    </div><!--tab_2-3-->
+                </div><!--tabs_2-->
+            </div><!--Results-->
+        </div>
+    <?php
+}
+
+function ts_display_category_high_scores($age_divisions, $lineup) {
+	$ts_competition_categories = array('Solo', 'Duo/Trio', 'Small Group', 'Large Group', 'Line', 'Production');
+    ?>
+    <?php if($age_divisions): ?>
+        <?php foreach($age_divisions as $age_division) :?>
+        <h3><?php echo $age_division; ?></h3>
+        <div class="SchedTable">
+            <div class="TableCont">
+                <div class="TableHeading">
+                    <div class="clearfix RowHeading">
+                        <div>
+                            <span>Routine Name</span>
+                        </div>
+                        <div>
+                            <span>Studio</span>
+                        </div>
+                        <div>
+                            <span>Category</span>
+                        </div>
+                        <div>
+                            <span>Place</span>
+                        </div>
+                        <div>
+                            <span>Adjudicated Award</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="TableBody text-center">
+                    <?php
+					$c = 1;
+                    foreach($ts_competition_categories as $ts_competition_category):
+						$scores_returns = ts_multi_array_search($lineup, array('age_division' => $age_division, 'category' => $ts_competition_category));
+						if(!empty($scores_returns)) :
+							$award_c = 1;
+							foreach($scores_returns as $scores_return) {
+								if( 6 === $award_c ) {
+									break;
+								} else if( ('Solos' === $ts_competition_category || ' Duo/Trio' === $ts_competition_category) && 4 === $award_c) {
+									break;
+								}
+								$routine = get_the_title($scores_return['routine']);
+								$studio = $scores_return['studio'];
+								$category = $scores_return['category'];
+								$place = $award_c . ' Place '.$age_division .' '.$ts_competition_category;
+								$adjudicated_awards = ts_find_adjudicated_awards($scores_return['score']);
+								?>
+								<div class="clearfix">
+									<div>
+										<span><?php echo $routine;?></span>
+									</div>
+									<div>
+										<span><?php echo $studio;?></span>
+									</div>
+									<div>
+										<span><?php echo $category;?></span>
+									</div>
+									<div>
+										<span><?php echo $place;?></span>
+									</div>
+									<div>
+										<span><?php echo $adjudicated_awards;?></span>
+									</div>
+								</div>
+								<?php
+								$award_c++;
+							}
+						endif;
+					$c++;
+					endforeach;
+					?>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; endif; ?>
+    <?php
+}
+
+function ts_display_overall_high_scores($lineup) {
+	?>
+	<h3>Overall High Scores</h3>
+	<div class="SchedTable">
+		<div class="TableCont">
+			<div class="TableHeading">
+				<div class="clearfix RowHeading">
+					<div>
+						<span>Routine Name</span>
+					</div>
+					<div>
+						<span>Studio</span>
+					</div>
+					<div>
+						<span>Age Division</span>
+					</div>
+					<div>
+						<span>Place</span>
+					</div>
+					<div>
+						<span>Adjudicated Award</span>
+					</div>
+				</div>
+			</div>
+			<div class="TableBody text-center">
+				<?php $c = 1;
+				foreach($lineup as $line):
+					if( 4 === $c ) {
+					break;
+					}
+					$routine = get_the_title($line['routine']);
+					$studio = $line['studio'];
+					$category = $line['category'];
+					$age_division = $line['age_division'];
+					$ts_competition_category = $line['category'];
+					$place = $age_division .' Overall ' .$c. ' place';
+					$adjudicated_awards = ts_find_adjudicated_awards($line['score']);
+					?>
+					<div class="clearfix">
+						<div>
+							<span><?php echo $routine;?></span>
+						</div>
+						<div>
+							<span><?php echo $studio;?></span>
+						</div>
+						<div>
+							<span><?php echo $category;?></span>
+						</div>
+						<div>
+							<span><?php echo $place;?></span>
+						</div>
+						<div>
+							<span><?php echo $adjudicated_awards;?></span>
+						</div>
+					</div>
+					<?php $c++; endforeach; ?>
+			</div>
+		</div>
+	</div>
+	<?php
+}
+
+function ts_find_adjudicated_awards($score) {
+	$adjudicated_awards_title = '';
+	$score = (int) $score;
+	$adjudicated_awards = ts_get_adjudicated_awards();
+	foreach( $adjudicated_awards as $adjudicated_award ) {
+		if( $score >= $adjudicated_award['min_score'] && $score <= $adjudicated_award['high_score'] ) {
+			$adjudicated_awards_title = $adjudicated_award['title'];
+		}
+	}
+
+	return $adjudicated_awards_title;
+}  
 
 add_filter('acf/load_value/key=field_59e474d5debed', 'ts_load_sched_status', 10, 3);
 
