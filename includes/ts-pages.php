@@ -1864,7 +1864,7 @@ function ts_competitionsched_preview() {
 function ts_special_awards_page() {
 	if(isset($_GET['tour']) && $_GET['tour']!='') {
 		$tour_id = $_GET['tour'];
-	}	
+	}
 	?>
 	<div id="awards-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
@@ -1895,181 +1895,186 @@ function ts_special_awards_page() {
 					}
 					?>
 				</select></p>
-				<?php if($tour_id) { ?>
-				<h3>Special Awards: (for all 12 and under)</h3>
-				<div class="table-container">
-					<div class="row table-head">
-						<div class="col-md-4">Award</div>
-						<div class="col-md-2 t-center">Routine #</div>
-						<div class="col-md-3 t-center">Routine Name</div>
-						<div class="col-md-3 t-center">Studio</div>
-					</div>
-					<div class="table-body">
-						<div class="row">
-							<div class="col-md-4">Choreography Award:</div>
-							<div class="col-md-2 t-center">
-								<input type="text" name="special_awards[twelve_below][choreography][routine_number]" value="" class="validate[required,custom[onlyNumberSp]]">
-								<input type="hidden" name="special_awards[twelve_below][choreography][routine_id]" value="">
-							</div>
-							<div class="col-md-3 t-center"></div>
-							<div class="col-md-3 t-center"></div>
-						</div>
-						<div class="row">
-							<div class="col-md-4">Judges Standout Nominee:</div>
-							<div class="col-md-2 t-center">
-								<input type="text" name="special_awards[twelve_below][standout_nominee][routine_number]" value="" class="validate[required,custom[onlyNumberSp]]">
-								<input type="hidden" name="special_awards[twelve_below][standout_nominee][routine_id]" value="">
-							</div>
-							<div class="col-md-3 t-center"></div>
-							<div class="col-md-3 t-center"></div>
-						</div>
-						<div class="row">
-							<div class="col-md-4">Judges Standout Winner:</div>
-							<div class="col-md-2 t-center">
-								<input type="text" name="special_awards[twelve_below][standout_winner][routine_number]" value="" class="validate[required,custom[onlyNumberSp]]">
-								<input type="hidden" name="special_awards[twelve_below][standout_winner][routine_id]" value="">
-							</div>
-							<div class="col-md-3 t-center"></div>
-							<div class="col-md-3 t-center"></div>
-						</div>
-					</div>	
-				</div>
-				<h3>Special Awards: (for all 13 and above)</h3>
-				<div class="table-container">
-					<div class="row table-head">
-						<div class="col-md-4">Award</div>
-						<div class="col-md-2 t-center">Routine #</div>
-						<div class="col-md-3 t-center">Routine Name</div>
-						<div class="col-md-3 t-center">Studio</div>
-					</div>
-					<div class="table-body">
-						<div class="row">
-							<div class="col-md-4">Choreography Award:</div>
-							<div class="col-md-2 t-center">
-								<input type="text" name="special_awards[thirteen_above][choreography][routine_number]" value="" class="validate[required,custom[onlyNumberSp]]">
-								<input type="hidden" name="special_awards[thirteen_above][choreography][routine_id]" value="">
-							</div>
-							<div class="col-md-3 t-center"></div>
-							<div class="col-md-3 t-center"></div>
-						</div>
-						<div class="row">
-							<div class="col-md-4">Judges Standout Nominee:</div>
-							<div class="col-md-2 t-center">
-								<input type="text" name="special_awards[thirteen_above][standout_nominee][routine_number]" value="" class="validate[required,custom[onlyNumberSp]]">
-								<input type="hidden" name="special_awards[thirteen_above][standout_nominee][routine_id]" value="">
-							</div>
-							<div class="col-md-3 t-center"></div>
-							<div class="col-md-3 t-center"></div>
-						</div>
-						<div class="row">
-							<div class="col-md-4">Judges Standout Winner:</div>
-							<div class="col-md-2 t-center">
-								<input type="text" name="special_awards[thirteen_above][standout_winner][routine_number]" value="" class="validate[required,custom[onlyNumberSp]]">
-								<input type="hidden" name="special_awards[thirteen_above][standout_winner][routine_id]" value="">
-							</div>
-							<div class="col-md-3 t-center"></div>
-							<div class="col-md-3 t-center"></div>
-						</div>
-					</div>	
-				</div>
-				<h3>Studio Innovator:</h3>
-				<div class="table-container">
-					<div class="table-body">
-						<div class="row">
-							<div class="col-md-4">Studio Name:</div>
-							<div class="col-md-8"><input type="text" name="special_awards[studio_innovator]" value=""></div>
-						</div>		
-					</div>	
-				</div>
-				<h3>Scholarships:</h3>
-				<div class="table-container scholarship-wrapper">
-					<?php
+				<?php 
+				if($tour_id) { 
+					$special_awards = get_post_meta($tour_id, 'special_awards', true);
 					$scholarships = get_post_meta($tour_id, 'scholarships', true);
-					$participants = ts_tour_participants($tour_id);
-					if(! empty($scholarships)) {
-						?>
-						<div class="row table-head">
-							<div class="col-sm-3"><strong>Name</strong></div>
-							<div class="col-sm-2"><strong>Age Division</strong></div>
-							<div class="col-sm-2"><strong>Studio</strong></div>
-							<div class="col-sm-3"><strong>Scholarship</strong></div>
-							<div class="col-sm-2 t-center"><strong>Delete</strong></div>
-						</div>
-						<div class="scholarship-container table-body">
-							<?php
-							foreach ($scholarships as $key=>$val) {
-								$id = $key;
-								if($val=='') continue;
-								?>
-								<div class="row" id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
-									<div class="col-sm-3">
-										<select class="scholarship" data-id="<?php echo $id; ?>">
-											<option value="">None</option>
-											<?php
-											foreach ($participants as $p) {
-												echo '<option value="'. $p .'" '. ( $key==$p ? 'selected' : '' ) .'>'. get_the_title($p) .'</option>';
-											}
-											?>
-										</select>
-									</div>
-									<div class="col-sm-2 age-division"><?php echo ts_participant_agediv($id); ?></div>
-									<div class="col-sm-2 studio-name"><?php echo ts_participant_studio($id); ?></div>
-									<div class="col-sm-3 participant-scholarship"><input type="text" name="scholarships[<?php echo $id; ?>]" value="<?php echo $val; ?>"></div>
-									<div class="col-sm-2 t-center">
-										<a href="javascript:void(0);" class="btn-remove btn btn-red"><small>Remove</small></a>
-									</div>
-								</div>
-								<?php
-							}
-							?>
-						</div>
-						<?php
-					}
-					else{
-						?>
-						<div class="row table-head">
-							<div class="col-sm-3"><strong>Name</strong></div>
-							<div class="col-sm-2"><strong>Age Division</strong></div>
-							<div class="col-sm-2"><strong>Studio</strong></div>
-							<div class="col-sm-3"><strong>Scholarship</strong></div>
-							<div class="col-sm-2 t-center"><strong>Delete</strong></div>
-						</div>
-						<div class="scholarship-container table-body">
-							<?php
-							for ($i=1; $i <= 5; $i++) {
-								$id = $i;
-								?>
-								<div class="row" id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
-									<div class="col-sm-3">
-										<select class="scholarship" data-id="<?php echo $id; ?>" >
-											<option value="">Select Name</option>
-											<?php
-											foreach ($participants as $p) {
-												echo '<option value="'. $p .'" '. ( $key==$p ? 'selected' : '' ) .'>'. get_the_title($p) .'</option>';
-											}
-											?>
-										</select>
-									</div>
-									<div class="col-sm-2 age-division"></div>
-									<div class="col-sm-2 studio-name"></div>
-									<div class="col-sm-3 participant-scholarship"><input type="text" class="scholarship-item" name="scholarships[]" value=""></div>
-									<div class="col-sm-2 t-center">
-										<a href="javascript:void(0);" class="btn-remove btn btn-red"><small>Remove</small></a>
-									</div>
-								</div>
-								<?php
-							}
-							?>
-						</div>
-						<?php
-					}
 					?>
-					<a href="javascript:void(0);" class="btn-addscholarship btn btn-green">Add Scholarship</a>
-				</div>
-				<div class="form-footer-btns">
-					<input class="btn btn-green" type="submit" value="Save Changes" />
-				</div>
-				<?php } ?>
+					<h3>Special Awards: (for all 12 and under)</h3>
+					<div class="table-container">
+						<div class="row table-head">
+							<div class="col-md-4">Award</div>
+							<div class="col-md-2 t-center">Routine #</div>
+							<div class="col-md-3 t-center">Routine Name</div>
+							<div class="col-md-3 t-center">Studio</div>
+						</div>
+						<div class="table-body">
+							<div class="row" id="item-1">
+								<div class="col-md-4">Choreography Award:</div>
+								<div class="col-md-2 t-center">
+									<input type="text" name="special_awards[twelve_below][choreography][routine_number]" value="<?php echo $special_awards['twelve_below']['choreography']['routine_number']; ?>" class="validate[custom[onlyNumberSp]] change-routine-number" data-tourid="<?php echo $tour_id; ?>">
+									<input type="hidden" name="special_awards[twelve_below][choreography][routine_id]" value="<?php echo $special_awards['twelve_below']['choreography']['routine_id']; ?>" class="routine-id">
+								</div>
+								<div class="col-md-3 t-center routine-name"><?php echo get_the_title($special_awards['twelve_below']['choreography']['routine_id']);?></div>
+								<div class="col-md-3 t-center routine-studio"><?php echo ts_post_studio($special_awards['twelve_below']['choreography']['routine_id']);?></div>
+							</div>
+							<div class="row" id="item-2">
+								<div class="col-md-4">Judges Standout Nominee:</div>
+								<div class="col-md-2 t-center">
+									<input type="text" name="special_awards[twelve_below][standout_nominee][routine_number]" value="<?php echo $special_awards['twelve_below']['standout_nominee']['routine_number']; ?>" class="validate[custom[onlyNumberSp]] change-routine-number" data-tourid="<?php echo $tour_id; ?>">
+									<input type="hidden" name="special_awards[twelve_below][standout_nominee][routine_id]" value="<?php echo $special_awards['twelve_below']['standout_nominee']['routine_id']; ?>" class="routine-id">
+								</div>
+								<div class="col-md-3 t-center routine-name"><?php echo get_the_title($special_awards['twelve_below']['standout_nominee']['routine_id']);?></div>
+								<div class="col-md-3 t-center routine-studio"><?php echo ts_post_studio($special_awards['twelve_below']['standout_nominee']['routine_id']);?></div>
+							</div>
+							<div class="row" id="item-3">
+								<div class="col-md-4">Judges Standout Winner:</div>
+								<div class="col-md-2 t-center">
+									<input type="text" name="special_awards[twelve_below][standout_winner][routine_number]" value="<?php echo $special_awards['twelve_below']['standout_winner']['routine_number']; ?>" class="validate[custom[onlyNumberSp]] change-routine-number" data-tourid="<?php echo $tour_id; ?>">
+									<input type="hidden" name="special_awards[twelve_below][standout_winner][routine_id]" value="<?php echo $special_awards['twelve_below']['standout_winner']['routine_id']; ?>" class="routine-id">
+								</div>
+								<div class="col-md-3 t-center routine-name"><?php echo get_the_title($special_awards['twelve_below']['standout_winner']['routine_id']);?></div>
+								<div class="col-md-3 t-center routine-studio"><?php echo ts_post_studio($special_awards['twelve_below']['standout_winner']['routine_id']);?></div>
+							</div>
+						</div>	
+					</div>
+					<h3>Special Awards: (for all 13 and above)</h3>
+					<div class="table-container">
+						<div class="row table-head">
+							<div class="col-md-4">Award</div>
+							<div class="col-md-2 t-center">Routine #</div>
+							<div class="col-md-3 t-center">Routine Name</div>
+							<div class="col-md-3 t-center">Studio</div>
+						</div>
+						<div class="table-body">
+							<div class="row" id="item-4">
+								<div class="col-md-4">Choreography Award:</div>
+								<div class="col-md-2 t-center">
+									<input type="text" name="special_awards[thirteen_above][choreography][routine_number]" value="<?php echo $special_awards['thirteen_above']['choreography']['routine_number']; ?>" class="validate[custom[onlyNumberSp]] change-routine-number" data-tourid="<?php echo $tour_id; ?>">
+									<input type="hidden" name="special_awards[thirteen_above][choreography][routine_id]" value="<?php echo $special_awards['thirteen_above']['choreography']['routine_id']; ?>" class="routine-id">
+								</div>
+								<div class="col-md-3 t-center routine-name"><?php echo get_the_title($special_awards['thirteen_above']['choreography']['routine_id']);?></div>
+								<div class="col-md-3 t-center routine-studio"><?php echo ts_post_studio($special_awards['thirteen_above']['choreography']['routine_id']);?></div>
+							</div>
+							<div class="row" id="item-5">
+								<div class="col-md-4">Judges Standout Nominee:</div>
+								<div class="col-md-2 t-center">
+									<input type="text" name="special_awards[thirteen_above][standout_nominee][routine_number]" value="<?php echo $special_awards['thirteen_above']['standout_nominee']['routine_number']; ?>" class="validate[custom[onlyNumberSp]] change-routine-number" data-tourid="<?php echo $tour_id; ?>">
+									<input type="hidden" name="special_awards[thirteen_above][standout_nominee][routine_id]" value="<?php echo $special_awards['thirteen_above']['standout_nominee']['routine_id']; ?>" class="routine-id">
+								</div>
+								<div class="col-md-3 t-center routine-name"><?php echo get_the_title($special_awards['thirteen_above']['standout_nominee']['routine_id']);?></div>
+								<div class="col-md-3 t-center routine-studio"><?php echo ts_post_studio($special_awards['thirteen_above']['standout_nominee']['routine_id']);?></div>
+							</div>
+							<div class="row" id="item-6">
+								<div class="col-md-4">Judges Standout Winner:</div>
+								<div class="col-md-2 t-center">
+									<input type="text" name="special_awards[thirteen_above][standout_winner][routine_number]" value="<?php echo $special_awards['thirteen_above']['standout_winner']['routine_number']; ?>" class="validate[custom[onlyNumberSp]] change-routine-number" data-tourid="<?php echo $tour_id; ?>">
+									<input type="hidden" name="special_awards[thirteen_above][standout_winner][routine_id]" value="<?php echo $special_awards['thirteen_above']['standout_winner']['routine_id']; ?>" class="routine-id">
+								</div>
+								<div class="col-md-3 t-center routine-name"><?php echo get_the_title($special_awards['thirteen_above']['standout_winner']['routine_id']);?></div>
+								<div class="col-md-3 t-center routine-studio"><?php echo ts_post_studio($special_awards['thirteen_above']['standout_winner']['routine_id']);?></div>
+							</div>
+						</div>	
+					</div>
+					<h3>Studio Innovator:</h3>
+					<div class="table-container">
+						<div class="table-body">
+							<div class="row">
+								<div class="col-md-4">Studio Name:</div>
+								<div class="col-md-8"><input type="text" name="special_awards[studio_innovator]" value="<?php echo $special_awards['studio_innovator']; ?>"></div>
+							</div>		
+						</div>	
+					</div>
+					<h3>Scholarships:</h3>
+					<div class="table-container scholarship-wrapper">
+						<?php
+						$scholarships = get_post_meta($tour_id, 'scholarships', true);
+						$participants = ts_tour_participants($tour_id);
+						if(! empty($scholarships)) {
+							?>
+							<div class="row table-head">
+								<div class="col-sm-3"><strong>Name</strong></div>
+								<div class="col-sm-2"><strong>Age Division</strong></div>
+								<div class="col-sm-2"><strong>Studio</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>
+								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
+							</div>
+							<div class="scholarship-container table-body">
+								<?php
+								foreach ($scholarships as $key=>$val) {
+									$id = $key;
+									if($val=='') continue;
+									?>
+									<div class="row" id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
+										<div class="col-sm-3">
+											<select class="scholarship" data-id="<?php echo $id; ?>">
+												<option value="">None</option>
+												<?php
+												foreach ($participants as $p) {
+													echo '<option value="'. $p .'" '. ( $id==$p ? 'selected' : '' ) .'>'. get_the_title($p) .'</option>';
+												}
+												?>
+											</select>
+										</div>
+										<div class="col-sm-2 age-division"><?php echo ts_participant_agediv($id); ?></div>
+										<div class="col-sm-2 studio-name"><?php echo ts_post_studio($id); ?></div>
+										<div class="col-sm-3 participant-scholarship"><input type="text" name="scholarships[<?php echo $id; ?>]" value="<?php echo $val; ?>"></div>
+										<div class="col-sm-2 t-center">
+											<a href="javascript:void(0);" class="btn-remove btn btn-red"><small>Remove</small></a>
+										</div>
+									</div>
+									<?php
+								}
+								?>
+							</div>
+							<?php
+						}
+						else{
+							?>
+							<div class="row table-head">
+								<div class="col-sm-3"><strong>Name</strong></div>
+								<div class="col-sm-2"><strong>Age Division</strong></div>
+								<div class="col-sm-2"><strong>Studio</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>
+								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
+							</div>
+							<div class="scholarship-container table-body">
+								<?php
+								for ($i=1; $i <= 5; $i++) {
+									$id = $i;
+									?>
+									<div class="row" id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
+										<div class="col-sm-3">
+											<select class="scholarship" data-id="<?php echo $id; ?>" >
+												<option value="">Select Name</option>
+												<?php
+												foreach ($participants as $p) {
+													echo '<option value="'. $p .'" '. ( $key==$p ? 'selected' : '' ) .'>'. get_the_title($p) .'</option>';
+												}
+												?>
+											</select>
+										</div>
+										<div class="col-sm-2 age-division"></div>
+										<div class="col-sm-2 studio-name"></div>
+										<div class="col-sm-3 participant-scholarship"><input type="text" class="scholarship-item" name="scholarships[]" value=""></div>
+										<div class="col-sm-2 t-center">
+											<a href="javascript:void(0);" class="btn-remove btn btn-red"><small>Remove</small></a>
+										</div>
+									</div>
+									<?php
+								}
+								?>
+							</div>
+							<?php
+						}
+						?>
+						<a href="javascript:void(0);" class="btn-addscholarship btn btn-green">Add Scholarship</a>
+					</div>
+					<div class="form-footer-btns">
+						<input class="btn btn-green" type="submit" value="Save Changes" />
+					</div>
+				<?php 
+				} ?>
 			</form>
 		</div>
 	</div>

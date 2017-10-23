@@ -72,6 +72,9 @@ add_action('invoice_paid', 'ts_set_entry_meta', 10, 1);
 add_action('registration_manually_mark_as_paid', 'ts_registration_manually_mark_as_paid', 10, 1);
 add_action('competition_schedule_updated', 'ts_competition_schedule_updated', 10, 1);
 add_action('competition_score_updated', 'ts_competition_score_updated', 10, 1);
+add_action('competition_schedule_updated', 'ts_save_routine_number', 10, 1);
+add_action('publish_results', 'ts_tour_results_notification', 10, 1);
+add_action('save_routine_scores', 'ts_save_routine_total_score', 10, 1);
 
 /* Remove */
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
@@ -92,7 +95,8 @@ add_filter('media_upload_default_tab', 'ts_media_library_default_tab', 99);
 add_filter('gettext', 'ts_forgot_username_text', 1, 3);
 add_filter('media_view_strings','ts_remove_medialibrary_tab');
 add_filter('random_password', 'ts_disable_random_password', 10, 2);
-add_filter('acf/pre_save_post', 'ts_pre_save_schedule');
+add_filter('acf/pre_save_post', 'ts_pre_save_schedule', 10, 1);
+add_filter('acf/load_value/key=field_59e474d5debed', 'ts_load_sched_status', 10, 3);
 
 /** Front-end **/
 add_action('wp_footer', 'ts_footer_scripts');
@@ -404,8 +408,8 @@ function ts_register_custom_menu_pages() {
             add_submenu_page( 'ts-schedules', 'Workshop Schedules', 'Workshop Schedules', 'is_custom_user', 'ts-workshop-schedules', 'ts_workshopsched_preview');
             add_submenu_page( 'ts-schedules', 'Competition Schedules', 'Competition Schedules', 'is_custom_user', 'ts-competition-schedules', 'ts_competitionsched_preview');
         add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_preview', 'dashicons-analytics', 7);
-        add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 104);
-        add_menu_page('Credits', 'My Credits', 'is_custom_user', 'ts-credits', 'ts_credits_page', 'dashicons-cart', 105);
+        add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 8);
+        add_menu_page('Credits', 'My Credits', 'is_custom_user', 'ts-credits', 'ts_credits_page', 'dashicons-cart', 9);
 
         add_menu_page('Add Registration', 'Add Registration', 'add_ts_entry', 'ts-post-entry', 'ts_post_entry_page', '', 101);
         add_menu_page('Edit Registration', 'Edit Registration', 'add_ts_entry', 'ts-edit-entry', 'ts_post_entry_page', '', 102);
@@ -418,22 +422,20 @@ function ts_register_custom_menu_pages() {
         add_menu_page('Schedules', 'Schedules', 'is_organizer', 'ts-schedules', 'ts_schedules_page', 'dashicons-calendar-alt', 8);
             add_submenu_page( 'ts-schedules', 'Workshop Schedule', 'Workshop Schedule', 'is_organizer', 'ts-workshop-schedules', 'ts_workshopschedules_page');
             add_submenu_page( 'ts-schedules', 'Competition Schedule', 'Competition Schedule', 'is_organizer', 'ts-competition-schedules', 'ts_competitionschedules_page');
-        add_menu_page('Special Awards', 'Special Awards', 'is_organizer', 'ts-special-awards', 'ts_special_awards_page', 'dashicons-awards', 9);
-        add_menu_page('Critiques', 'Critiques', 'is_custom_user', 'ts-critiques', 'ts_critiques_page', 'dashicons-video-alt3', 11);
-        add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_page', 'dashicons-analytics', 12);
-        add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 104);
-        add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 106);
+        add_menu_page('Scores', 'Scores', 'is_organizer', 'ts-scores', 'ts_score_page', 'dashicons-index-card', 9);
+        add_menu_page('Awards', 'Awards', 'is_organizer', 'ts-awards', 'ts_award_page', 'dashicons-awards', 11);
+        add_menu_page('Special Awards', 'Special Awards', 'is_organizer', 'ts-special-awards', 'ts_special_awards_page', 'dashicons-awards', 12);
+        add_menu_page('Critiques', 'Critiques', 'is_custom_user', 'ts-critiques', 'ts_critiques_page', 'dashicons-video-alt3', 13);
+        add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_page', 'dashicons-analytics', 14);
+        add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 16);
+        add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 17);
 
         add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
         add_menu_page('New Workshop Schedule', 'New Workshop Schedule', 'is_organizer', 'ts-new-schedule', 'ts_view_schedule_page', '', 108);
         add_menu_page('View Workshop Schedule', 'View Workshop Schedule', 'is_organizer', 'ts-view-schedule', 'ts_view_schedule_page', '', 109);
         add_menu_page('New Competition Schedule', 'New Competition Schedule', 'is_organizer', 'ts-new-competition-schedule', 'ts_view_competition_schedule_page', '', 110);
         add_menu_page('View Competition Schedule', 'View Competition Schedule', 'is_organizer', 'ts-view-competition-schedule', 'ts_view_competition_schedule_page', '', 111);
-
-        add_menu_page('Scores', 'Scores', 'is_organizer', 'ts-scores', 'ts_score_page', 'dashicons-index-card', 112);
         add_menu_page('View Scores', 'View Scores', 'is_organizer', 'ts-view-scores', 'ts_view_scores_page', '', 113);
-
-        add_menu_page('Awards', 'Awards', 'is_organizer', 'ts-awards', 'ts_award_page', 'dashicons-awards', 114);
         add_menu_page('View Awards', 'View Awards', 'is_organizer', 'ts-view-awards', 'ts_view_awards_page', '', 115);
     }
 }
@@ -485,6 +487,7 @@ function ajax_post_init() {
     add_action('wp_ajax_publish_results', 'ajax_publish_results');
     add_action('wp_ajax_add_critique', 'ajax_add_critique');
     add_action('wp_ajax_remove_critique', 'ajax_remove_critique');
+    add_action('wp_ajax_load_routine_info', 'ajax_load_routine_info');
 }
 
 /* Commented Out. Reason: I believe we are not using this function yet.

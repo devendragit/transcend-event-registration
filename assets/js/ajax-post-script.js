@@ -425,6 +425,7 @@ jQuery(document).ready(function($) {
 		var form = new TSForm(formdata);
 		form.submitForm(callbackDelete);
 	});
+
 	$('.ts-admin-wrapper').on('click', '.btn-delete-all', function(e) {
 		e.preventDefault();
 		var ids = getSelectedIds();
@@ -438,6 +439,7 @@ jQuery(document).ready(function($) {
 		var form = new TSForm(formdata);
 		form.submitForm(callbackReloadPage);
 	});
+
 	$('#invoices-list').on('click', '.btn-pay-invoice', function(e){
 		e.preventDefault();
 		$(this).html('<small><i class="fa fa-spinner fa-pulse fa-fw"></i></small>');
@@ -478,13 +480,13 @@ jQuery(document).ready(function($) {
 
 	$('.ts-admin-wrapper').on('click', '.btn-markpaid', function(e) {
 		e.preventDefault();
-    formdata.append('action', 'save_mark_as_paid');
+    	formdata.append('action', 'save_mark_as_paid');
 		formdata.append('id', id);
 		var form = new TSForm(formdata);
 		form.submitForm(callbackMarkAsPaid);
-  });  
+  	});  
 
-  $('#form-special-awards').on('submit', function(e){
+  	$('#form-special-awards').on('submit', function(e){
 		e.preventDefault();
 		var validated = $(this).validationEngine('validate', { 
 			scroll: false, 
@@ -496,7 +498,7 @@ jQuery(document).ready(function($) {
 			formdata.append('token', ajax_post_object.tokens.save_item);
 			formdata.append('action', 'save_special_awards');
 			var form = new TSForm(formdata);
-			form.submitForm(callbackSaveAndReload);
+			form.submitForm(callback);
 		}
 	});
 
@@ -533,7 +535,19 @@ jQuery(document).ready(function($) {
 		form.submitForm(callbackChangeScholar);	
 	});
 
-
+	$('#form-special-awards').on('change', '.change-routine-number', function(e){
+		e.preventDefault();
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'load_routine_info');
+		formdata.append('routine_number', $(this).val());
+		formdata.append('tour_id', $(this).attr('data-tourid'));
+		formdata.append('row', $(this).closest('.row').attr('id'));
+		var form = new TSForm(formdata);
+		form.submitForm(callbackChangeRoutine);	
+	});
+});
 
 function addVideoCritique(attachment_id, post_id) {
 	var token = ajax_post_object.tokens.default;
@@ -576,6 +590,7 @@ TSForm.prototype.submitForm = function(callback, callback2) {
         }
     });
 }
+
 TSForm.prototype.getSelectValues = function(select) {
 	var result = [];
 	var options = select && select.options;

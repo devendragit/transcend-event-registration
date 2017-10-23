@@ -6,4 +6,5 @@ jQuery(document).ready(function($) {
 		window.location.href = url;
 	});	
 
+	$('.ts-tabs').tabs();
 });

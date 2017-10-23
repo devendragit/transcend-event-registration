@@ -319,3 +319,6 @@ html .display-individual-day-awards .ui-button.ui-state-disabled:active {
 .scholarship-wrapper select {
     width: 100%;
 }
+.change-routine-number {
+    text-align: center;
+}

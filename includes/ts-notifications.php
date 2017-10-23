@@ -150,3 +150,19 @@ function ts_new_invoice_user_notification($entry_id, $invoice_id) {
     }
 
 }
+
+function ts_tour_results_notification($tour_id) {
+
+	$user 	 = get_user_by( 'id', $user_id);
+	$to 	 = array($user->user_email);
+	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: Carl D <carld.projects@gmail.com>');
+	$subject = 'video critiques and weekend results';
+
+	$body = '
+	<p style="text-align:center; margin-bottom:30px;"><span style="display:inline-block;padding:20px;background-color:#000;"><img src="'. TS_URI .'assets/images/logo.png" /></span></p>
+	<p style="text-align:center; font-size:1.6em; font-weight:bold;">You can now log into your online portal to view video critiques and weekend results.</p>
+	<p style="text-align:center; font-size:1.6em; font-weight:bold;"><a href="'. admin_url('admin.php?page=ts-results&tour='. $tour_id) .'">Click Here</a></p>
+	';
+
+	wp_mail($to, $subject, $body, $headers);	
+}

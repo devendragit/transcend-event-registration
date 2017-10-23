@@ -2490,7 +2490,7 @@ function ajax_load_participant_info() {
 
         if(ts_post_exists_by_id($id)){
         	$response['agediv'] = ts_participant_agediv($id);
-        	$response['studio'] = ts_participant_studio($id);
+        	$response['studio'] = ts_post_studio($id);
 	        $has_error = false;
         }
 
@@ -2526,6 +2526,7 @@ function ajax_publish_results() {
 			$status = get_post_meta($tour_id, 'results_status', true);
 			$newval = ! $status || $status=='draft' ? 'publish' : 'draft';
 	        update_post_meta($tour_id, 'results_status', $newval);
+	        do_action('publish_results', $tour_id);
 	        $has_error = false;
 		}
 
@@ -2604,4 +2605,56 @@ function ajax_remove_critique() {
 	endif;
 
     die();	
+}
+
+function ajax_load_routine_info() {
+
+    if($_POST) :
+
+        check_ajax_referer('ts-default', 'token');
+
+		$routine_number	= absint($_POST['routine_number']);
+		$tour_id		= absint($_POST['tour_id']);
+		$row			= $_POST['row'];
+		$has_error 		= true;
+
+        $response = array(
+            'success' => false,
+            'tour_id' => $tour_id,
+            'routine_number' => $routine_number,
+            'row' => $row,
+        );
+
+		$args = array(
+			'posts_per_page' => 1,
+			'meta_query' => array(
+				array(
+					'key'     => 'routine_number',
+					'value'   => $routine_number,
+					'compare' => '=',
+				),
+			),
+		);
+
+		$routine = ts_get_posts('ts_routine', -1, $args);
+
+        if(ts_post_exists_by_id($routine[0]->ID)){
+        	$routine_id = $routine[0]->ID;
+        	$response['routine_id'] = $routine_id;
+        	$response['name'] = get_the_title($routine_id);
+        	$response['studio'] = ts_post_studio($routine_id);
+	        $has_error = false;
+        }
+
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+        }
+        echo json_encode($response);
+
+    endif;
+
+    die();
 }

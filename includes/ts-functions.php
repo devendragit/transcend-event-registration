@@ -1812,11 +1812,9 @@ function ts_custom_admin_head() {
 }
 
 function ts_pre_save_schedule( $schedule_id ){
-
     if( isset( $_POST['acf']['field_19d2674b099e9'] ) ) {
         do_action( 'competition_score_updated', $schedule_id );
     }
-
 	if( isset( $_POST['acf']['field_59d2697cc385f'] ) ) {
 		$city_id = $_POST['acf']['field_59d2697cc385f'];
 		$status = $_POST['acf']['field_59e474d5debed'];
@@ -1829,27 +1827,21 @@ function ts_pre_save_schedule( $schedule_id ){
 		$redirect_url = admin_url('admin.php?page=ts-view-schedule');
 		$term = 'Workshop';
 	}
-
 	$post_status = $status==1 ? 'publish' : 'draft';
-
     $schedule = array(
         'post_status'  => $post_status,
         'post_title'  => get_the_title($city_id),
         'post_type'  => 'ts_event',
     );  
-
     if( $schedule_id != 'new_schedule' ){
     	$schedule['ID'] = $schedule_id;
 		wp_update_post($schedule);
+		do_action('save_routine_scores', $schedule_id);
         return $schedule_id;
     }
-
     $schedule_id = wp_insert_post($schedule);
-
 	wp_set_object_terms( $schedule_id, $term, 'ts_schedules_type' );
-
     do_action('acf/save_post', $schedule_id);
-
     wp_redirect(add_query_arg( array(
     	'schedule_id' => $schedule_id,
     ), $redirect_url));
@@ -2132,8 +2124,6 @@ function ts_find_adjudicated_awards($score) {
 	return $adjudicated_awards_title;
 }  
 
-add_filter('acf/load_value/key=field_59e474d5debed', 'ts_load_sched_status', 10, 3);
-
 function ts_load_sched_status( $value, $post_id, $field ) {
 
 	$post_status = get_post_status($post_id);
@@ -2370,7 +2360,7 @@ function ts_tour_participants($tour_id) {
 	return $rparticipants_array;
 }
 
-function ts_participant_studio($participant_id) {
+function ts_post_studio($participant_id) {
 	$post = get_post($participant_id);
 	$author = $post->post_author;
 	$studio = get_field('studio', 'user_'. $author);
@@ -2399,7 +2389,7 @@ function ts_display_awards_table($routines) {
 				$number = $val['number'];
 				$name 	= $val['name'];
 				$studio = $val['studio'];
-				$award 	= ts_add_suffix($key);
+				$award 	= ts_add_suffix($key+1);
 				?>
 				<div class="row" id="routine-<?php echo $id; ?>">
 					<div class="col-md-2"><?php echo $number; ?></div>
@@ -2412,4 +2402,100 @@ function ts_display_awards_table($routines) {
 		</div>
 	</div>
 	<?php	
+}
+
+function ts_save_routine_number($schedule_id) {
+
+	$schedules = get_field('competition_event_schedules', $schedule_id);
+
+	foreach ($schedules as $s) {
+		$lineup = $s['lineup'];
+		foreach ($lineup as $l) {
+			update_post_meta($l['routine'], 'routine_number', $l['number']);
+		}
+
+	}	
+}
+
+function ts_save_routine_total_score($score_id) {
+
+	$tour_scores = get_field('tour_scores', $score_id);
+
+	foreach ($tour_scores as $s) {
+		$lineup = $s['lineup'];
+		foreach ($lineup as $l) {
+			update_post_meta($l['routine'], 'total_score', $l['score']);
+		}
+	}	
+}
+
+function ts_winners_array($tour_id, $agediv, $cat, $limit=5) {
+    $args = array(
+        'posts_per_page' => $limit,
+        'include' => ts_tour_routines_ids($tour_id),
+        'meta_query' => array(
+        	'relation' => 'AND',
+            array(
+                'key'     => 'agediv',
+                'value'   => $agediv,
+                'compare' => '=',
+            ),
+            array(
+                'key'     => 'cat',
+                'value'   => $cat,
+                'compare' => '=',
+            ),
+        ),
+        'orderby' => 'meta_value_num',
+		'meta_key' => 'total_score',
+        'order' => 'DESC',
+    );
+    $routines = ts_get_posts('ts_routine',-1,$args);
+	$winners = array();
+	if($routines){
+		foreach ($routines as $r) {
+			$id = $r->ID;
+			$winners[] = array(
+				'id' => $id,
+				'number' => get_post_meta($id, 'routine_number', true),
+				'name' => get_the_title($id),
+				'studio' => ts_post_studio($id),
+				'score' => get_post_meta($id, 'total_score', true),
+			);
+		}
+	}	
+	return $winners;
+}
+
+function ts_overallwinners_array($tour_id, $agediv, $limit=3) {
+    $args = array(
+        'posts_per_page' => $limit,
+        'include' => ts_tour_routines_ids($tour_id),
+        'meta_query' => array(
+        	'relation' => 'AND',
+            array(
+                'key'     => 'agediv',
+                'value'   => $agediv,
+                'compare' => '=',
+            ),
+        ),
+        'orderby' => 'meta_value_num',
+		'meta_key' => 'total_score',
+        'order' => 'DESC',
+    );
+    $routines = ts_get_posts('ts_routine',-1,$args);
+	$winners = array();
+	if($routines){
+		foreach ($routines as $r) {
+			$id = $r->ID;
+			$winners[] = array(
+				'id' => $id,
+				'number' => get_post_meta($id, 'routine_number', true),
+				'name' => get_the_title($id),
+				'studio' => ts_post_studio($id),
+				'score' => get_post_meta($id, 'total_score', true),
+			);
+		}
+	}	
+	return $winners;
 }

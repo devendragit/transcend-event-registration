@@ -457,6 +457,20 @@ function callback(data) {
 	}
 }
 
+function callbackChangeRoutine(data) {
+	if(data.success==true) {
+		var routine_number = data.routine_number;
+		var routine_id = data.routine_id;
+		var tour_id = data.tour_id;
+		var name = data.name;
+		var studio = data.studio;
+		var row = data.row;
+		jQuery('#'+row+' .routine-id').val(routine_id);
+		jQuery('#'+row+' .routine-name').html(name);
+		jQuery('#'+row+' .routine-studio').html(studio);
+	}
+}
+
 function callbackChangeScholar(data) {
 	if(data.success==true) {
 		var id = data.id;
