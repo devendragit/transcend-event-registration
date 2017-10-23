@@ -407,6 +407,9 @@ function ts_create_scores_array( $schedules ) {
                     $scores_array[$i]['lineup'] = array_values($scores_array[$i]['lineup']);
                 }
                 unset($scores_array[$i]['lineup'][$y]['action']);
+                $scores_array[$i]['lineup'][$y]['judge_1_score'] = 0;
+                $scores_array[$i]['lineup'][$y]['judge_2_score'] = 0;
+                $scores_array[$i]['lineup'][$y]['judge_3_score'] = 0;                
                 $scores_array[$i]['lineup'][$y]['score'] = 0;
             }
         }

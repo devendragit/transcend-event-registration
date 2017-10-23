@@ -2499,3 +2499,26 @@ function ts_overallwinners_array($tour_id, $agediv, $limit=3) {
 	}	
 	return $winners;
 }
+
+function ts_calculate_overall_score( $score_id ) {
+  if( empty($_POST['acf']) ) {
+      return;
+  }
+  if( have_rows('field_19d2674b099e9', $score_id) ) {
+      while( have_rows('field_19d2674b099e9', $score_id) ) {
+          the_row();
+          if( have_rows('field_19d2674f77f7b', $score_id) ) {
+              while( have_rows('field_19d2674f77f7b', $score_id) ) {
+                  the_row();
+                  $total_score = 0;
+                  $judge_1_score = (int) get_sub_field('field_89e4b7c4a3479', $score_id);
+                  $judge_2_score = (int) get_sub_field('field_79e4b7c4a3479', $score_id);
+                  $judge_3_score = (int) get_sub_field('field_69e4b7c4a3479', $score_id);
+                  $total_score = $judge_1_score $judge_2_score $judge_3_score;
+                  update_sub_field('field_19e4b7c4a3479', $total_score);
+              }
+          }
+      }
+  }
+
+}

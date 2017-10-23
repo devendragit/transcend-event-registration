@@ -75,6 +75,7 @@ add_action('competition_score_updated', 'ts_competition_score_updated', 10, 1);
 add_action('competition_schedule_updated', 'ts_save_routine_number', 10, 1);
 add_action('publish_results', 'ts_tour_results_notification', 10, 1);
 add_action('save_routine_scores', 'ts_save_routine_total_score', 10, 1);
+add_action('acf/save_post', 'ts_calculate_overall_score', 20);
 
 /* Remove */
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
