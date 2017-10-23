@@ -193,7 +193,8 @@ tr.acf-field[data-name="email"] {
 }
 .score_settings .acf-actions,
 .score_settings .acf-js-tooltip,
-.score_settings [data-name="event_city"]{
+.score_settings [data-name="event_city"],
+.score_settings [data-name="score"]{
     display: none !important;
 }
 

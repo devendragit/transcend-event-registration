@@ -72,6 +72,7 @@ add_action('invoice_paid', 'ts_set_entry_meta', 10, 1);
 add_action('registration_manually_mark_as_paid', 'ts_registration_manually_mark_as_paid', 10, 1);
 add_action('competition_schedule_updated', 'ts_competition_schedule_updated', 10, 1);
 add_action('competition_score_updated', 'ts_competition_score_updated', 10, 1);
+add_action('acf/save_post', 'ts_calculate_overall_score', 20);
 
 /* Remove */
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
