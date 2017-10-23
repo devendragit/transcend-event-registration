@@ -171,8 +171,12 @@ tr.acf-field[data-name="email"] {
 .ts-entry-invoice textarea{
     margin-bottom: 15px;
 }
+#adminmenu [class*="menu-icon"],
 #adminmenu .wp-submenu li.wp-first-item {
     display: none !important;
+}
+.ts-admin-wrapper .acf-form-fields > .acf-field {
+    border-top: 0;
 }
 .acf-input-wrap input[type="text"] {
     max-width: none;
@@ -186,4 +190,32 @@ tr.acf-field[data-name="email"] {
 }
 #minor-publishing {
     display: none;
+}
+.ts-data-table .btn {
+    min-width: 36px;
+}
+.ts-data-table span.btn {
+    font-size: 11px !important;
+}
+#schedules-list .btn {
+    min-width: 52px;
+}
+.mysched-heading {
+    font-size: 32px !important;
+    font-family: 'Omnes-Bold';
+}
+.results-wrapper .table-container,
+#form-special-awards .table-container {
+    padding: 0 15px;
+    max-width: 960px;
+    margin-bottom: 40px;
+}
+#form-special-awards .table-body .row {
+    padding: 10px 0;
+}
+.scholarship-wrapper .btn-addscholarship {
+    margin-top: 20px;
+}
+.scholarship-wrapper select {
+    width: 100%;
 }

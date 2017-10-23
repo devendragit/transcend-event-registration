@@ -187,9 +187,7 @@ function ts_get_workshop_html($entry_data, $entry_id, $eid, $prev_step, $next_st
 						foreach ($tour_cities as $tc) {
 							$tc_id 		= $tc->ID;
 							$tc_title 	= $tc->post_title;
-							$date_from 	= get_post_meta($tc_id, 'date_from', true);
-							$status 	= get_post_meta($tc_id, 'status', true);
-							$disabled 	= ($date_from && ts_get_days_before_date($date_from) <= 0) || ($status==2) ? 'disabled' : '';
+							$disabled 	= ts_is_tour_close($tc_id) ? 'disabled' : '';
 							echo '<option value="'. $tc_id .'" '. ( $workshop['tour_city']==$tc_id ? 'selected' : '' ) .' '. $disabled .'>'. $tc_title .'</option>';
 						}
 						?>
@@ -910,7 +908,9 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 		$workshop_scholarship_discount 	= ts_get_total_scholarship_discount($eid);
 		$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($eid);
 		$competition_fee 				= ts_get_total_competition_fee($eid);
-		$form_action = ts_get_form_action();
+		$form_action 					= ts_get_form_action();
+
+		$discount_code_applied 			= get_post_meta($entry_id, 'discount_code_applied', true);
 		?>
 		<div class="studio-confirmation-container">
 			<h1 class="heading-title"><?php echo get_the_title($workshop['tour_city']); ?></h1>
@@ -1033,29 +1033,31 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 					<div class="col-md-12 t-right coupon-container">
 						<?php
 						$grand_total = ts_grand_total($eid, $entry_data);
-						if(isset($entry_data['discount_code']) && ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id) ) { ?>
-							<input type="hidden" name="discount_code" value="<?php echo $entry_data['discount_code']; ?>" >
-							Discount Code: <strong><?php echo $entry_data['discount_code']; ?></strong>
-							<button type="button" data-eid="<?php echo $eid; ?>" class="btn btn-blue btn-removecoupon">Remove</button>
-							<?php
-						}
-						else {
-							?>
-							<label><input type="text" value="" id="discount-coupon" name="discount-coupon" /></label>
-							<button type="button" data-eid="<?php echo $eid; ?>" class="btn btn-blue btn-applycoupon">Apply Voucher</button>
-							<?php
-						} ?>
+						if(! $discount_code_applied) {
+							if(isset($entry_data['discount_code']) && ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id) ) { ?>
+								<input type="hidden" name="discount_code" value="<?php echo $entry_data['discount_code']; ?>" >
+								Discount Code: <strong><?php echo $entry_data['discount_code']; ?></strong>
+								<button type="button" data-eid="<?php echo $eid; ?>" class="btn btn-blue btn-removecoupon">Remove</button>
+								<?php
+							}
+							else {
+								?>
+								<label><input type="text" value="" id="discount-coupon" name="discount-coupon" /></label>
+								<button type="button" data-eid="<?php echo $eid; ?>" class="btn btn-blue btn-applycoupon">Apply Voucher</button>
+								<?php
+							} 
+						}	
+						?>
 					</div>
 				</div>
 				<div class="row grand-total">
 					<?php
-					if(isset($entry_data['discount_code'])) {
+					if(isset($entry_data['discount_code']) && ! $discount_code_applied) {
 						$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
 					}
-					$get_entry_status = get_post_status($entry_id);
 					$amount_paid = $amount_payable = $amount_credit = '';
 					$button_value = 'Confirm and Continue to Payment';
-					if($get_entry_status=='paid' || $get_entry_status=='paidcheck'){
+					if(ts_is_paid($entry_id)){
 						$amount_paid = absint(get_post_meta($entry_id,'paid_amount',true));
 						if( $amount_paid > $grand_total ){
 							$amount_credit = ts_return_credit_total($grand_total, $entry_id);
@@ -1106,7 +1108,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 						$status = get_post_status( $entry_id );
 						if($status=='paid' || $status=='paidcheck'){
 							?>
-							<input class="btn btn-green" type="submit" value="<?php echo $button_value;?>>
+							<input class="btn btn-green" type="submit" value="<?php echo $button_value;?>">
 							<?php
 						}
 						else { ?>
@@ -1202,7 +1204,7 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 				<div class="form-container-2 t-center boxed-container">
 					<?php
 					if($paid_amount>$grand_total) {
-						echo '<h1>Credit has been credited to your account.</h1>';
+						echo '<h1>Credit has been applied to your account.</h1>';
 						do_action('registration_amount_credited',$entry_id,$amount_credited);
 						?>
 						<script type="text/javascript">
@@ -1588,4 +1590,71 @@ function ts_display_invoice_content_html( $entry_id, $invoice_id, $user_id ) {
 		</div>
 		<?php
 	}
+}
+
+function ts_workshop_schedules_shortcode() {
+
+	ob_start();
+
+	wp_enqueue_style('ts-shortcode-style');
+	
+	$args = array(
+		'tax_query' => array(
+			array(
+				'taxonomy' => 'ts_schedules_type',
+				'field'    => 'slug',
+				'terms'    => 'workshop',
+			),
+		),
+	);
+
+	$schedules = ts_get_posts('ts_event', -1, $args);
+
+	ts_display_workshop_schedules($schedules);
+
+	$output = ob_get_contents();
+	ob_end_clean();
+
+	return $output;
+}
+
+function ts_competition_schedules_shortcode() {
+
+	ob_start();
+
+	wp_enqueue_style('ts-shortcode-style');
+	
+	$args = array(
+		'tax_query' => array(
+			array(
+				'taxonomy' => 'ts_schedules_type',
+				'field'    => 'slug',
+				'terms'    => 'competition',
+			),
+		),
+	);
+
+	$schedules = ts_get_posts('ts_event', -1, $args);
+
+	ts_display_competition_schedules($schedules);
+
+	$output = ob_get_contents();
+	ob_end_clean();
+
+	return $output;
+}
+
+function ts_results_shortcode() {
+
+	ob_start();
+
+	wp_enqueue_style('ts-shortcode-style');
+	wp_enqueue_script('ts-shortcode-script');
+	
+	ts_display_results();
+
+	$output = ob_get_contents();
+	ob_end_clean();
+
+	return $output;
 }

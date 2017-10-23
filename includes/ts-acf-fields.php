@@ -581,11 +581,29 @@ if( function_exists('acf_add_local_field_group') ) {
 		'description' => '',
 	));
 
-
 	acf_add_local_field_group(array (
 		'key' => 'group_59c21e47cc2b5',
 		'title' => 'Workshop Schedule Details',
 		'fields' => array (
+			array (
+				'key' => 'field_59e474d5debee',
+				'label' => '',
+				'name' => 'publish',
+				'type' => 'true_false',
+				'instructions' => '',
+				'required' => 0,
+				'conditional_logic' => 0,
+				'wrapper' => array (
+					'width' => '',
+					'class' => '',
+					'id' => '',
+				),
+				'message' => 'Publish to Website',
+				'default_value' => 0,
+				'ui' => 0,
+				'ui_on_text' => '',
+				'ui_off_text' => '',
+			),
 			array (
 				'key' => 'field_59ce6df7ae6eb',
 				'label' => 'Tour City',
@@ -641,9 +659,11 @@ if( function_exists('acf_add_local_field_group') ) {
 							'class' => '',
 							'id' => '',
 						),
-						'display_format' => 'm/d/Y',
-						'return_format' => 'm/d/Y',
-						'first_day' => 0,
+						'default_value' => '',
+						'placeholder' => '',
+						'prepend' => '',
+						'append' => '',
+						'maxlength' => '',
 					),
 					array (
 						'key' => 'field_59ce7b5b2bdcf',
@@ -818,6 +838,11 @@ if( function_exists('acf_add_local_field_group') ) {
 					'operator' => '==',
 					'value' => 'ts_event',
 				),
+				array (
+					'param' => 'post_taxonomy',
+					'operator' => '==',
+					'value' => 'ts_schedules_type:Workshop',
+				),
 			),
 		),
 		'menu_order' => 0,
@@ -834,6 +859,25 @@ if( function_exists('acf_add_local_field_group') ) {
         'key' => 'group_59d2674ac404f',
         'title' => 'Competition Schedule Details',
         'fields' => array (
+			array (
+				'key' => 'field_59e474d5debed',
+				'label' => '',
+				'name' => 'publish',
+				'type' => 'true_false',
+				'instructions' => '',
+				'required' => 0,
+				'conditional_logic' => 0,
+				'wrapper' => array (
+					'width' => '',
+					'class' => '',
+					'id' => '',
+				),
+				'message' => 'Publish to Website',
+				'default_value' => 0,
+				'ui' => 0,
+				'ui_on_text' => '',
+				'ui_off_text' => '',
+			),
             array (
                 'key' => 'field_59d2697cc385f',
                 'label' => 'Tour City',
@@ -878,20 +922,22 @@ if( function_exists('acf_add_local_field_group') ) {
                 'sub_fields' => array (
                     array (
                         'key' => 'field_59d2674f77b98',
-                        'label' => 'Day',
-                        'name' => 'day',
-                        'type' => 'date_picker',
-                        'instructions' => '',
-                        'required' => 0,
-                        'conditional_logic' => 0,
-                        'wrapper' => array (
-                            'width' => '20',
-                            'class' => '',
-                            'id' => '',
-                        ),
-                        'display_format' => 'd/m/Y',
-                        'return_format' => 'd/m/Y',
-                        'first_day' => 1,
+						'label' => 'Day',
+						'name' => 'day',
+						'type' => 'text',
+						'instructions' => '',
+						'required' => 0,
+						'conditional_logic' => 0,
+						'wrapper' => array (
+							'width' => '20',
+							'class' => '',
+							'id' => '',
+						),
+						'default_value' => '',
+						'placeholder' => '',
+						'prepend' => '',
+						'append' => '',
+						'maxlength' => '',
                     ),
                     array (
                         'key' => 'field_59d2674f77f7b',
@@ -1123,8 +1169,13 @@ if( function_exists('acf_add_local_field_group') ) {
                 array (
                     'param' => 'post_type',
                     'operator' => '==',
-                    'value' => 'ts_tour',
+                    'value' => 'ts_event',
                 ),
+				array (
+					'param' => 'post_taxonomy',
+					'operator' => '==',
+					'value' => 'ts_schedules_type:Competition',
+				),
             ),
         ),
         'menu_order' => 0,
