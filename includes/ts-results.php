@@ -51,6 +51,9 @@ function ts_display_results() {
 			if(! empty($routine_ids)) {
 				$args = array(
 					'include' => $routine_ids,
+			        'orderby' => 'meta_value_num',
+					'meta_key' => 'routine_number',
+			        'order' => 'ASC',
 				);
 				$routines = ts_get_posts('ts_routine', -1, $args);
 				?>
@@ -65,12 +68,16 @@ function ts_display_results() {
 						<?php
 						foreach ($routines as $r) { 
 							$id = $r->ID;
+							$number = get_post_meta($id, 'routine_number', true);
+							$score = get_post_meta($id, 'total_score', true);
+							$name = get_the_title($id);
+							$studio = ts_post_studio($id);
 							?>
 							<div class="row" id="routine-<?php echo $id; ?>">
-								<div class="col-md-2"><?php echo $id; ?></div>
-								<div class="col-md-3">Routine Name</div>
-								<div class="col-md-3">Studio Name</div>
-								<div class="col-md-4">Platinum</div>
+								<div class="col-md-2"><?php echo $number; ?></div>
+								<div class="col-md-3"><?php echo $name; ?></div>
+								<div class="col-md-3"><?php echo $studio; ?></div>
+								<div class="col-md-4"><?php echo ts_adjudicated_award($score); ?></div>
 							</div>
 							<?php
 						} ?>

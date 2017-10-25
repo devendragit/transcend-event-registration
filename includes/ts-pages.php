@@ -55,9 +55,9 @@ function ts_entries_page() {
 							$name = get_field('name', 'user_'. $author);
 						}
 						?>
-						<tr id="item-<?php echo $entry_id; ?>">
+						<tr id="item-<?php echo $entry_id; ?>" data-author="<?php echo $author; ?>">
 							<td><?php echo get_the_title($tour_city); ?></td>
-							<td style="text-align:center;"><?php echo $entry_type[0]->name; ?></td>
+							<td style="text-align:center;"><?php echo ucwords($user_roles[0]); ?></td>
 							<td style="text-align:center;"><?php echo $studio; ?></td>
 							<td style="text-align:center;"><?php echo $name;?></td>
 							<td style="text-align:center;"><?php echo $status_obj->label; ?></td>
@@ -187,7 +187,7 @@ function ts_workshopentries_page() {
 					?>
 					<?php
 				}else{
-					echo '<tr><td colspan="7">No Workshop Entries Found</td></tr>';
+					echo '<tr><td colspan="7">No Workshop Participants Found</td></tr>';
 				}
 				?>
 				</tbody>
@@ -795,8 +795,8 @@ function ts_my_entries_page() {
 					<th style="width:80px; text-align:center; display:none;">#</th>
 					<th>City</th>
 					<th style="text-align:center;">Status</th>
-					<th style="text-align:center;">Edit</th>
-					<th style="text-align:center;">Delete</th>
+					<th style="text-align:center; width: 60px;">Results</th>
+					<th style="text-align:center; width: 150px;">Actions</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -815,17 +815,28 @@ function ts_my_entries_page() {
 					foreach ($my_entries as $entry) {
 						setup_postdata($entry);
 						$entry_id = $entry->ID;
-						$workshop = get_post_meta($entry_id, 'workshop', true);
 						$status = get_post_status_object($entry->post_status);
 						$saved = get_post_meta($entry_id, 'save_for_later', true);
 						$step = $saved ? $saved : 1;
-						$tour_city = $workshop['tour_city'];
+						$tour_city = get_post_meta($entry_id, 'tour_city', true);
 						$tour_status = get_post_meta($tour_city, 'status', true);
+						$results_status = get_post_meta($tour_city, 'results_status', true)
 						?>
 						<tr id="item-<?php echo $entry_id; ?>">
 							<td style="text-align:center; display:none;"><?php echo $count; ?></td>
 							<td><?php echo get_the_title($tour_city); ?></td>
 							<td style="text-align:center;"><?php echo $status->label; ?></td>
+							<td style="text-align: center;">
+								<?php 
+								if($results_status=='publish') { ?>
+									<a class="btn btn-green" href="<?php echo admin_url('admin.php?page=ts-results&tour='. $tour_city); ?>"><small>View</small></a>
+								<?php 
+								}
+								else { ?>
+									<span class="btn btn-gray"><small>View</small></span>
+								<?php 
+								} ?>
+							</td>
 							<td style="text-align:center;">
 								<?php 
 								if($tour_status !=2) { ?>
@@ -833,18 +844,18 @@ function ts_my_entries_page() {
 								<?php 
 								}
 								else { ?>
-									<span class="btn btn-gray">Edit</span>
+									<span class="btn btn-gray"><small>Edit</small></span>
 								<?php 
 								} ?>
+								<a title="delete" href="javascript:void(0);" class="btn btn-red btn-delete" data-id="<?php echo $entry_id; ?>" data-type="post"><small>Delete</small></a>
 							</td>
-							<td style="text-align:center;"><a title="delete" href="javascript:void(0);" class="btn btn-red btn-delete" data-id="<?php echo $entry_id; ?>" data-type="post"><small>Delete</small></a></td>
 						</tr>
 						<?php
 					}
 					?>
 					<?php
 				}else{
-					echo '<tr><td colspan="4">No Entries Found</td></tr>';
+					echo '<tr><td colspan="6">No Entries Found</td></tr>';
 				}
 				?>
 				</tbody>
@@ -895,7 +906,7 @@ function ts_my_entries_page() {
 					?>
 					<?php
 				}else{
-					echo '<tr><td colspan="4">No Invoices Found</td></tr>';
+					echo '<tr><td colspan="5">No Invoices Found</td></tr>';
 				}
 				?>
 				</tbody>
@@ -2068,7 +2079,141 @@ function ts_special_awards_page() {
 							<?php
 						}
 						?>
-						<a href="javascript:void(0);" class="btn-addscholarship btn btn-green">Add Scholarship</a>
+						<a href="javascript:void(0);" class="btn-addscholarship btn btn-gray"><small>Add Scholarship</small></a>
+					</div>
+					<div class="form-footer-btns">
+						<input class="btn btn-green" type="submit" value="Save Changes" />
+					</div>
+				<?php 
+				} ?>
+			</form>
+		</div>
+	</div>
+	<?php	
+}
+
+function ts_scholarships_page() {
+	if(isset($_GET['tour']) && $_GET['tour']!='') {
+		$tour_id = $_GET['tour'];
+	}
+	?>
+	<div id="awards-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<div class="ts-admin-wrapper awards-wrapper">
+			<form name="form-scholarships" id="form-scholarships" class="validate" method="post" action="">
+				<p><select name="tour_city" class="select-redirect validate[required]">
+					<option value="">Select City</option>
+					<?php
+					$args = array(
+						'meta_key' => 'date_from',
+						'meta_type' => 'DATE',
+						'orderby' => 'meta_value',
+						'order' => 'ASC',
+					);
+					$tour_cities = ts_get_posts('ts_tour', -1, $args);
+					if($tour_cities) {
+						$count=0;
+						foreach ($tour_cities as $ct) {
+							$count++;
+							setup_postdata($ct);
+							$ct_id 		= $ct->ID;
+							$title 		= get_the_title($ct_id);
+							$selected 	= $tour_id == $ct_id ? 'selected' : '';
+							?>
+							<option <?php echo $selected; ?> value="<?php echo $ct_id; ?>" data-url="<?php echo admin_url('admin.php?page=ts-scholarships&tour=' . $ct_id); ?>" ><?php echo $title; ?></option>
+							<?php
+						}
+					}
+					?>
+				</select></p>
+				<?php 
+				if($tour_id) { 
+					$scholarships = get_post_meta($tour_id, 'scholarships', true);
+					?>
+					<h3>Scholarships:</h3>
+					<div class="table-container scholarship-wrapper">
+						<?php
+						$scholarships = get_post_meta($tour_id, 'scholarships', true);
+						$participants = ts_tour_participants($tour_id);
+						if(! empty($scholarships)) {
+							?>
+							<div class="row table-head">
+								<div class="col-sm-3"><strong>Name</strong></div>
+								<div class="col-sm-2"><strong>Age Division</strong></div>
+								<div class="col-sm-2"><strong>Studio</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>
+								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
+							</div>
+							<div class="scholarship-container table-body">
+								<?php
+								foreach ($scholarships as $key=>$val) {
+									$id = $key;
+									if($val=='') continue;
+									?>
+									<div class="row" id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
+										<div class="col-sm-3">
+											<select class="scholarship" data-id="<?php echo $id; ?>">
+												<option value="">None</option>
+												<?php
+												foreach ($participants as $p) {
+													echo '<option value="'. $p .'" '. ( $id==$p ? 'selected' : '' ) .'>'. get_the_title($p) .'</option>';
+												}
+												?>
+											</select>
+										</div>
+										<div class="col-sm-2 age-division"><?php echo ts_participant_agediv($id); ?></div>
+										<div class="col-sm-2 studio-name"><?php echo ts_post_studio($id); ?></div>
+										<div class="col-sm-3 participant-scholarship"><input type="text" name="scholarships[<?php echo $id; ?>]" value="<?php echo $val; ?>"></div>
+										<div class="col-sm-2 t-center">
+											<a href="javascript:void(0);" class="btn-remove btn btn-red"><small>Remove</small></a>
+										</div>
+									</div>
+									<?php
+								}
+								?>
+							</div>
+							<?php
+						}
+						else{
+							?>
+							<div class="row table-head">
+								<div class="col-sm-3"><strong>Name</strong></div>
+								<div class="col-sm-2"><strong>Age Division</strong></div>
+								<div class="col-sm-2"><strong>Studio</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>
+								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
+							</div>
+							<div class="scholarship-container table-body">
+								<?php
+								for ($i=1; $i <= 5; $i++) {
+									$id = $i;
+									?>
+									<div class="row" id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
+										<div class="col-sm-3">
+											<select class="scholarship" data-id="<?php echo $id; ?>" >
+												<option value="">Select Name</option>
+												<?php
+												foreach ($participants as $p) {
+													echo '<option value="'. $p .'" '. ( $key==$p ? 'selected' : '' ) .'>'. get_the_title($p) .'</option>';
+												}
+												?>
+											</select>
+										</div>
+										<div class="col-sm-2 age-division"></div>
+										<div class="col-sm-2 studio-name"></div>
+										<div class="col-sm-3 participant-scholarship"><input type="text" class="scholarship-item" name="scholarships[]" value=""></div>
+										<div class="col-sm-2 t-center">
+											<a href="javascript:void(0);" class="btn-remove btn btn-red"><small>Remove</small></a>
+										</div>
+									</div>
+									<?php
+								}
+								?>
+							</div>
+							<?php
+						}
+						?>
+						<a href="javascript:void(0);" class="btn-addscholarship btn btn-gray"><small>Add Scholarship</small></a>
 					</div>
 					<div class="form-footer-btns">
 						<input class="btn btn-green" type="submit" value="Save Changes" />
@@ -2145,17 +2290,13 @@ function ts_critiques_page() {
 				?>
 			</select>
 			<?php
-			$routine_ids = ts_tour_routines_ids($tour_id);
+			$routines = ts_tour_routines_by_number($tour_id);
 
-			if(! empty($routine_ids)) {
-				$args = array(
-					'include' => $routine_ids,
-				);
-				$routines = ts_get_posts('ts_routine', -1, $args);
+			if(! empty($routines)) {
 				?>
 				<div class="table-container table-pad">
 					<div class="row table-head">
-						<div class="col-md-2">Routine ID</div>
+						<div class="col-md-2">Routine Number</div>
 						<div class="col-md-3">Routine Name</div>
 						<div class="col-md-3">Studio</div>
 						<div class="col-md-4">Upload Critique</div>
@@ -2168,9 +2309,10 @@ function ts_critiques_page() {
 							$author 	= $r->post_author;
 							$studio 	= get_field('studio', 'user_'. $author);
 							$critique 	= absint(get_post_meta($id, 'critique', true));
+							$number 	= absint(get_post_meta($id, 'routine_number', true));
 							?>
 							<div class="row" id="routine-<?php echo $id; ?>">
-								<div class="col-md-2"><?php echo $id; ?></div>
+								<div class="col-md-2"><?php echo $number; ?></div>
 								<div class="col-md-3"><?php echo $name; ?></div>
 								<div class="col-md-3"><?php echo $studio; ?></div>
 								<div class="col-md-4 routine-critique-container">

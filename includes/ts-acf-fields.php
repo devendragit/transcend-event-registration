@@ -629,7 +629,7 @@ if( function_exists('acf_add_local_field_group') ) {
 			),
 			array (
 				'key' => 'field_59ce7b0e2bdcd',
-				'label' => 'Schedules',
+				'label' => '',
 				'name' => 'event_schedules',
 				'type' => 'repeater',
 				'instructions' => '',
@@ -667,7 +667,7 @@ if( function_exists('acf_add_local_field_group') ) {
 					),
 					array (
 						'key' => 'field_59ce7b5b2bdcf',
-						'label' => 'Lineup',
+						'label' => '',
 						'name' => 'lineup',
 						'type' => 'repeater',
 						'instructions' => '',
@@ -682,7 +682,7 @@ if( function_exists('acf_add_local_field_group') ) {
 						'min' => 1,
 						'max' => 0,
 						'layout' => 'table',
-						'button_label' => 'Add Lineup',
+						'button_label' => 'Add Row',
 						'sub_fields' => array (
 							array (
 								'key' => 'field_59ce7cc0f7a30',
@@ -903,7 +903,7 @@ if( function_exists('acf_add_local_field_group') ) {
             ),
             array (
                 'key' => 'field_59d2674b099e9',
-                'label' => 'Schedules',
+                'label' => '',
                 'name' => 'competition_event_schedules',
                 'type' => 'repeater',
                 'instructions' => '',
@@ -941,7 +941,7 @@ if( function_exists('acf_add_local_field_group') ) {
                     ),
                     array (
                         'key' => 'field_59d2674f77f7b',
-                        'label' => 'Lineup',
+                        'label' => '',
                         'name' => 'lineup',
                         'type' => 'repeater',
                         'instructions' => '',
@@ -956,7 +956,7 @@ if( function_exists('acf_add_local_field_group') ) {
                         'min' => 1,
                         'max' => 0,
                         'layout' => 'table',
-                        'button_label' => 'Add Lineup',
+                        'button_label' => 'Add Row',
                         'sub_fields' => array (
                             array (
                                 'key' => 'field_59d2674f9703c',
@@ -1256,7 +1256,7 @@ if( function_exists('acf_add_local_field_group') ) {
                     ),
                     array (
                         'key' => 'field_19d2674f77f7b',
-                        'label' => 'Lineup',
+                        'label' => '',
                         'name' => 'lineup',
                         'type' => 'repeater',
                         'instructions' => '',
@@ -1271,7 +1271,7 @@ if( function_exists('acf_add_local_field_group') ) {
                         'min' => 1,
                         'max' => 0,
                         'layout' => 'table',
-                        'button_label' => 'Add Lineup',
+                        'button_label' => 'Add Row',
                         'sub_fields' => array (
                             array (
                                 'key' => 'field_19d2674f9703c',

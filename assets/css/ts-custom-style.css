@@ -899,6 +899,10 @@ sup.required {
 #popup-waiver-form input[type="checkbox"]:checked + span {
     background: url(../images/icon_check_black.png) no-repeat center center;
 }
+#adminmenu [class*="menu-icon"],
+#adminmenu .wp-submenu li.wp-first-item {
+    display: none !important;
+}
 
 /* =Responsive Structure
 ----------------------------------------------- */

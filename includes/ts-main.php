@@ -37,10 +37,10 @@ add_action('admin_init', 'ts_custom_admin_head');
 /* Temp */
 //add_action('init', 'ts_import_studios');
 //add_action('init', 'ts_import_individual');
-add_action('init', 'ts_create_terms', 11);
+//add_action('init', 'ts_create_terms', 11);
 //add_action('init', 'ts_create_tour_posts');
 //add_action('init', 'ts_update_tour_posts');
-add_action('init', 'ts_update_entries');
+//add_action('init', 'ts_update_entries');
 //add_action('init', 'ts_update_agedivs');
 //add_action('init', 'ts_update_agediv_fees');
 //add_action('init', 'ts_update_agediv_order');
@@ -74,7 +74,7 @@ add_action('competition_schedule_updated', 'ts_competition_schedule_updated', 10
 add_action('competition_score_updated', 'ts_competition_score_updated', 10, 1);
 add_action('competition_schedule_updated', 'ts_save_routine_number', 10, 1);
 add_action('publish_results', 'ts_tour_results_notification', 10, 1);
-add_action('save_routine_scores', 'ts_save_routine_total_score', 10, 1);
+//add_action('save_routine_scores', 'ts_save_routine_total_score', 10, 1);
 add_action('acf/save_post', 'ts_calculate_overall_score', 20);
 
 /* Remove */
@@ -98,6 +98,7 @@ add_filter('media_view_strings','ts_remove_medialibrary_tab');
 add_filter('random_password', 'ts_disable_random_password', 10, 2);
 add_filter('acf/pre_save_post', 'ts_pre_save_schedule', 10, 1);
 add_filter('acf/load_value/key=field_59e474d5debed', 'ts_load_sched_status', 10, 3);
+add_filter('acf/load_value/key=field_59e474d5debee', 'ts_load_sched_status', 10, 3);
 
 /** Front-end **/
 add_action('wp_footer', 'ts_footer_scripts');
@@ -111,149 +112,6 @@ add_shortcode('ts-pay-invoice-form', 'ts_pay_invoice_shortcode');
 add_shortcode('ts-workshop-schedules', 'ts_workshop_schedules_shortcode');
 add_shortcode('ts-competition-schedules', 'ts_competition_schedules_shortcode');
 add_shortcode('ts-results', 'ts_results_shortcode');
-
-register_activation_hook(__FILE__, 'ts_plugin_activate');
-
-function ts_plugin_activate() {
-    ts_remove_roles();
-    ts_add_new_roles();
-    ts_add_role_caps();
-    ts_create_terms();
-    ts_create_tour_posts();
-    flush_rewrite_rules();
-}
-
-function ts_remove_roles() {
-    //remove_role('subscriber');
-    remove_role('author');
-    remove_role('contributor');
-    remove_role('editor');
-}
-
-function ts_add_new_roles() {
-
-    remove_role('event_organizer');
-    remove_role('studio');
-    remove_role('individual');
-
-    add_role(
-        'event_organizer',
-        __('Event Organizer'),
-        array(
-            'read' => true,
-            'upload_files' => true,
-            'list_users' => true,
-            'add_users' => true,
-            'create_users' => true,
-            'edit_users' => true,
-            'promote_users' => true,
-            'delete_users' => true,
-            'is_organizer' => true,
-            'is_custom_user' => true,
-        )
-    );
-
-    add_role(
-        'studio',
-        __('Studio'),
-        array(
-            'read' => true,
-            'upload_files' => true,
-            'add_ts_entry' => true,
-            'add_ts_observer' => true,
-            'add_ts_roster' => true,
-            'is_custom_user' => true,
-            'is_customer' => true,
-            'is_studio' => true,
-        )
-    );
-
-    add_role(
-        'individual',
-        __('Individual'),
-        array(
-            'read' => true,
-            'upload_files' => true,
-            'add_ts_entry' => true,
-            'add_ts_observer' => true,
-            'add_ts_indiv_dancer' => true,
-            'is_custom_user' => true,
-            'is_customer' => true,
-            'is_individual' => true,
-        )
-    );
-}
-
-function ts_add_role_caps() {
-
-    $roles = array('event_organizer', 'studio', 'individual');
-
-    foreach($roles as $r) {
-
-        $role = get_role($r);
-
-        $capability_types = array(
-            array('tour','tours'),
-            array('event','events'),
-            array('entry','entries'),
-            array('studio_roster','studio_rosters'),
-            array('indiv_sibling','indiv_siblings'),
-            array('routine','routines'),
-            array('coupon','coupons'),
-            array('invoice','invoices'),
-            array('credit','credits'),
-            array('award','awards'),
-            array('score','scores'),
-        );
-
-        foreach ($capability_types  as $type) {
-
-            $s = $type[0];
-            $p = $type[1];
-
-            $role->add_cap('read_'. $s);
-
-            if($r == 'studio') {
-                if($s=='entry' || $s=='studio_roster' || $s=='routine') {
-                    $role->add_cap('read_private_'. $p);
-                    $role->add_cap('edit_'. $s);
-                    $role->add_cap('edit_'. $p);
-                    $role->add_cap('edit_published_'. $p);
-                    $role->add_cap('publish_'. $p);
-                    $role->add_cap('delete_private_'. $p);
-                    $role->add_cap('delete_published_'. $p);
-                    $role->add_cap('delete_'. $p);
-                }
-            }
-
-            if($r == 'individual') {
-                if($s=='entry' || $s=='indiv_sibling' || $s=='routine') {
-                    $role->add_cap('read_private_'. $p);
-                    $role->add_cap('edit_'. $s);
-                    $role->add_cap('edit_'. $p);
-                    $role->add_cap('edit_published_'. $p);
-                    $role->add_cap('publish_'. $p);
-                    $role->add_cap('delete_private_'. $p);
-                    $role->add_cap('delete_published_'. $p);
-                    $role->add_cap('delete_'. $p);
-                }
-            }
-
-            if($r == 'event_organizer') {
-                $role->add_cap('read_private_'. $p);
-                $role->add_cap('edit_'. $s);
-                $role->add_cap('edit_'. $p);
-                $role->add_cap('edit_published_'. $p);
-                $role->add_cap('publish_'. $p);
-                $role->add_cap('delete_private_'. $p);
-                $role->add_cap('delete_published_'. $p);
-                $role->add_cap('delete_'. $p);
-                $role->add_cap('edit_others_'. $p);
-                $role->add_cap('delete_others_'. $p);
-            }
-        }
-    }
-}
 
 function ts_register_ts_scripts() {
 
@@ -406,9 +264,10 @@ function ts_register_custom_menu_pages() {
     if(current_user_can('is_customer')) {
         add_menu_page('My Dashboard', 'My Dashboard', 'add_ts_entry', 'ts-my-entries', 'ts_my_entries_page', 'dashicons-dashboard', 6);
         add_menu_page('My Schedules', 'My Schedules', 'is_custom_user', 'ts-schedules', 'ts_mysched_preview', 'dashicons-calendar-alt', 7);
-            add_submenu_page( 'ts-schedules', 'Workshop Schedules', 'Workshop Schedules', 'is_custom_user', 'ts-workshop-schedules', 'ts_workshopsched_preview');
-            add_submenu_page( 'ts-schedules', 'Competition Schedules', 'Competition Schedules', 'is_custom_user', 'ts-competition-schedules', 'ts_competitionsched_preview');
-        add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_preview', 'dashicons-analytics', 7);
+            add_submenu_page( 'ts-schedules', 'All Workshop Schedules', 'All Workshop Schedules', 'is_custom_user', 'ts-workshop-schedules', 'ts_workshopsched_preview');
+            add_submenu_page( 'ts-schedules', 'All Competition Schedules', 'All Competition Schedules', 'is_custom_user', 'ts-competition-schedules', 'ts_competitionsched_preview');
+        add_menu_page('My Results', 'My Results', 'is_custom_user', 'ts-results', 'ts_results_preview', 'dashicons-analytics', 7);
+            add_submenu_page( 'ts-results', 'All Results', 'All Results', 'is_custom_user', 'ts-all-results', 'ts_results_preview');
         add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 8);
         add_menu_page('Credits', 'My Credits', 'is_custom_user', 'ts-credits', 'ts_credits_page', 'dashicons-cart', 9);
 
@@ -426,10 +285,11 @@ function ts_register_custom_menu_pages() {
         add_menu_page('Scores', 'Scores', 'is_organizer', 'ts-scores', 'ts_score_page', 'dashicons-index-card', 9);
         add_menu_page('Awards', 'Awards', 'is_organizer', 'ts-awards', 'ts_award_page', 'dashicons-awards', 11);
         add_menu_page('Special Awards', 'Special Awards', 'is_organizer', 'ts-special-awards', 'ts_special_awards_page', 'dashicons-awards', 12);
-        add_menu_page('Critiques', 'Critiques', 'is_custom_user', 'ts-critiques', 'ts_critiques_page', 'dashicons-video-alt3', 13);
-        add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_page', 'dashicons-analytics', 14);
-        add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 16);
-        add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 17);
+        //add_menu_page('Scholarships', 'Scholarships', 'is_organizer', 'ts-scholarships', 'ts_scholarships_page', 'dashicons-welcome-learn-more', 13);
+        add_menu_page('Critiques', 'Critiques', 'is_custom_user', 'ts-critiques', 'ts_critiques_page', 'dashicons-video-alt3', 14);
+        add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_page', 'dashicons-analytics', 16);
+        add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 17);
+        add_menu_page('Invoices', 'Invoices', 'is_organizer', 'ts-invoices', 'ts_invoices_page', 'dashicons-feedback', 18);
 
         add_menu_page('View Entry', 'View Entry', 'is_organizer', 'ts-view-entry', 'ts_view_entry_page', '', 103);
         add_menu_page('New Workshop Schedule', 'New Workshop Schedule', 'is_organizer', 'ts-new-schedule', 'ts_view_schedule_page', '', 108);

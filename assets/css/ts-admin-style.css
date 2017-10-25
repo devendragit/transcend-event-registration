@@ -130,14 +130,16 @@ table.dataTable tfoot td select {
     background-color: #fcfcfc;
     box-shadow: none;
     margin-right: 10px;
-    height: 28px;
-    line-height: 28px;
+    height: 36px;
+    line-height: 36px;
+    box-sizing: border-box;
 }
 .dataTables_wrapper .dataTables_filter input[type="search"] {
     width: 350px;
 }
 .dataTables_wrapper .dt-buttons {
     float: right;
+    z-index: 100;
 }
 .dataTables_wrapper .dt-buttons .buttons-csv,
 .dataTables_wrapper .dt-buttons .buttons-copy {
@@ -170,10 +172,6 @@ tr.acf-field[data-name="email"] {
 .ts-entry-invoice input,
 .ts-entry-invoice textarea{
     margin-bottom: 15px;
-}
-#adminmenu [class*="menu-icon"],
-#adminmenu .wp-submenu li.wp-first-item {
-    display: none !important;
 }
 .ts-admin-wrapper .acf-form-fields > .acf-field {
     border-top: 0;
@@ -294,9 +292,6 @@ html .display-individual-day-awards .ui-button.ui-state-disabled:active {
 }
 .ts-data-table .btn {
     min-width: 36px;
-}
-.ts-data-table span.btn {
-    font-size: 11px !important;
 }
 #schedules-list .btn {
     min-width: 52px;

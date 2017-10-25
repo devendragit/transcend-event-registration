@@ -77,7 +77,7 @@ function ts_new_entry_user_notification($entry_id, $user_id) {
 	$body = '
 	<p style="text-align:center; margin-bottom:30px;"><span style="display:inline-block;padding:20px;background-color:#000;"><img src="'. TS_URI .'assets/images/logo.png" /></span></p>
 	<p style="text-align:center; font-size:1.6em; font-weight:bold;">Thank you for registering for Transcend.</p>
-	<p style="text-align:center; font-size:1.3em; font-weight:bold;">Here are the details of your registraion:</p>
+	<p style="text-align:center; font-size:1.3em; font-weight:bold;">Here are the details of your registration:</p>
 	';
 
 	$details = ts_display_entry_details($entry_id, $user_id);

@@ -2127,7 +2127,7 @@ function ts_find_adjudicated_awards($score) {
 function ts_load_sched_status( $value, $post_id, $field ) {
 
 	$post_status = get_post_status($post_id);
-    $value = $post_status === 'publish' ? 1 : 0; 
+    $value = $post_status == 'publish' ? 1 : 0; 
 
     return $value;
 }
@@ -2330,6 +2330,23 @@ function ts_tour_routines_ids($tour_id) {
 	return $routines_array;
 }
 
+function ts_tour_routines_by_number($tour_id) {
+
+	$routines = array();
+	$routine_ids = ts_tour_routines_ids($tour_id);
+
+	if(! empty($routine_ids)){
+		$args = array(
+			'include' => $routine_ids,
+	        'orderby' => 'meta_value_num',
+			'meta_key' => 'routine_number',
+	        'order' => 'ASC',
+		);
+		$routines = ts_get_posts('ts_routine', -1, $args);
+	}	
+	return $routines;
+}
+
 function ts_tour_participants($tour_id) {
 
 	$args = array(
@@ -2429,6 +2446,35 @@ function ts_save_routine_total_score($score_id) {
 	}	
 }
 
+function ts_adjudicated_award($score) {
+
+	$award = '';
+
+    if((200 <= $score) && ($score <= 234)) {
+        $award = 'Bronze';
+    }
+    else if((235 <= $score) && ($score <= 249)) {
+        $award = 'Silver';
+    }
+    else if((250 <= $score) && ($score <= 264)) {
+        $award = 'High Silver';
+    }
+    else if((265 <= $score) && ($score <= 274)) {
+        $award = 'Gold';
+    }
+    else if((275 <= $score) && ($score <= 289)) {
+        $award = 'High Gold';
+    }
+    else if((290 <= $score) && ($score <= 295)) {
+        $award = 'Platinum';
+    }
+    else if((296 <= $score) && ($score <= 300)) {
+        $award = 'The Transcendental Award';
+    }
+
+    return $award;
+}
+
 function ts_winners_array($tour_id, $agediv, $cat, $limit=5) {
     $args = array(
         'posts_per_page' => $limit,
@@ -2514,8 +2560,11 @@ function ts_calculate_overall_score( $score_id ) {
                   $judge_1_score = (int) get_sub_field('field_89e4b7c4a3479', $score_id);
                   $judge_2_score = (int) get_sub_field('field_79e4b7c4a3479', $score_id);
                   $judge_3_score = (int) get_sub_field('field_69e4b7c4a3479', $score_id);
-                  $total_score = $judge_1_score $judge_2_score $judge_3_score;
+                  $total_score = $judge_1_score+$judge_2_score+$judge_3_score;
                   update_sub_field('field_19e4b7c4a3479', $total_score);
+                  $routine_id = (int)get_sub_field('field_19d2674f97bd8', $score_id);
+                  update_post_meta($routine_id, 'judges_scores', array($judge_1_score,$judge_2_score,$judge_3_score));
+                  update_post_meta($routine_id, 'total_score', $total_score);
               }
           }
       }
