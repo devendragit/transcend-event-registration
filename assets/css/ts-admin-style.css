@@ -280,7 +280,7 @@ html .display-individual-day-awards .ui-button.ui-state-disabled:active {
 
 .Results .TableBody > .clearfix > div {
     border-right: 0 !important;
-    width: 20%;
+    width: 20% !important;
 }
 
 .Results .ThreeCol .TableBody > .clearfix > div {

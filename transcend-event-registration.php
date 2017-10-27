@@ -27,6 +27,11 @@ define('TS_STUDIO_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 define('TS_INDIVIDUAL_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 define('TS_ZIP_ATTACHMENTS_URL', plugins_url() ."/".dirname( plugin_basename( __FILE__ ) ) ."/includes" );
 
+$ts_upload_dir = wp_upload_dir();
+$new_transcend_file_dir = $ts_upload_dir['basedir'].'/transcend-musics';
+
+define('TS_MUSIC_ZIP_FOLDER', $new_transcend_file_dir );
+
 /* API */ /*NOT SURE IF IT'S SAFE TO ADD IT HERE, PLEASE ADVISE*/
 define('MC_API_KEY', '3afbad4ea0d6293c8743a81a40986356-us15');
 

@@ -1814,38 +1814,40 @@ function ts_custom_admin_head() {
 function ts_pre_save_schedule( $schedule_id ){
     if( isset( $_POST['acf']['field_19d2674b099e9'] ) ) {
         do_action( 'competition_score_updated', $schedule_id );
-    }
-	if( isset( $_POST['acf']['field_59d2697cc385f'] ) ) {
-		$city_id = $_POST['acf']['field_59d2697cc385f'];
-		$status = $_POST['acf']['field_59e474d5debed'];
-		$redirect_url = admin_url('admin.php?page=ts-view-competition-schedule');
-		do_action( 'competition_schedule_updated', $schedule_id );
-		$term = 'Competition';
-	} else {
-		$city_id = $_POST['acf']['field_59ce6df7ae6eb'];
-		$status = $_POST['acf']['field_59e474d5debee'];
-		$redirect_url = admin_url('admin.php?page=ts-view-schedule');
-		$term = 'Workshop';
+		do_action('acf/save_post', $schedule_id);
+    } else {
+		if( isset( $_POST['acf']['field_59d2697cc385f'] ) ) {
+			$city_id = $_POST['acf']['field_59d2697cc385f'];
+			$status = $_POST['acf']['field_59e474d5debed'];
+			$redirect_url = admin_url('admin.php?page=ts-view-competition-schedule');
+			do_action( 'competition_schedule_updated', $schedule_id );
+			$term = 'Competition';
+		} else {
+			$city_id = $_POST['acf']['field_59ce6df7ae6eb'];
+			$status = $_POST['acf']['field_59e474d5debee'];
+			$redirect_url = admin_url('admin.php?page=ts-view-schedule');
+			$term = 'Workshop';
+		}
+		$post_status = $status==1 ? 'publish' : 'draft';
+		$schedule = array(
+			'post_status'  => $post_status,
+			'post_title'  => get_the_title($city_id),
+			'post_type'  => 'ts_event',
+		);
+		if( $schedule_id != 'new_schedule' ){
+			$schedule['ID'] = $schedule_id;
+			wp_update_post($schedule);
+			do_action('save_routine_scores', $schedule_id);
+			return $schedule_id;
+		}
+		$schedule_id = wp_insert_post($schedule);
+		wp_set_object_terms( $schedule_id, $term, 'ts_schedules_type' );
+		do_action('acf/save_post', $schedule_id);
+		wp_redirect(add_query_arg( array(
+			'schedule_id' => $schedule_id,
+		), $redirect_url));
+		exit;
 	}
-	$post_status = $status==1 ? 'publish' : 'draft';
-    $schedule = array(
-        'post_status'  => $post_status,
-        'post_title'  => get_the_title($city_id),
-        'post_type'  => 'ts_event',
-    );  
-    if( $schedule_id != 'new_schedule' ){
-    	$schedule['ID'] = $schedule_id;
-		wp_update_post($schedule);
-		do_action('save_routine_scores', $schedule_id);
-        return $schedule_id;
-    }
-    $schedule_id = wp_insert_post($schedule);
-	wp_set_object_terms( $schedule_id, $term, 'ts_schedules_type' );
-    do_action('acf/save_post', $schedule_id);
-    wp_redirect(add_query_arg( array(
-    	'schedule_id' => $schedule_id,
-    ), $redirect_url));
-    exit;
 }
 
 function ts_registration_manually_mark_as_paid( $entry_id ) {
@@ -1857,39 +1859,45 @@ function ts_registration_manually_mark_as_paid( $entry_id ) {
 }
 
 function ts_competition_schedule_updated( $schedule_id ) {
-	$schedules	= get_field('competition_event_schedules', $schedule_id);
-	$scores_array = ts_create_scores_array( $schedules );
 
-	$tour_id	= get_post_meta($schedule_id, 'event_city', true);
-	$args = array(
-		'post_status' => array('publish'),
-		'meta_query' => array(
-			array(
-				'key' => 'event_city',
-				'value' => $tour_id
-			),
-		)
-	);
-	$scores = ts_get_posts('ts_score', 1, $args);
-	if( $scores ) {
-		foreach( $scores as $score ) {
-			setup_postdata($score);
-			$score_id = $score->ID;
-			update_field('event_city',$tour_id, $score_id);
-			update_field('tour_scores',$scores_array, $score_id);
-		}
-	} else {
-		$score = array(
-			'post_status'  => 'publish' ,
-			'post_title'  => get_the_title($tour_id),
-			'post_type'  => 'ts_score',
+	if( 'publish' === get_post_status( $schedule_id ) ) {
+		$schedules	= get_field('competition_event_schedules', $schedule_id);
+		$scores_array = ts_create_scores_array( $schedules );
+
+		$tour_id	= get_post_meta($schedule_id, 'event_city', true);
+		$args = array(
+			'post_status' => array('publish'),
+			'meta_query' => array(
+				array(
+					'key' => 'event_city',
+					'value' => $tour_id
+				),
+			)
 		);
+		$scores = ts_get_posts('ts_score', 1, $args);
+		if( $scores ) {
+			foreach( $scores as $score ) {
+				setup_postdata($score);
+				$score_id = $score->ID;
+				update_field('event_city',$tour_id, $score_id);
+				update_field('tour_scores',$scores_array, $score_id);
+			}
+		} else {
+			$score = array(
+				'post_status'  => 'publish' ,
+				'post_title'  => get_the_title($tour_id),
+				'post_type'  => 'ts_score',
+			);
 
-		$score_id = wp_insert_post($score);
-		if( $score_id and !is_wp_error($score_id) ) {
-			update_field('event_city',$tour_id,$score_id);
-			update_field('tour_scores',$scores_array, $score_id);
+			$score_id = wp_insert_post($score);
+			if( $score_id and !is_wp_error($score_id) ) {
+				update_field('event_city',$tour_id,$score_id);
+				update_field('tour_scores',$scores_array, $score_id);
+			}
 		}
+
+		ts_generate_tour_music_zip( $schedules, $tour_id );
+
 	}
 
 }
@@ -2570,4 +2578,48 @@ function ts_calculate_overall_score( $score_id ) {
       }
   }
 
+}
+
+function ts_generate_tour_music_zip( $schedules, $tour_id ) {
+	if( $tour_id && 'publish' === get_post_status($tour_id) ) {
+
+		$musiczip_filename = get_post_meta($tour_id, 'musiczip_filename', true);
+		if($musiczip_filename) {
+			$musiczip_file = TS_MUSIC_ZIP_FOLDER . "/" .$musiczip_filename;
+			unlink($musiczip_file);
+		}
+
+		// Prepare File
+
+		if ( !is_dir(TS_MUSIC_ZIP_FOLDER) ) {
+			mkdir(TS_MUSIC_ZIP_FOLDER, 0775, true);
+		}
+
+		$file = tempnam(TS_MUSIC_ZIP_FOLDER, "zip");
+		$zip = new ZipArchive();
+		$zip->open($file, ZipArchive::OVERWRITE);
+		$counter = 1;
+		for( $i=0 ;$i<count($schedules); $i++ ){
+			if(is_array($schedules[$i]['lineup'])) {
+				for( $y=0 ;$y<count($schedules[$i]['lineup']); $y++ ) {
+					if( 'Judges Break' != $schedules[$i]['lineup'][$y]['action'] || 'Awards' != $schedules[$i]['lineup'][$y]['action'] ) {
+						$routine_id = $schedules[$i]['lineup'][$y]['routine'];
+						$music_id = (int)get_post_meta($routine_id,'music',true);
+						if($music_id) {
+							$name = explode('/', get_attached_file($music_id) );
+							$name = $name[sizeof($name) - 1];
+							$name = sprintf("%03d",$counter).'_'.$name;
+							$zip->addFile(get_attached_file($music_id), $name);
+						}
+						$counter++;
+					}
+				}
+			}
+		}
+		$filename_array = explode('/', $zip->filename);
+		$filename = $filename_array[sizeof($filename_array) - 1];
+		update_post_meta( $tour_id, 'musiczip_filename', $filename);
+
+		$zip->close();
+	}
 }

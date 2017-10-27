@@ -480,7 +480,12 @@ jQuery(document).ready(function($) {
 
 	$('.ts-admin-wrapper').on('click', '.btn-markpaid', function(e) {
 		e.preventDefault();
-    	formdata.append('action', 'save_mark_as_paid');
+		$(this).text('Processing...');
+		var id = $(this).attr('data-id');
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'save_mark_as_paid');
 		formdata.append('id', id);
 		var form = new TSForm(formdata);
 		form.submitForm(callbackMarkAsPaid);

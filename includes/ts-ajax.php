@@ -2324,8 +2324,11 @@ function ajax_download_all_music(){
         $pretty_filename.=  '-'.$name;
         if(! empty($routines) ){
             // Prepare File
-            $upload_dir = wp_upload_dir();
-            $file = tempnam($upload_dir['path'], "zip");
+            if ( !is_dir(TS_MUSIC_ZIP_FOLDER) ) {
+                mkdir(TS_MUSIC_ZIP_FOLDER, 0775, true);
+            }
+
+            $file = tempnam(TS_MUSIC_ZIP_FOLDER, "zip");
             $zip = new ZipArchive();
             $zip->open($file, ZipArchive::OVERWRITE);
             foreach( $routines as  $routine ) {
@@ -2352,7 +2355,7 @@ function ajax_download_all_music(){
         }
         else{
             $response['success'] = true;
-            $response['redirect'] = TS_ZIP_ATTACHMENTS_URL."/ts-music-download.php?ts_pretty_filename=".sanitize_file_name($pretty_filename)."&ts_real_filename=".$filename;
+            $response['redirect'] = TS_ZIP_ATTACHMENTS_URL."/ts-music-download.php?ts_pretty_filename=".sanitize_file_name($pretty_filename)."&ts_real_filename=".$filename."&ts_unlink=".true;
         }
         echo json_encode($response);
 

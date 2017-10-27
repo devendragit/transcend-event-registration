@@ -667,7 +667,7 @@ if( function_exists('acf_add_local_field_group') ) {
 					),
 					array (
 						'key' => 'field_59ce7b5b2bdcf',
-						'label' => '',
+						'label' => 'Schedule',
 						'name' => 'lineup',
 						'type' => 'repeater',
 						'instructions' => '',
@@ -941,7 +941,7 @@ if( function_exists('acf_add_local_field_group') ) {
                     ),
                     array (
                         'key' => 'field_59d2674f77f7b',
-                        'label' => '',
+                        'label' => 'Schedule',
                         'name' => 'lineup',
                         'type' => 'repeater',
                         'instructions' => '',
@@ -1256,7 +1256,7 @@ if( function_exists('acf_add_local_field_group') ) {
                     ),
                     array (
                         'key' => 'field_19d2674f77f7b',
-                        'label' => '',
+                        'label' => 'Schedule',
                         'name' => 'lineup',
                         'type' => 'repeater',
                         'instructions' => '',

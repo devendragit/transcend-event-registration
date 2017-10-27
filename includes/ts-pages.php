@@ -1035,6 +1035,7 @@ function ts_tours_page() {
 					<th style="text-align:center;">Date End</th>
 					<th style="text-align:center;">Workshop</th>
 					<th style="text-align:center;">Status</th>
+					<th style="text-align:center;">Music</th>
 					<th style="text-align:center;">Actions</th>
 				</tr>
 				</thead>
@@ -1058,14 +1059,17 @@ function ts_tours_page() {
 						$wstattext  = $workshop==2 ? 'Closed' : 'Open';
 						$stattext 	= $status==2 ? 'Closed' : 'Open';
 						$btntext 	= $status==2 ? 'Open' : 'Close';
+						$musiczip_filename = get_post_meta($tour_id, 'musiczip_filename', true);
+						$downloadmusiczip = $musiczip_filename ? '<a href="'.TS_ZIP_ATTACHMENTS_URL.'/ts-music-download.php?ts_pretty_filename='.sanitize_file_name($title).'&ts_real_filename='.$musiczip_filename.'">Download</a>' : '';
 						?>
 						<tr id="item-<?php echo $tour_id; ?>">
-							<td style="text-align:left;"><?php echo $title; ?></td>
+							<td style="text-align:left;width:20%"><?php echo $title; ?></td>
 							<td style="text-align:center;"><?php echo $city; ?></td>
 							<td style="text-align:center;"><?php echo $fmt_dfrom; ?></td>
 							<td style="text-align:center;"><?php echo $fmt_dto; ?></td>
 							<td style="text-align:center;" class="workshop-status"><?php echo $wstattext; ?></td>
 							<td style="text-align:center;" class="tour-status"><?php echo $stattext; ?></td>
+							<td style="text-align:center;" class="tour-musics"><?php echo $downloadmusiczip;?></td>
 							<td style="text-align:center;">
 								<a title="Edit" href="javascript:void(0);"
 								   class="btn btn-blue btn-edittour"

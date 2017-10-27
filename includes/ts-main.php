@@ -46,6 +46,8 @@ add_action('admin_init', 'ts_custom_admin_head');
 //add_action('init', 'ts_update_agediv_order');
 //add_action('init', 'ts_update_roster_agedivs');
 //add_action('init', 'ts_update_roster_order');
+//add_action('init', 'ts_plugin_activate');
+
 
 /* Custom */
 add_action('registration_comfirmed', 'ts_confirm_registration', 10, 1);
@@ -248,7 +250,7 @@ function ts_remove_default_menus() {
         remove_menu_page('ts-post-entry');
     }
 
-    $post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon', 'ts_invoice', 'ts_credit', 'ts_score', 'ts_award');
+    /*$post_types = array('ts_tour', 'ts_event', 'ts_entry', 'ts_studio_roster', 'ts_sibling', 'ts_routine', 'ts_coupon', 'ts_invoice', 'ts_credit', 'ts_score', 'ts_award');
 
     foreach ($post_types  as $p) {
         if(current_user_can('is_custom_user')) {
@@ -256,7 +258,7 @@ function ts_remove_default_menus() {
             remove_submenu_page('edit.php?post_type='. $p, 'post-new.php?post_type='. $p);
             remove_submenu_page('edit.php?post_type='. $p, 'edit.php?post_type='. $p);
         }
-    }
+    }*/
 }
 
 function ts_register_custom_menu_pages() {
@@ -264,10 +266,10 @@ function ts_register_custom_menu_pages() {
     if(current_user_can('is_customer')) {
         add_menu_page('My Dashboard', 'My Dashboard', 'add_ts_entry', 'ts-my-entries', 'ts_my_entries_page', 'dashicons-dashboard', 6);
         add_menu_page('My Schedules', 'My Schedules', 'is_custom_user', 'ts-schedules', 'ts_mysched_preview', 'dashicons-calendar-alt', 7);
-            add_submenu_page( 'ts-schedules', 'All Workshop Schedules', 'All Workshop Schedules', 'is_custom_user', 'ts-workshop-schedules', 'ts_workshopsched_preview');
-            add_submenu_page( 'ts-schedules', 'All Competition Schedules', 'All Competition Schedules', 'is_custom_user', 'ts-competition-schedules', 'ts_competitionsched_preview');
+        add_submenu_page( 'ts-schedules', 'All Workshop Schedules', 'All Workshop Schedules', 'is_custom_user', 'ts-workshop-schedules', 'ts_workshopsched_preview');
+        add_submenu_page( 'ts-schedules', 'All Competition Schedules', 'All Competition Schedules', 'is_custom_user', 'ts-competition-schedules', 'ts_competitionsched_preview');
         add_menu_page('My Results', 'My Results', 'is_custom_user', 'ts-results', 'ts_results_preview', 'dashicons-analytics', 7);
-            add_submenu_page( 'ts-results', 'All Results', 'All Results', 'is_custom_user', 'ts-all-results', 'ts_results_preview');
+        add_submenu_page( 'ts-results', 'All Results', 'All Results', 'is_custom_user', 'ts-all-results', 'ts_results_preview');
         add_menu_page('Pay Invoice', 'Pay Invoice', 'is_custom_user', 'ts-entry-pay-invoice', 'ts_post_pay_invoice_page', '', 8);
         add_menu_page('Credits', 'My Credits', 'is_custom_user', 'ts-credits', 'ts_credits_page', 'dashicons-cart', 9);
 
@@ -276,16 +278,16 @@ function ts_register_custom_menu_pages() {
     }
     else if (current_user_can('is_organizer')) {
         add_menu_page('Registrations', 'Registrations', 'is_organizer', 'ts-entries', 'ts_entries_page', 'dashicons-groups', 6);
-            add_submenu_page( 'ts-entries', 'Workshop Participants', 'Workshop Participants', 'is_organizer', 'ts-workshop-entries', 'ts_workshopentries_page');
-            add_submenu_page( 'ts-entries', 'Competition Routines', 'Competition Routines', 'is_organizer', 'ts-competition-entries', 'ts_competitionentries_page');
+        add_submenu_page( 'ts-entries', 'Workshop Participants', 'Workshop Participants', 'is_organizer', 'ts-workshop-entries', 'ts_workshopentries_page');
+        add_submenu_page( 'ts-entries', 'Competition Routines', 'Competition Routines', 'is_organizer', 'ts-competition-entries', 'ts_competitionentries_page');
         add_menu_page('Tour Dates', 'Tour Dates', 'is_organizer', 'ts-tours', 'ts_tours_page', 'dashicons-admin-site', 7);
         add_menu_page('Schedules', 'Schedules', 'is_organizer', 'ts-schedules', 'ts_schedules_page', 'dashicons-calendar-alt', 8);
-            add_submenu_page( 'ts-schedules', 'Workshop Schedule', 'Workshop Schedule', 'is_organizer', 'ts-workshop-schedules', 'ts_workshopschedules_page');
-            add_submenu_page( 'ts-schedules', 'Competition Schedule', 'Competition Schedule', 'is_organizer', 'ts-competition-schedules', 'ts_competitionschedules_page');
+        add_submenu_page( 'ts-schedules', 'Workshop Schedule', 'Workshop Schedule', 'is_organizer', 'ts-workshop-schedules', 'ts_workshopschedules_page');
+        add_submenu_page( 'ts-schedules', 'Competition Schedule', 'Competition Schedule', 'is_organizer', 'ts-competition-schedules', 'ts_competitionschedules_page');
         add_menu_page('Scores', 'Scores', 'is_organizer', 'ts-scores', 'ts_score_page', 'dashicons-index-card', 9);
         add_menu_page('Awards', 'Awards', 'is_organizer', 'ts-awards', 'ts_award_page', 'dashicons-awards', 11);
         add_menu_page('Special Awards', 'Special Awards', 'is_organizer', 'ts-special-awards', 'ts_special_awards_page', 'dashicons-awards', 12);
-        //add_menu_page('Scholarships', 'Scholarships', 'is_organizer', 'ts-scholarships', 'ts_scholarships_page', 'dashicons-welcome-learn-more', 13);
+        add_menu_page('Scholarships', 'Scholarships', 'is_organizer', 'ts-scholarships', 'ts_scholarships_page', 'dashicons-welcome-learn-more', 13);
         add_menu_page('Critiques', 'Critiques', 'is_custom_user', 'ts-critiques', 'ts_critiques_page', 'dashicons-video-alt3', 14);
         add_menu_page('Results', 'Results', 'is_custom_user', 'ts-results', 'ts_results_page', 'dashicons-analytics', 16);
         add_menu_page('Vouchers', 'Vouchers', 'is_organizer', 'ts-vouchers', 'ts_vouchers_page', 'dashicons-tickets', 17);

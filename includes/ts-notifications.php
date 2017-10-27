@@ -3,7 +3,7 @@ function ts_new_entry_admin_notification($entry_id, $user_id, $payment_method='s
 
 	$admin 	 = get_user_by('login', 'transcend_admin');
 	$to 	 = array($admin->user_email);
-	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: Carl D <carld.projects@gmail.com>');
+	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: TranscendTour Info<info@transcendtour.com>');
 
 	$email 	 = get_field('email', 'user_'. $user_id);
 
@@ -71,7 +71,7 @@ function ts_new_entry_user_notification($entry_id, $user_id) {
 
 	$user 	 = get_user_by( 'id', $user_id);
 	$to 	 = array($user->user_email);
-	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: Carl D <carld.projects@gmail.com>');
+	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: TranscendTour Info<info@transcendtour.com>');
 	$subject = 'You have successfully registered for Transcend';
 
 	$body = '
@@ -91,7 +91,7 @@ function ts_reg_edited_notification($entry_id, $user_id) {
 
 	$admin 	 = get_user_by('login', 'transcend_admin');
 	$to 	 = array($admin->user_email);
-	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: Carl D <carld.projects@gmail.com>');
+	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: TranscendTour Info<info@transcendtour.com>');
 	$subject = 'A registration has been edited';
 
 	$body = '
@@ -121,7 +121,7 @@ function ts_new_invoice_user_notification($entry_id, $invoice_id) {
                 $invoice_note = get_post_meta($invoice_id, 'invoice_note', true);
                 $pay_now_link = admin_url('admin.php?page=ts-entry-pay-invoice&action=pay_invoice&id='.$entry_id.'&evid='.$invoice_id);;
 
-                $headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@transcendtour.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>');
+                $headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@transcendtour.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: TranscendTour Info<info@transcendtour.com>');
                 $subject = 'Invoice #'. $invoice_id .' has been created';
 
                 $body = '
@@ -155,7 +155,7 @@ function ts_tour_results_notification($tour_id) {
 
 	$user 	 = get_user_by( 'id', $user_id);
 	$to 	 = array($user->user_email);
-	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: Carl D <carld.projects@gmail.com>');
+	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@etranscend.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: TranscendTour Info<info@transcendtour.com>');
 	$subject = 'video critiques and weekend results';
 
 	$body = '
