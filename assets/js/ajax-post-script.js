@@ -425,6 +425,7 @@ jQuery(document).ready(function($) {
 		var form = new TSForm(formdata);
 		form.submitForm(callbackDelete);
 	});
+
 	$('.ts-admin-wrapper').on('click', '.btn-delete-all', function(e) {
 		e.preventDefault();
 		var ids = getSelectedIds();
@@ -438,6 +439,7 @@ jQuery(document).ready(function($) {
 		var form = new TSForm(formdata);
 		form.submitForm(callbackReloadPage);
 	});
+
 	$('#invoices-list').on('click', '.btn-pay-invoice', function(e){
 		e.preventDefault();
 		$(this).html('<small><i class="fa fa-spinner fa-pulse fa-fw"></i></small>');
@@ -478,27 +480,16 @@ jQuery(document).ready(function($) {
 
 	$('.ts-admin-wrapper').on('click', '.btn-markpaid', function(e) {
 		e.preventDefault();
-    formdata.append('action', 'save_mark_as_paid');
+		$(this).text('Processing...');
+		var id = $(this).attr('data-id');
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'save_mark_as_paid');
 		formdata.append('id', id);
 		var form = new TSForm(formdata);
 		form.submitForm(callbackMarkAsPaid);
-  });  
-
-  $('#form-special-awards').on('submit', function(e){
-		e.preventDefault();
-		var validated = $(this).validationEngine('validate', { 
-			scroll: false, 
-			showArrowOnRadioAndCheckbox: true 
-		});
-		if(validated==true){
-			$(this).find('input[type="submit"]').val('Saving...');
-			var formdata =  new FormData(this);
-			formdata.append('token', ajax_post_object.tokens.save_item);
-			formdata.append('action', 'save_special_awards');
-			var form = new TSForm(formdata);
-			form.submitForm(callbackSaveAndReload);
-		}
-	});
+  	});  
 
 	$('#results-page').on('click', '.btn-publishresults', function(e) {
 		e.preventDefault();
@@ -533,17 +524,105 @@ jQuery(document).ready(function($) {
 		form.submitForm(callbackChangeScholar);	
 	});
 
+	$('#form-special-awards').on('change', '.change-routine-number', function(e){
+		e.preventDefault();
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'load_routine_info');
+		formdata.append('routine_number', $(this).val());
+		formdata.append('tour_id', $(this).attr('data-tourid'));
+		formdata.append('row', $(this).closest('.row').attr('id'));
+		var form = new TSForm(formdata);
+		form.submitForm(callbackChangeRoutine);	
+	});
 
+  	$('#form-special-awards').on('submit', function(e){
+		e.preventDefault();
+		var validated = $(this).validationEngine('validate', { 
+			scroll: false, 
+			showArrowOnRadioAndCheckbox: true 
+		});
+		if(validated==true){
+			$(this).find('input[type="submit"]').val('Saving...').prop('disabled', true);
+			var formdata =  new FormData(this);
+			formdata.append('token', ajax_post_object.tokens.save_item);
+			formdata.append('action', 'save_special_awards');
+			var form = new TSForm(formdata);
+			form.submitForm(callbackSaveSpecidalAwards);
+		}
+	});
 
-function addVideoCritique(attachment_id, post_id) {
+  	$('#form-scholarships').on('submit', function(e){
+		e.preventDefault();
+		var validated = $(this).validationEngine('validate', { 
+			scroll: false, 
+			showArrowOnRadioAndCheckbox: true 
+		});
+		if(validated==true){
+			$(this).find('input[type="submit"]').val('Saving...').prop('disabled', true);
+			var formdata =  new FormData(this);
+			formdata.append('token', ajax_post_object.tokens.save_item);
+			formdata.append('action', 'save_scholarships');
+			var form = new TSForm(formdata);
+			form.submitForm(callbackSaveScholarships);
+		}
+	});
+
+	$('#view-schedule-page').on('click', '.btn-resetschedule', function(e){
+		e.preventDefault();
+		$(this).prepend('<i class="fa fa-spinner fa-pulse fa-fw"></i>').prop('disabled', true);
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'reset_competition_schedule');
+		formdata.append('id', $(this).attr('data-id'));
+		formdata.append('return', $(this).attr('data-return'));
+		var form = new TSForm(formdata);
+		form.submitForm(callback);	
+	});
+
+	$('#form-submit-scores').on('click', '.btn-submitscore', function(e){
+		e.preventDefault();
+		$(this).html('<i class="fa fa-spinner fa-pulse fa-fw"></i> Submitting..').prop('disabled', true);
+		var id = $(this).attr('data-id');
+		var judge1 = $('#routine-'+id+' .score-judge1').val();
+		var judge2 = $('#routine-'+id+' .score-judge2').val();
+		var judge3 = $('#routine-'+id+' .score-judge3').val();
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'save_routine_scores');
+		formdata.append('id', id);
+		formdata.append('judge1', judge1);
+		formdata.append('judge2', judge2);
+		formdata.append('judge3', judge3);
+		var form = new TSForm(formdata);
+		form.submitForm(callbackSaveRoutineScores);
+	});
+
+});
+
+function addVideoCritique(attachment_id, routine_id) {
 	var token = ajax_post_object.tokens.default;
 	var formdata =  new FormData();
 	formdata.append('token', token);
 	formdata.append('action', 'add_critique');
 	formdata.append('attachment_id', attachment_id);
-	formdata.append('post_id', post_id);
+	formdata.append('routine_id', routine_id);
 	var form = new TSForm(formdata);
 	form.submitForm(callback);	
+}
+
+function addVideoCritiques(attachments, tour_id) {
+	var token = ajax_post_object.tokens.default;
+	var formdata =  new FormData();
+	formdata.append('token', token);
+	formdata.append('action', 'add_critiques');
+	formdata.append('attachments', attachments);
+	formdata.append('tour_id', tour_id);
+	var form = new TSForm(formdata);
+	form.submitForm(callbackSaveAndReload);	
 }
 
 function removeVideoCritique(post_id) {
@@ -576,6 +655,7 @@ TSForm.prototype.submitForm = function(callback, callback2) {
         }
     });
 }
+
 TSForm.prototype.getSelectValues = function(select) {
 	var result = [];
 	var options = select && select.options;

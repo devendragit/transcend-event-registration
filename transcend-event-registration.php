@@ -27,6 +27,13 @@ define('TS_STUDIO_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 define('TS_INDIVIDUAL_DASHBOARD', admin_url('admin.php?page=ts-my-entries'));
 define('TS_ZIP_ATTACHMENTS_URL', plugins_url() ."/".dirname( plugin_basename( __FILE__ ) ) ."/includes" );
 
+$ts_upload_dir = wp_upload_dir();
+$musics_dir = $ts_upload_dir['basedir'].'/transcend-musics';
+$critiques_dir = $ts_upload_dir['basedir'].'/transcend-critiques';
+
+define('TS_MUSIC_ZIP_FOLDER', $musics_dir );
+define('TS_CRITIQUES_FOLDER', $critiques_dir );
+
 /* API */ /*NOT SURE IF IT'S SAFE TO ADD IT HERE, PLEASE ADVISE*/
 define('MC_API_KEY', '3afbad4ea0d6293c8743a81a40986356-us15');
 
@@ -38,12 +45,157 @@ require_once(TS_INCLUDES . 'ts-tools.php');
 require_once(TS_INCLUDES . 'ts-defaults.php');
 require_once(TS_INCLUDES . 'ts-shortcodes.php');
 require_once(TS_INCLUDES . 'ts-ajax.php');
-require_once(TS_INCLUDES . 'ts-pages.php');
+require_once(TS_INCLUDES . 'ts-admin.php');
+require_once(TS_INCLUDES . 'ts-user.php');
 require_once(TS_INCLUDES . 'ts-acf-fields.php');
+require_once(TS_INCLUDES . 'ts-acf-hooks.php');
 require_once(TS_INCLUDES . 'ts-notifications.php');
 require_once(TS_INCLUDES . 'ts-cron-jobs.php');
 require_once(TS_INCLUDES . 'ts-meta-boxes.php');
 require_once(TS_INCLUDES . 'ts-results.php');
+
+register_activation_hook(__FILE__, 'ts_plugin_activate');
+
+function ts_plugin_activate() {
+    ts_remove_roles();
+    ts_add_new_roles();
+    ts_add_role_caps();
+    ts_create_terms();
+    ts_create_tour_posts();
+    flush_rewrite_rules();
+}
+
+function ts_remove_roles() {
+    //remove_role('subscriber');
+    remove_role('author');
+    remove_role('contributor');
+    remove_role('editor');
+}
+
+function ts_add_new_roles() {
+
+    remove_role('event_organizer');
+    remove_role('studio');
+    remove_role('individual');
+
+    add_role(
+        'event_organizer',
+        __('Event Organizer'),
+        array(
+            'read' => true,
+            'upload_files' => true,
+            'list_users' => true,
+            'add_users' => true,
+            'create_users' => true,
+            'edit_users' => true,
+            'promote_users' => true,
+            'delete_users' => true,
+            'is_organizer' => true,
+            'is_custom_user' => true,
+        )
+    );
+
+    add_role(
+        'studio',
+        __('Studio'),
+        array(
+            'read' => true,
+            'upload_files' => true,
+            'add_ts_entry' => true,
+            'add_ts_observer' => true,
+            'add_ts_roster' => true,
+            'is_custom_user' => true,
+            'is_customer' => true,
+            'is_studio' => true,
+        )
+    );
+
+    add_role(
+        'individual',
+        __('Individual'),
+        array(
+            'read' => true,
+            'upload_files' => true,
+            'add_ts_entry' => true,
+            'add_ts_observer' => true,
+            'add_ts_indiv_dancer' => true,
+            'is_custom_user' => true,
+            'is_customer' => true,
+            'is_individual' => true,
+        )
+    );
+}
+
+function ts_add_role_caps() {
+
+    $roles = array('event_organizer', 'studio', 'individual');
+
+    foreach($roles as $r) {
+
+        $role = get_role($r);
+
+        $capability_types = array(
+            array('tour','tours'),
+            array('event','events'),
+            array('entry','entries'),
+            array('studio_roster','studio_rosters'),
+            array('indiv_sibling','indiv_siblings'),
+            array('routine','routines'),
+            array('coupon','coupons'),
+            array('invoice','invoices'),
+            array('credit','credits'),
+            array('award','awards'),
+            array('score','scores'),
+        );
+
+        foreach ($capability_types  as $type) {
+
+            $s = $type[0];
+            $p = $type[1];
+
+            $role->add_cap('read_'. $s);
+
+            if($r == 'studio') {
+                if($s=='entry' || $s=='studio_roster' || $s=='routine') {
+                    $role->add_cap('read_private_'. $p);
+                    $role->add_cap('edit_'. $s);
+                    $role->add_cap('edit_'. $p);
+                    $role->add_cap('edit_published_'. $p);
+                    $role->add_cap('publish_'. $p);
+                    $role->add_cap('delete_private_'. $p);
+                    $role->add_cap('delete_published_'. $p);
+                    $role->add_cap('delete_'. $p);
+                }
+            }
+
+            if($r == 'individual') {
+                if($s=='entry' || $s=='indiv_sibling' || $s=='routine') {
+                    $role->add_cap('read_private_'. $p);
+                    $role->add_cap('edit_'. $s);
+                    $role->add_cap('edit_'. $p);
+                    $role->add_cap('edit_published_'. $p);
+                    $role->add_cap('publish_'. $p);
+                    $role->add_cap('delete_private_'. $p);
+                    $role->add_cap('delete_published_'. $p);
+                    $role->add_cap('delete_'. $p);
+                }
+            }
+
+            if($r == 'event_organizer') {
+                $role->add_cap('read_private_'. $p);
+                $role->add_cap('edit_'. $s);
+                $role->add_cap('edit_'. $p);
+                $role->add_cap('edit_published_'. $p);
+                $role->add_cap('publish_'. $p);
+                $role->add_cap('delete_private_'. $p);
+                $role->add_cap('delete_published_'. $p);
+                $role->add_cap('delete_'. $p);
+                $role->add_cap('edit_others_'. $p);
+                $role->add_cap('delete_others_'. $p);
+            }
+        }
+    }
+}
 
 if (! function_exists('wp_new_user_notification') ) {
 

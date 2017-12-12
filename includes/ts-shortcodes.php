@@ -544,7 +544,10 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 							$dancersArray  = is_array($dancers) ? $dancers : explode(",", $dancers);
 							$dancersString = ! is_array($dancers) ? $dancers : implode(",", $dancers);
 
-							$countDancers = count($dancersArray);
+							$dancers_count = get_post_meta($rpid, 'dancers_count', true);
+							$dancers_count_edited = get_post_meta($rpid, 'dancers_count_edited', true);
+							$countDancers = $dancers_count_edited ? $dancers_count_edited : $dancers_count;
+							//$countDancers = count($dancersArray);
 							$fee 	 	  = ts_get_routine_fee($countDancers);
 							?>
 
@@ -1001,9 +1004,12 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 						$routines = $competition['routines'];
 
 						if(is_array($routines) && ! empty($routines) ) {
-							foreach ($routines as $r) {
+							foreach ($routines as $key=>$r) {
 								$name = $r['name'];
-								$dancersCount = count(explode(",",$r['dancers']));
+								$dancers_count = get_post_meta($key, 'dancers_count', true);
+								$dancers_count_edited = get_post_meta($key, 'dancers_count_edited', true);
+								$dancersCount = $dancers_count_edited ? $dancers_count_edited : $dancers_count;
+								//$dancersCount = count(explode(",",$r['dancers']));
 								?>
 								<div class="row">
 									<div class="col-md-1">&nbsp;</div>
@@ -1034,7 +1040,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 						<?php
 						$grand_total = ts_grand_total($eid, $entry_data);
 						if(! $discount_code_applied) {
-							if(isset($entry_data['discount_code']) && ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id) ) { ?>
+							if(isset($entry_data['discount_code']) && $entry_data['discount_code']!='' && ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id) ) { ?>
 								<input type="hidden" name="discount_code" value="<?php echo $entry_data['discount_code']; ?>" >
 								Discount Code: <strong><?php echo $entry_data['discount_code']; ?></strong>
 								<button type="button" data-eid="<?php echo $eid; ?>" class="btn btn-blue btn-removecoupon">Remove</button>
@@ -1052,7 +1058,7 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 				</div>
 				<div class="row grand-total">
 					<?php
-					if(isset($entry_data['discount_code']) && ! $discount_code_applied) {
+					if(isset($entry_data['discount_code']) && $entry_data['discount_code']!='' && ! $discount_code_applied) {
 						$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
 					}
 					$amount_paid = $amount_payable = $amount_credit = '';
@@ -1120,67 +1126,8 @@ function ts_get_confirmation_html($entry_data, $entry_id, $eid, $prev_step, $nex
 				</div>
 			</form>
 		</div>
-		<div id="popup-waiver" class="modal fade" role="dialog">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<form name="popup-waiver-form" id="popup-waiver-form" class="validate boxed" method="post" action="">
-						<?php
-						if(current_user_can('is_studio')) {
-							?>
-							<h2 style="text-align: center;">WAIVER AND RELEASE OF LIABILITY</h2>
-							<p><strong>PLEASE BE ADVISED</strong>:</p>
-							<p>***This form must be read and signed before the participant is permitted to take part in any Transcend event sessions (each, “an Event”). By signing this agreement, the participant and the participant"™s parent/guardian affirms having read it. ***</p>
-							<ol>
-								<li>In consideration of being allowed to participate in any way in any Transcend event, I, the undersigned, acknowledge, appreciate, and agree that:
-									<ol>
-										<li>I know that via my participation, I may risk bodily injury, as well as the risk of damage to or loss of property; and</li>
-										<li>I understand that by signing this form and participating in an Event, I assume all such risks, both known and unknown; and</li>
-										<li>I agree to comply with all terms and condition communicated by TRANSCEND, the Event venue, and all persons managing the event. I agree to pay full attention at all times during my participation in any Event. I agree that if I observe any unusual hazard, I will immediately bring such to the attention of the nearest staff person associated with the Event. I agree that if I am feeling ill, dizzy, or in any way uncomfortable with my ability to safely participate in any event, I will notify staff and withdraw from participation the event;</li>
-										<li>I, for myself, and on behalf of my heirs, assigns, hereby release, indemnify, hold harmless, and covenant not to sue Transcend Productions, LLC or its affiliates ("Transcend"), its officers, officials, volunteers, employees, agents, and/or other participants, sponsors, advertisers, and, if applicable, the owners and lessors of premises used for the activity ("RELEASEES"), any injury and/or loss or damage to person or property, whether caused by the negligence of the releases or otherwise related to any event in which I participate, except that which is the result of gross negligence or intentional misconduct, to the fullest extent permitted by law.</li>
-										<li>I understand that Transcend from time to time produces audio-visual programs, promotions, and other materials relating to its Events. I and my Guardian hereby grant Transcend and its agents, successors, assigns and licensees the perpetual right to use my name, likeness, biographical information, photographs, voice, personal characteristics, and other personal identification (collectively “Likeness”) and any digital, videotape, sound and audio-visual recordings in any way (collectively “Recordings”) in any and all manner and media, now known or hereafter devised, throughout the world, for any and all purposes including, without limitation, in productions and in connection with the advertising and promotion of productions and/or Transcend, provided that Transcend is under no obligation to exercise any of the foregoing rights.</li>
-										<li>I have elected, on a voluntary basis, and, if I am under the age of 18, with the acknowledgement and permission of my parents or legal guardians (individually and collectively referred to herein as “Guardian”), to participate in dance and other athletic performance-related activities (individually and collectively, “Activities”) for which I am registered with TRANSCEND, I and my Guardian agree and acknowledge that I may only attend Events under the supervision of a chaperone who is at least 21 years of age (“Chaperone”), that such Chaperone is responsible for my supervision at all times, and that Transcend is not responsible in any way or to any extent for supervision of me or for my welfare during my attendance at Events and participation in Activities.</li>
-										<li>By signing this waiver, you release Transcend and all its employees from all claims arising out of related to any injury which may be sustained by you/your child while attending any dance class, performance, or other event associated with Transcend. You also affirm you now have, and will continue to carry, proper primary medical, health, and hospitalization and accident insurance, which you consider adequate for the protection of both your child.</li>
-									</ol>
-								</li>
-							</ol>
-							<p><strong>For Studio Owners/Directors of Registered Participants:</strong></p>
-							<p class="f-larger">I have read this Release of Liability and Waiver Agreement, fully understand its terms, and sign it freely and voluntarily on behalf of all my registered participants.</p>
-							<p><label><input type="checkbox" class="validate[required]" name="agree1" value="1" /><span></span></label></p>
-							<?php
-						}
-						else if(current_user_can('is_individual')){
-							?>
-							<h2 style="text-align:center;">WAIVER AND RELEASE OF LIABILITY</h2>
-							<p><strong>PLEASE BE ADVISED</strong>:</p>
-							<p>***This form must be read and signed before the participant is permitted to take part in any Transcend event sessions (each, "an Event"). By signing this agreement, the participant and the participant's parent/guardian affirms having read it. ***</p>
-							<ol>
-								<li>In consideration of being allowed to participate in any way in any Transcend event, I, the undersigned, acknowledge, appreciate, and agree that:
-									<ol>
-										<li>I know that via my participation, I may risk bodily injury, as well as the risk of damage to or loss of property; and</li>
-										<li>I understand that by signing this form and participating in an Event, I assume all such risks, both known and unknown; and</li>
-										<li>I agree to comply with all terms and condition communicated by TRANSCEND, the Event venue, and all persons managing the event. I agree to pay full attention at all times during my participation in any Event. I agree that if I observe any unusual hazard, I will immediately bring such to the attention of the nearest staff person associated with the Event. I agree that if I am feeling ill, dizzy, or in any way uncomfortable with my ability to safely participate in any event, I will notify staff and withdraw from participation the event;</li>
-										<li>I, for myself, and on behalf of my heirs, assigns, hereby release, indemnify, hold harmless, and covenant not to sue Transcend Productions, LLC or its affiliates ("Transcend"), its officers, officials, volunteers, employees, agents, and/or other participants, sponsors, advertisers, and, if applicable, the owners and lessors of premises used for the activity ("RELEASEES"), any injury and/or loss or damage to person or property, whether caused by the negligence of the releases or otherwise related to any event in which I participate, except that which is the result of gross negligence or intentional misconduct, to the fullest extent permitted by law.</li>
-										<li>I understand that Transcend from time to time produces audio-visual programs, promotions, and other materials relating to its Events. I and my Guardian hereby grant Transcend and its agents, successors, assigns and licensees the perpetual right to use my name, likeness, biographical information, photographs, voice, personal characteristics, and other personal identification (collectively "Likeness") and any digital, videotape, sound and audio-visual recordings in any way (collectively "Recordings") in any and all manner and media, now known or hereafter devised, throughout the world, for any and all purposes including, without limitation, in productions and in connection with the advertising and promotion of productions and/or Transcend, provided that Transcend is under no obligation to exercise any of the foregoing rights.</li>
-										<li>I have elected, on a voluntary basis, and, if I am under the age of 18, with the acknowledgement and permission of my parents or legal guardians (individually and collectively referred to herein as "Guardian"), to participate in dance and other athletic performance-related activities (individually and collectively, "Activities") for which I am registered with TRANSCEND,  I and my Guardian agree and acknowledge that I may only attend Events under the supervision of a chaperone who is at least 21 years of age ("Chaperone"), that such Chaperone is responsible for my supervision at all times, and that Transcend is not responsible in any way or to any extent for supervision of me or for my welfare during my attendance at Events and participation in Activities.</li>
-										<li>By signing this waiver, you release Transcend and all its employees from all claims arising out of related to any injury which may be sustained by you/your child while attending any dance class, performance, or other event associated with Transcend. You also affirm you now have, and will continue to carry, proper primary medical, health, and hospitalization and accident insurance, which you consider adequate for the protection of both your child.</li>
-									</ol>
-								</li>
-							</ol>
-							<p><strong>If under 18 (for Parents/Guardians): </strong></p>
-							<p class="f-larger">This is to certify that I/we, as parent(s)/guardian(s) with legal responsibility for this participant, do consent and agree not only to his/her release, but also for myself/ourselves, and my/ourselves, and my/our heirs, assigns and next of kin to release and indemnify the Releases from any and all Liability incident to my/our minor child's involvement as stated above, even arising from the negligence of the releases, to the fullest extent permitted by law.</p>
-							<p><label><input type="radio" class="validate[required]" name="agree[]" value="1" /><span></span></label></p>
-							<p><strong>If over 18: </strong></p>
-							<p class="f-larger">I have read this Release of Liability and Waiver Agreement, fully understand its terms, and sign it freely and voluntarily.</p>
-							<p><label><input type="radio" class="validate[required]" name="agree[]" value="1" /><span></span></label></p>
-							<?php
-						}
-						?>
-						<input class="btn btn-green" type="submit" value="Continue">
-					</form>
-				</div>
-			</div>
-		</div>
 		<?php
+		ts_waiver_popup();
 	}
 }
 
@@ -1213,15 +1160,16 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 							}, 5000);
 						</script>
 					<?php
-					} else {
-					require_once(TS_LIBRARIES .'config.php');
+					} 
+					else {
+						require_once(TS_LIBRARIES .'config.php');
 
-					if(isset($entry_data['discount_code'])) {
-						$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
-					}
-					$remaining_total = $grand_total - $paid_amount;
-					$current_user = wp_get_current_user();
-					?>
+						if(isset($entry_data['discount_code']) && $entry_data['discount_code']!='') {
+							$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
+						}
+						$remaining_total = $grand_total - $paid_amount;
+						$current_user = wp_get_current_user();
+						?>
 						<div class="studio-payment-container payment-form-container form-container-1">
 							<div class="row">
 								<div class="col-md-12 t-center">OR</div>
@@ -1281,7 +1229,7 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 
 			$grand_total = ts_grand_total($eid, $entry_data);
 
-			if(isset($entry_data['discount_code'])) {
+			if(isset($entry_data['discount_code']) && $entry_data['discount_code']!='') {
 				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
 			}
 			$current_user = wp_get_current_user();
@@ -1343,7 +1291,7 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 			$remaining = false;
 			$grand_total = ts_grand_total($eid, $entry_data);
 
-			if(isset($entry_data['discount_code'])) {
+			if(isset($entry_data['discount_code']) && $entry_data['discount_code']!='') {
 				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
 			}
 			if( isset($entry_data['remaining_amount'] ) && ! empty($entry_data['remaining_amount']) ) {
@@ -1369,12 +1317,14 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 					'amount'   => $charge_amount * 100,
 					'currency' => 'usd'
 				));
+				do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total,	$remaining, $remaining_amount);
+				do_action('registration_completed', $entry_id, $user_id, 'stripe_payment');
 			}
 			catch(\Stripe\Error\Card $e) {
-
+				$body = $e->getJsonBody();
+				$error  = $body['error'];
+				do_action('registration_payment_failed', $entry_id, $error);
 			}
-			do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total,	$remaining, $remaining_amount);
-			do_action('registration_completed', $entry_id, $user_id, 'stripe_payment');
 		}
 
 		if(get_post_meta($entry_id, 'completed', true)) {
@@ -1387,6 +1337,14 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 					window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
 				}, 5000);
 			</script>
+			<?php
+		}
+		else if (get_post_meta($entry_id, 'payment_failed', true)==true) {
+			$error_msg = get_post_meta($entry_id, 'payment_error_msg', true);
+			?>
+			<div class="form-container-2 t-center boxed-container">
+				<h1><?php echo $error_msg; ?></h1>
+			</div>
 			<?php
 		}
 		else {
@@ -1651,7 +1609,7 @@ function ts_results_shortcode() {
 	wp_enqueue_style('ts-shortcode-style');
 	wp_enqueue_script('ts-shortcode-script');
 	
-	ts_display_results();
+	ts_display_results_frontend();
 
 	$output = ob_get_contents();
 	ob_end_clean();

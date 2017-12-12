@@ -15,7 +15,7 @@ function ts_entry_invoice_box_markup() {
         ?>
         <div class="ts-entry-invoice">
             <label for="ts-entry-invoice-amount"><?php _e('Invoice Amount'); ?></label>
-            <input name="ts-entry-invoice-amount" type="number" value="" placeholder="$0.00">
+            <input name="ts-entry-invoice-amount" type="number" value="" placeholder="$0.00" step=".01">
             <label for="ts-entry-invoice-note"><?php _e('Invoice Note'); ?></label>
             <textarea name="ts-entry-invoice-note" rows="3" cols="50"></textarea>
             <input type="hidden" name="ts_entry_hidden_post_status" value="<?php echo $status;?>">

@@ -1,232 +1,4 @@
 <?php
-function ts_create_terms() {
-
-	$entry_types = array('Studio', 'Individual');
-
-	foreach ($entry_types as $key=>$value) {
-		$order = (int)$key+1;
-		$type = term_exists($value, 'ts_entry_type');
-		if ($type == 0 || $type == null) {
-			$term = wp_insert_term($value, 'ts_entry_type');
-			$term_id = $term->term_id;
-			update_term_meta($term_id, 'type_order', $order);
-		}
-	}
-
-	$roster_types = array('Dancer', 'Teacher');
-
-	foreach ($roster_types as $key=>$value) {
-		$order = (int)$key+1;
-		$type = term_exists($value, 'ts_rostertype');
-		if ($type == 0 || $type == null) {
-			$term = wp_insert_term($value, 'ts_rostertype');
-			$term_id = $term->term_id;
-			update_term_meta($term_id, 'type_order', $order);
-		}
-	}
-
-	$age_divisions = array('Munchkin', 'Mini', 'Junior', 'Teen', 'Senior', 'Pro', 'Teacher');
-
-	foreach ($age_divisions as $key=>$value) {
-		$order = (int)$key+1;
-		$div = term_exists($value, 'ts_agediv');
-		if ($div == 0 || $div == null) {
-			$term = wp_insert_term($value, 'ts_agediv');
-			if($term && !is_wp_error($term)) {
-				$term_id 	= $term->term_id;
-				$term 		= get_term($term_id, 'ts_agediv');
-				$term_slug 	= $term->slug;
-
-				$fee_meta 	= ts_get_fees_meta();
-
-				update_term_meta($term_id, 'div_order', $order);
-				update_term_meta($term_id, 'fee_early', $fee_meta[$term_slug]['fee_early']);
-				update_term_meta($term_id, 'fee_standard', $fee_meta[$term_slug]['fee_standard']);
-				update_term_meta($term_id, 'fee_early_oneday', $fee_meta[$term_slug]['fee_early_oneday']);
-				update_term_meta($term_id, 'fee_standard_oneday', $fee_meta[$term_slug]['fee_standard_oneday']);
-			}
-		}
-	}
-
-	$schedule_types = array('Workshop', 'Competition');
-
-	foreach ($schedule_types as $key=>$value) {
-		$order = (int)$key+1;
-		$type = term_exists($value, 'ts_schedules_type');
-		if ($type == 0 || $type == null) {
-			$term = wp_insert_term($value, 'ts_schedules_type');
-			$term_id = $term->term_id;
-			update_term_meta($term_id, 'type_order', $order);
-		}
-	}
-
-	$adjudicated_awards = array('Platinum', 'High Silver', 'High Gold', 'Silver', 'Gold', 'Bronze');
-
-	foreach ($adjudicated_awards as $key=>$value) {
-		$order = (int)$key+1;
-		$div = term_exists($value, 'ts_adjudicated_awards');
-		if ($div == 0 || $div == null) {
-			$term = wp_insert_term($value, 'ts_adjudicated_awards');
-			if($term && !is_wp_error($term)) {
-				$term_id 	= $term->term_id;
-				$term 		= get_term($term_id, 'ts_adjudicated_awards');
-				$term_slug 	= $term->slug;
-
-				$awards_meta 	= ts_get_adjudicated_awards();
-
-				update_term_meta($term_id, 'div_order', $order);
-				update_term_meta($term_id, 'min_score', $awards_meta[$term_slug]['min_score']);
-				update_term_meta($term_id, 'high_score', $awards_meta[$term_slug]['high_score']);
-			}
-		}
-	}
-
-}
-
-function ts_create_tour_posts() {
-
-	$tours = ts_get_tour_cities();
-
-	foreach ($tours as $t) {
-		if(! ts_post_exists($t['title'])) {
-
-			$author = get_user_by('login', 'transcend_admin');
-
-			$entry = array(
-				'post_title' => $t['title'],
-				'post_type' => 'ts_tour',
-				'post_status' => 'publish',
-				'author' => $author->ID
-			);
-
-			$updated = wp_insert_post($entry, true);
-
-			if($updated && !is_wp_error($updated)) {
-
-				$date_from 	= date_format(date_create($t['date_from']),'Y/m/d');
-				$date_to 	= date_format(date_create($t['date_to']),'Y/m/d');
-				$cron_timestamp = ts_get_local_timestamp(date('Y/m/d', strtotime($date_to . "+1 days")));
-
-				update_post_meta($updated, 'date_from', $date_from);
-				update_post_meta($updated, 'date_to', $date_to);
-				update_post_meta($updated, 'venue', $t['venue']);
-				update_post_meta($updated, 'city', $t['city']);
-				wp_schedule_single_event($cron_timestamp, 'ts_cron_jobs', array( $date_to ) );
-			}
-		}
-	}
-}
-
-function ts_update_agediv_fees() {
-
-	$age_divisions = array('Munchkin', 'Mini', 'Junior', 'Teen', 'Senior', 'Pro', 'Teacher');
-
-	foreach ($age_divisions as $ad) {
-
-		$term = get_term_by('name', $ad, 'ts_agediv');
-
-		if ($term) {
-			$term_id 	= $term->term_id;
-			$term_slug 	= $term->slug;
-
-			$fee_meta 	= ts_get_fees_meta();
-
-			update_term_meta($term_id, 'fee_early', $fee_meta[$term_slug]['fee_early']);
-			update_term_meta($term_id, 'fee_standard', $fee_meta[$term_slug]['fee_standard']);
-			update_term_meta($term_id, 'fee_early_oneday', $fee_meta[$term_slug]['fee_early_oneday']);
-			update_term_meta($term_id, 'fee_standard_oneday', $fee_meta[$term_slug]['fee_standard_oneday']);
-		}
-	}
-}
-
-function ts_update_agediv_order() {
-
-	$age_divisions = array('Munchkin', 'Mini', 'Junior', 'Teen', 'Senior', 'Pro', 'Teacher');
-
-	foreach ($age_divisions as $key=>$value) {
-
-		$order = (int)$key+1;
-		$term  = get_term_by('name', $value, 'ts_agediv');
-
-		if ($term) {
-			$term_id = $term->term_id;
-			update_term_meta($term_id, 'div_order', $order);
-		}
-	}
-}
-
-function ts_update_agedivs() {
-
-	$term 	 = get_term_by('name', 'Munchkins', 'ts_agediv');
-	$term_id = $term->term_id;
-	wp_update_term($term_id, 'ts_agediv', array('name' => 'Munchkin'));
-}
-
-function ts_update_tour_posts() {
-
-	$tours = ts_get_tour_cities();
-
-	foreach ($tours as $t) {
-		if($id = ts_post_exists($t['title'])) {
-
-			$entry = array(
-				'ID' => $id,
-				'post_title' => $t['title'],
-				'post_type' => 'ts_tour',
-			);
-
-			$updated = wp_update_post($entry, true);
-
-			if($updated && !is_wp_error($updated)) {
-
-				$date_from 	= date_format(date_create($t['date_from']),'Y/m/d');
-				$date_to 	= date_format(date_create($t['date_to']),'Y/m/d');
-
-				update_post_meta($updated, 'date_from', $date_from);
-				update_post_meta($updated, 'date_to', $date_to);
-				update_post_meta($updated, 'venue', $t['venue']);
-				update_post_meta($updated, 'city', $t['city']);
-			}
-		}
-	}
-}
-
-function ts_update_entries() {
-
-	$args = array(
-		'post_status' => array('pending', 'publish', 'unpaid', 'paid', 'unpaidcheck', 'paidcheck'),
-	);
-	$entries = ts_get_posts('ts_entry', -1, $args);
-
-	if($entries) {
-		foreach ($entries as $entry) {
-			setup_postdata($entry);
-			$entry_id 		= $entry->ID;
-			$workshop 		= get_post_meta($entry_id, 'workshop', true);
-			$tour_city 		= $workshop['tour_city'];
-			if(isset($tour_city)) {
-				$date_from 	= get_post_meta($tour_city, 'date_from', true);
-				$date_to 	= get_post_meta($tour_city, 'date_to', true);
-				update_post_meta($entry_id, 'tour_date', date_format(date_create($date_from),'Y/m/d'));
-				update_post_meta($entry_id, 'tour_date', date_format(date_create($date_to),'Y/m/d'));
-				update_post_meta($entry_id, 'tour_city', $tour_city);
-			}
-			$status = get_post_status($entry_id);
-			if(ts_is_paid($entry_id)){
-				$paid_amount 	= get_post_meta($entry_id, 'paid_amount', true);
-				$grand_total 	= get_post_meta($entry_id, 'grand_total', true);
-				$discount_code 	= get_post_meta($entry_id, 'discount_code', true);
-				if(! $paid_amount) {
-					update_post_meta($entry_id, 'paid_amount', $grand_total);
-				}
-				if($discount_code) {
-					update_post_meta($entry_id, 'discount_code_applied', true);
-				}
-			}
-		}
-	}
-}
-
 function ts_login_logo_url() {
 
 	return home_url();
@@ -600,22 +372,6 @@ function ts_edit_admin_menus() {
     $menu[6][6] = 'dashicons-groups';
     $menu[7][6] = 'dashicons-calendar-alt';*/
 
-}
-
-function ts_update_roster_order() {
-
-	$roster = ts_get_posts('ts_studio_roster');
-	$siblings = ts_get_posts('ts_sibling');
-
-	$items = array_merge($roster, $siblings);
-
-	foreach ($items as $r) {
-		$rid = $r->ID;
-		$age_div = wp_get_object_terms($rid, 'ts_agediv');
-		$div_id = $age_div[0]->term_id;
-		$div_order = get_term_meta($div_id, 'div_order', true);
-		update_post_meta($rid, 'age_cat_order', $div_order);
-	}
 }
 
 function ts_update_roster_agedivs() {
@@ -1122,9 +878,12 @@ function ts_get_total_competition_fee($eid, $data=false) {
 	$competition_fee = 0;
 
 	if(is_array($routines) && ! empty($routines)){
-		foreach ($routines as $routine) {
-			$dancers = is_array($routine['dancers']) ? $routine['dancers'] : explode(",", $routine['dancers']);
-			$count = count($dancers);
+		foreach ($routines as $key=>$routine) {
+			$dancers_count = get_post_meta($key, 'dancers_count', true);
+			$dancers_count_edited = get_post_meta($key, 'dancers_count_edited', true);
+			$count = $dancers_count_edited ? $dancers_count_edited : $dancers_count;
+			//$dancers = is_array($routine['dancers']) ? $routine['dancers'] : explode(",", $routine['dancers']);
+			//$count = count($dancers);
 			$fee = ts_get_routine_fee($count);
 			$competition_fee = $competition_fee+$fee;
 		}
@@ -1142,6 +901,9 @@ function ts_grand_total($eid, $data=false) {
 }
 
 function ts_discounted_grand_total($total, $discount_code, $entry_id) {
+
+	if($discount_code=='') 
+		return $total;
 
 	$voucher_id  = ts_post_exists($discount_code, '', '', 'ts_coupon');
 
@@ -1260,181 +1022,6 @@ function ts_media_library_default_tab($tab) {
 	return 'type_url';
 }
 
-function ts_display_entry_details($entry_id, $user_id=false) {
-
-	$entry_data 					= ts_get_entry_data_from_post($entry_id, $user_id);
-
-	$workshop 						= ts_check_value($entry_data,'workshop');
-	$competition 					= ts_check_value($entry_data,'competition');
-	$discount_code      			= ts_check_value($entry_data,'discount_code');
-
-	$countMunchkin 		 			= absint(ts_check_value($workshop,'count_munchkins'));
-	$countMinis 			 		= absint(ts_check_value($workshop,'count_minis'));
-	$countJuniors 			 		= absint(ts_check_value($workshop,'count_juniors'));
-	$countTeens 			 		= absint(ts_check_value($workshop,'count_teens'));
-	$countSeniors 			 		= absint(ts_check_value($workshop,'count_seniors'));
-	$countPros 				 		= absint(ts_check_value($workshop,'count_pros'));
-	$countTeachers 			 		= absint(ts_check_value($workshop,'count_teachers'));
-	$countObservers 		 		= absint(ts_check_value($workshop,'count_observer'));
-	$countMunchkinObservers 		= absint(ts_check_value($workshop,'count_munchkinobserver'));
-
-	$routines 						= ts_check_value($competition,'routines');
-
-	$workshop_fee 					= ts_get_total_workshop_fee($entry_id, $entry_data);
-	$workshop_teacher_discount 		= ts_get_total_teacher_discount($entry_id, $entry_data);
-	$workshop_scholarship_discount 	= ts_get_total_scholarship_discount($entry_id, $entry_data);
-	$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($entry_id, $entry_data);
-	$competition_fee 				= ts_get_total_competition_fee($entry_id, $entry_data);
-	$grand_total        			= ts_grand_total($entry_id, $entry_data);
-	$amount_credited                = absint(ts_check_value($entry_data,'amount_credited'));
-
-	if(! empty($discount_code)){
-		$discount_value	= absint(ts_get_discount_value($discount_code));
-		$grand_total = ts_discounted_grand_total($grand_total, $discount_code, $entry_id);
-	}
-	ob_start();
-	?>
-	<table style="width: 100%; max-width: 800px; margin: 0 auto; padding: 50px 0;" cellspacing="0" cellpadding="0" border="0">
-		<tr class="tour-city">
-			<td colspan="3" align="center"><strong><?php echo get_the_title($workshop['tour_city']); ?></strong></td>
-		</tr>
-		<tr>
-			<td colspan="3">&nbsp;</td>
-		</tr>
-		<tr>
-			<td valign="top">
-				<table style="width: 100%;" cellspacing="0" cellpadding="5" border="0">
-					<tr>
-						<td colspan="2"><strong style="text-decoration:underline;">Workshop</strong></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countMunchkin; ?></span> <span>Munchkin</span></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countMinis; ?></span> <span>Minis</span></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countJuniors; ?></span> <span>Juniors</span></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countTeens; ?></span> <span>Teens</span></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countSeniors; ?></span> <span>Seniors</span></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countPros; ?></span> <span>Pros</span></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countTeachers; ?></span> <span>Teachers</span></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countObservers; ?></span> <span>Observers</span></td>
-					</tr>
-					<tr>
-						<td colspan="2"><span style="text-decoration:underline;"><?php echo $countMunchkinObservers; ?></span> <span>Additional Munchkin Observers</span></td>
-					</tr>
-					<tr>
-						<td colspan="2">&nbsp;</td>
-					</tr>
-					<tr>
-						<td><strong style="text-decoration:underline;">Workshop Price Before Discounts</strong></td>
-						<td align="right"><strong class="amount">$<?php echo number_format($workshop_fee, 2); ?></strong></td>
-					</tr>
-					<tr>
-						<td colspan="2">&nbsp;</td>
-					</tr>
-					<tr>
-						<td>Teacher Discounts</td>
-						<td align="right"><strong>$<?php echo number_format($workshop_teacher_discount, 2); ?></strong></td>
-					</tr>
-					<tr>
-						<td>Scholarships/Discounts</td>
-						<td align="right"><strong>$<?php echo number_format($workshop_scholarship_discount, 2); ?></strong></td>
-					</tr>
-					<tr>
-						<td colspan="2">&nbsp;</td>
-					</tr>
-					<tr>
-						<td><strong style="text-decoration:underline;">Workshop Total</strong></td>
-						<td align="right"><strong class="amount">$<?php echo number_format($workshop_fee_discounted, 2); ?></strong></td>
-					</tr>
-				</table>
-			</td>
-			<td valign="top" style="width: 100px;">&nbsp;</td>
-			<td valign="top">
-				<table style="width: 100%;" cellspacing="0" cellpadding="5" border="0">
-					<tr>
-						<td colspan="2"><strong style="text-decoration:underline;">Competition</strong></td>
-					</tr>
-					<?php
-					if(is_array($routines)) {
-						foreach ($routines as $r) {
-							$name = $r['name'];
-							$dancersCount = count(explode(",",$r['dancers']));
-							?>
-							<tr>
-								<td><?php echo $name; ?></td>
-								<td align="right"><strong>$<?php echo number_format(ts_get_routine_fee($dancersCount),2); ?></strong></td>
-							</tr>
-							<?php
-						}
-					}
-					?>
-					<tr>
-						<td><strong style="text-decoration:underline;">Total Number of Routines</strong></td>
-						<td align="right"><strong><span class="total-routines f-right"><?php echo count($routines); ?></span></strong></td>
-					</tr>
-					<tr>
-						<td><strong style="text-decoration:underline;">Competition Total</strong>
-						<td align="right"><strong><span class="total-competition-fee f-right">$<?php echo number_format($competition_fee, 2); ?></span></strong></td>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="3">&nbsp;</td>
-		</tr>
-		<?php
-		if(! empty($discount_code)) { ?>
-			<tr>
-				<td align="right" colspan="3">
-					Discount Code: <strong><?php echo $discount_code; ?></strong> <span style="color:red;"> (-$<?php echo number_format($discount_value, 2);?>)</span>
-				</td>
-			</tr>
-			<?php
-		} ?>
-		<tr>
-			<td align="right" colspan="3">
-				<strong>Grand Total: $<span id="grand-total"><?php echo number_format($grand_total, 2); ?></span></strong>
-			</td>
-		</tr>
-		<?php
-		if(! empty($amount_credited)) {
-			?>
-			<tr>
-				<td align="right" colspan="3">
-					<strong>Amount Credited: $<span id="grand-total"><?php echo number_format($amount_credited, 2); ?></span></strong>
-				</td>
-			</tr>
-			<?php
-		}
-		?>
-		<tr>
-			<td align="right" colspan="3"><a class="btn btn-blue btn-addinvoice" href="javascript:void(0);">Create Invoice</a></td>
-		</tr>
-		<tr>
-			<td colspan="3">&nbsp;</td>
-		</tr>
-	</table>
-	<?php
-	ts_create_invoice($entry_id);
-	$output = ob_get_contents();
-	ob_end_clean();
-
-	return $output;
-}
-
 function ts_modify_admin_bar($wp_admin_bar) {
 
 	if(current_user_can('is_custom_user')) {
@@ -1539,7 +1126,7 @@ function ts_save_custom_meta_box($post_id, $post, $update) {
 		}
 	}
 
-    if( 'ts_event' === $post->post_type) {
+    /*if( 'ts_event' === $post->post_type) {
         $schedule_id = $post_id;
         $schedule_type_array 	= wp_get_object_terms($schedule_id, 'ts_schedules_type');
         $competition_schedule = isset($schedule_type_array[0]->name) && 'Competition' === $schedule_type_array[0]->name ? true : false;
@@ -1551,7 +1138,7 @@ function ts_save_custom_meta_box($post_id, $post, $update) {
     if( 'ts_score' === $post->post_type) {
         $score_id = $post_id;
         do_action( 'competition_score_updated', $score_id );
-    }
+    }*/
 
 }
 
@@ -1646,6 +1233,17 @@ function ts_copy_meta_data($entry_id) {
 
 	update_post_meta($entry_id,'paid_workshop',$workshop);
 	update_post_meta($entry_id,'paid_competition',$competition);
+}
+
+function ts_set_payment_error_meta($entry_id, $error) {
+	$error_msg = 'Error['. $error['code'] .'] : '. $error['message'];
+	update_post_meta($entry_id, 'payment_failed', true);
+	update_post_meta($entry_id, 'payment_error_msg', $error_msg);
+}
+
+function ts_clear_payment_error($entry_id) {
+	delete_post_meta($entry_id, 'payment_failed');
+	delete_post_meta($entry_id, 'payment_error_msg');
 }
 
 function ts_return_credit_total($grand_total, $entry_id) {
@@ -1770,15 +1368,15 @@ function ts_create_invoice($entry_id){
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 					<h4 class="modal-title">Invoice</h4>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body <?php echo $check_entry; ?>">
 					<?php
-					if ( ( $status === 'paid' || $status === 'paidcheck' )  && $check_entry && 'paid' != $invoice_status ) {
+					if ( ( $status === 'paid' || $status === 'paidcheck' ) && 'paid' != $invoice_status ) {
 						?>
 						<form method="post" action="" id="form-create-invoice" name="form-create-invoice" >
 							<div class="ts-entry-invoice">
 								<input type="hidden" name="entryid" value="<?php echo $entry_id; ?>" />
 								<label for="ts-entry-invoice-amount"><?php _e('Invoice Amount'); ?></label>
-								<input name="ts-entry-invoice-amount" type="number" value="" placeholder="$0.00" required>
+								<input name="ts-entry-invoice-amount" type="number" value="" placeholder="$0.00" step=".01" required>
 								<label for="ts-entry-invoice-note"><?php _e('Invoice Note'); ?></label>
 								<textarea name="ts-entry-invoice-note" rows="3" cols="50" required></textarea>
 								<input type="hidden" name="ts_entry_hidden_post_status" value="<?php echo $status;?>">
@@ -1806,100 +1404,9 @@ function ts_custom_admin_head() {
 
     global $pagenow;
 
-    if($pagenow == 'admin.php' && ($_GET['page'] == 'ts-new-schedule' || $_GET['page'] == 'ts-view-schedule' || $_GET['page'] == 'ts-new-competition-schedule' || $_GET['page'] == 'ts-view-competition-schedule') || $_GET['page'] == 'ts-view-scores') {
+    if($pagenow == 'admin.php' && ($_GET['page'] == 'ts-new-schedule' || $_GET['page'] == 'ts-view-schedule' || $_GET['page'] == 'ts-new-competition-schedule' || $_GET['page'] == 'ts-edit-competition-schedule') || $_GET['page'] == 'ts-view-scores') {
         acf_form_head();
     }
-}
-
-function ts_pre_save_schedule( $schedule_id ){
-
-    if( isset( $_POST['acf']['field_19d2674b099e9'] ) ) {
-        do_action( 'competition_score_updated', $schedule_id );
-    }
-
-	if( isset( $_POST['acf']['field_59d2697cc385f'] ) ) {
-		$city_id = $_POST['acf']['field_59d2697cc385f'];
-		$status = $_POST['acf']['field_59e474d5debed'];
-		$redirect_url = admin_url('admin.php?page=ts-view-competition-schedule');
-		do_action( 'competition_schedule_updated', $schedule_id );
-		$term = 'Competition';
-	} else {
-		$city_id = $_POST['acf']['field_59ce6df7ae6eb'];
-		$status = $_POST['acf']['field_59e474d5debee'];
-		$redirect_url = admin_url('admin.php?page=ts-view-schedule');
-		$term = 'Workshop';
-	}
-
-	$post_status = $status==1 ? 'publish' : 'draft';
-
-    $schedule = array(
-        'post_status'  => $post_status,
-        'post_title'  => get_the_title($city_id),
-        'post_type'  => 'ts_event',
-    );  
-
-    if( $schedule_id != 'new_schedule' ){
-    	$schedule['ID'] = $schedule_id;
-		wp_update_post($schedule);
-        return $schedule_id;
-    }
-
-    $schedule_id = wp_insert_post($schedule);
-
-	wp_set_object_terms( $schedule_id, $term, 'ts_schedules_type' );
-
-    do_action('acf/save_post', $schedule_id);
-
-    wp_redirect(add_query_arg( array(
-    	'schedule_id' => $schedule_id,
-    ), $redirect_url));
-    exit;
-}
-
-function ts_registration_manually_mark_as_paid( $entry_id ) {
-	$user_id = get_post_field( 'post_author', $entry_id );
-	$grand_total = get_post_meta( 'grand_total', $entry_id, true );
-
-	do_action('registration_paid', $entry_id, $user_id, 'through_dashboard', $grand_total,	false, 0);
-	do_action('registration_completed', $entry_id, $user_id, 'through_dashboard');
-}
-
-function ts_competition_schedule_updated( $schedule_id ) {
-	$schedules	= get_field('competition_event_schedules', $schedule_id);
-	$scores_array = ts_create_scores_array( $schedules );
-
-	$tour_id	= get_post_meta($schedule_id, 'event_city', true);
-	$args = array(
-		'post_status' => array('publish'),
-		'meta_query' => array(
-			array(
-				'key' => 'event_city',
-				'value' => $tour_id
-			),
-		)
-	);
-	$scores = ts_get_posts('ts_score', 1, $args);
-	if( $scores ) {
-		foreach( $scores as $score ) {
-			setup_postdata($score);
-			$score_id = $score->ID;
-			update_field('event_city',$tour_id, $score_id);
-			update_field('tour_scores',$scores_array, $score_id);
-		}
-	} else {
-		$score = array(
-			'post_status'  => 'publish' ,
-			'post_title'  => get_the_title($tour_id),
-			'post_type'  => 'ts_score',
-		);
-
-		$score_id = wp_insert_post($score);
-		if( $score_id and !is_wp_error($score_id) ) {
-			update_field('event_city',$tour_id,$score_id);
-			update_field('tour_scores',$scores_array, $score_id);
-		}
-	}
-
 }
 
 function ts_competition_score_updated( $score_id ) {
@@ -1949,7 +1456,6 @@ function ts_display_awards_wrapper($score_id){
         }
     }
 }
-
 
 function ts_display_individual_day_awards($date, $lineup) {
     $get_day_name =  date('l', strtotime($date));
@@ -2132,16 +1638,6 @@ function ts_find_adjudicated_awards($score) {
 	return $adjudicated_awards_title;
 }  
 
-add_filter('acf/load_value/key=field_59e474d5debed', 'ts_load_sched_status', 10, 3);
-
-function ts_load_sched_status( $value, $post_id, $field ) {
-
-	$post_status = get_post_status($post_id);
-    $value = $post_status === 'publish' ? 1 : 0; 
-
-    return $value;
-}
-
 function ts_display_workshop_schedules($schedules) {
 
 	echo '
@@ -2219,197 +1715,1603 @@ function ts_display_workshop_schedules($schedules) {
 
 function ts_display_competition_schedules($schedules, $routines_array=array()) {
 
-	echo '
-	<div class="inner SampleSched">';
-	foreach ($schedules as $schedule) {
-		$schedule_id = $schedule->ID;
-		$counter = 1;
+	if(! empty($schedules)) {
 		echo '
+		<div class="inner SampleSched">';
+		foreach ($schedules as $schedule) {
+			$schedule_id = $schedule->ID;
+			$counter = 1;
+			echo '
 			<h3 class="t-center">'. $schedule->post_title .'</h3>';
 
-		while(has_sub_field('competition_event_schedules', $schedule_id)):
-			?>
-			<div class="CompetitionSched SchedTable">
-				<div class="TableCont">
-					<div id="Day_<?php echo $counter; ?>" class="TableHeading">
-						<?php echo get_sub_field('day'); ?>
+			while(has_sub_field('competition_event_schedules', $schedule_id)):
+				?>
+				<div class="CompetitionSched SchedTable">
+					<div class="TableCont">
+						<div id="Day_<?php echo $counter; ?>" class="TableHeading">
+							<?php echo date('l', strtotime(get_sub_field('day'))); ?>
+						</div>
+						<div class="TableBody text-center">
+							<div class="clearfix RowHeading">
+								<div>
+									<span>Number</span>
+								</div>
+								<div>
+									<span>Time</span>
+								</div>
+								<div>
+									<span>Studio</span>
+								</div>
+								<div>
+									<span>Routine</span>
+								</div>
+								<div>
+									<span>Age Division</span>
+								</div>
+								<div>
+									<span>Category</span>
+								</div>
+								<div>
+									<span>Genre</span>
+								</div>
+							</div>
+							<?php $c = 1;
+							while(has_sub_field('lineup')):
+								$highlight = in_array(get_sub_field('routine'), $routines_array) ? 'highlighted-row' : '';
+								if('Judges Break' === get_sub_field('action')) {
+									?>
+									<div class="clearfix t-center Row_<?php echo $c; ?> highlight-red">
+										<span>Judges Break</span>
+									</div>
+									<?php
+								}
+								else if('Awards' === get_sub_field('action')) {
+									?>
+									<div class="clearfix t-center Row_<?php echo $c; ?> highlight-red">
+										<span>Awards</span>
+									</div>
+									<?php
+								}
+								else {
+									?>
+									<div class="clearfix Row_<?php echo $c; ?> <?php echo $col;?> <?php echo $highlight;?>">
+										<div>
+											<span><?php echo get_sub_field('number'); ?>&nbsp;</span>
+										</div>
+										<div>
+											<span><?php echo strtoupper(substr(get_sub_field('time_start'), 0, -3) .'-'. get_sub_field('time_end')); ?>&nbsp;</span>
+										</div>
+										<div>
+											<span><?php echo get_sub_field('studio'); ?>&nbsp;</span>
+										</div>
+										<div>
+											<span><?php echo get_the_title(get_sub_field('routine')); ?>&nbsp;</span>
+										</div>
+										<div>
+											<span><?php echo get_sub_field('age_division'); ?>&nbsp;</span>
+										</div>
+										<div>
+											<span><?php echo get_sub_field('category'); ?>&nbsp;</span>
+										</div>
+										<div>
+											<span><?php echo get_sub_field('genre'); ?>&nbsp;</span>
+										</div>
+									</div>
+									<?php
+								}
+							$c++;
+							endwhile;
+							?>
+						</div>
 					</div>
-					<div class="TableBody text-center">
-						<div class="clearfix RowHeading">
-							<div>
-								<span>Number</span>
-							</div>
-							<div>
-								<span>Time</span>
-							</div>
-							<div>
-								<span>Studio</span>
-							</div>
-							<div>
-								<span>Routine</span>
-							</div>
-							<div>
-								<span>Age Division</span>
-							</div>
-							<div>
-								<span>Category</span>
-							</div>
-							<div>
-								<span>Genre</span>
-							</div>
-						</div>
-						<?php $c = 1;
-						while(has_sub_field('lineup')):
-						$col =  'Judges Break' === get_sub_field('action') || 'Awards' === get_sub_field('action') ? 'Col_1' : '';
-						$highlight = in_array(get_sub_field('routine'), $routines_array) ? 'highlighted-row' : '';
-						?>
-						<div class="clearfix Row_<?php echo $c; ?> <?php echo $col;?> <?php echo $highlight;?>">
-							<div>
-								<span><?php echo get_sub_field('number'); ?>&nbsp;</span>
-							</div>
-							<div>
-								<span><?php echo get_sub_field('time'); ?>&nbsp;</span>
-							</div>
-							<div>
-								<span><?php echo get_sub_field('studio'); ?>&nbsp;</span>
-							</div>
-							<div>
-								<span><?php echo get_the_title(get_sub_field('routine')); ?>&nbsp;</span>
-							</div>
-							<div>
-								<span><?php echo get_sub_field('age_division'); ?>&nbsp;</span>
-							</div>
-							<div>
-								<span><?php echo get_sub_field('category'); ?>&nbsp;</span>
-							</div>
-							<div>
-								<span><?php echo get_sub_field('genre'); ?>&nbsp;</span>
-							</div>
-						</div>
-					<?php
-					$c++;
-					endwhile;
-					?>
 				</div>
-			</div>
-			</div>
-			<?php
-			$counter++;
-		endwhile;
-	}
-	echo '
-	</div>';
-}
-
-function ts_is_tour_close($tour_id) {
-
-	$date_from 	= get_post_meta($tour_id, 'date_from', true);
-	$date_to 	= get_post_meta($tour_id, 'date_to', true);
-	$status 	= get_post_meta($tour_id, 'status', true);
-
-	return ($date_from && ts_get_days_before_date($date_from) <= 0) || $status==2 ? true : false;
-}
-
-function ts_tour_routines_ids($tour_id) {
-
-	$args = array(
-		'post_status' => array('paid', 'paidcheck'),
-		'meta_query' => array(
-			array(
-				'key'     => 'tour_city',
-				'value'   => $tour_id,
-				'compare' => '=',
-			),
-		),
-	);
-
-	$entries = ts_get_posts('ts_entry', -1, $args);
-
-	if(! empty($entries)){
-		$routines_array = array();
-		foreach ($entries as $e) {
-			$competition = get_post_meta($e->ID, 'competition', true);
-			$routines = $competition['routines'];
-            if(! empty($routines)) {
-                $routine_ids = array_keys($routines);
-                $routines_array = array_merge($routine_ids, $routines_array); 
-            }
+				<?php
+				$counter++;
+			endwhile;
 		}
+		echo '
+		</div>';
 	}
-
-	return $routines_array;
 }
 
-function ts_tour_participants($tour_id) {
+function ts_save_routine_number($schedule_id) {
 
-	$args = array(
-		'post_status' => array('paid', 'paidcheck'),
-		'meta_query' => array(
-			array(
-				'key'     => 'tour_city',
-				'value'   => $tour_id,
-				'compare' => '=',
-			),
-		),
-	);
+	$schedules = get_field('competition_event_schedules', $schedule_id);
 
-	$entries = ts_get_posts('ts_entry', -1, $args);
-
-	if(! empty($entries)){
-		$rparticipants_array = array();
-		foreach ($entries as $e) {
-			$workshop = get_post_meta($e->ID, 'workshop', true);
-			$participants = $workshop['participants'];
-            if(! empty($participants)) {
-                $participants_ids = array_keys($participants);
-                $rparticipants_array = array_merge($participants_ids, $rparticipants_array); 
-            }
+	foreach ($schedules as $s) {
+		$lineup = $s['lineup'];
+		foreach ($lineup as $l) {
+			update_post_meta($l['routine'], 'routine_number', $l['number']);
 		}
+
+	}	
+}
+
+function ts_adjudicated_award($score) {
+
+	$award = '';
+
+    if((200 <= $score) && ($score <= 234)) {
+        $award = 'Bronze';
+    }
+    else if((235 <= $score) && ($score <= 249)) {
+        $award = 'Silver';
+    }
+    else if((250 <= $score) && ($score <= 264)) {
+        $award = 'High Silver';
+    }
+    else if((265 <= $score) && ($score <= 274)) {
+        $award = 'Gold';
+    }
+    else if((275 <= $score) && ($score <= 289)) {
+        $award = 'High Gold';
+    }
+    else if((290 <= $score) && ($score <= 295)) {
+        $award = 'Platinum';
+    }
+    else if((296 <= $score) && ($score <= 300)) {
+        $award = 'The Transcendental Award';
+    }
+
+    return $award;
+}
+
+function ts_routine_cat_hs($routine_id, $tour_id) {
+	$agediv = get_post_meta($routine_id, 'agediv', true);
+	$cat = get_post_meta($routine_id, 'cat', true);
+	$limit = $cat==1 || $cat==2 ? 5 : 3;
+	$winners = ts_winners_posts($tour_id, $agediv, $cat, $limit);
+	$routine = get_post($routine_id);
+	if(in_array($routine, $winners)) {
+		$key = array_search($routine, $winners);
+		return ts_add_suffix($key+1) .' Place';
 	}
-
-	return $rparticipants_array;
 }
 
-function ts_participant_studio($participant_id) {
-	$post = get_post($participant_id);
-	$author = $post->post_author;
-	$studio = get_field('studio', 'user_'. $author);
-	return $studio;
+function ts_routine_overall_hs($routine_id, $tour_id) {
+	$agediv = get_post_meta($routine_id, 'agediv', true);
+	$winners = ts_overallwinners_posts($tour_id, $agediv, 3);
+	$routine = get_post($routine_id);
+	if(in_array($routine, $winners)) {
+		$key = array_search($routine, $winners);
+		return ts_add_suffix($key+1) .' Place';
+	}
 }
 
-function ts_participant_agediv($participant_id) {
-	$agediv = wp_get_object_terms($participant_id, 'ts_agediv');
-	$agediv_name = $agediv[0]->name;
-	return $agediv_name;
+function ts_winners_posts($tour_id, $agediv, $cat, $limit=5) {
+    $args = array(
+        'posts_per_page' => $limit,
+        'post__in' => ts_tour_routines_ids($tour_id),
+        'meta_query' => array(
+        	'relation' => 'AND',
+            array(
+                'key'     => 'agediv',
+                'value'   => $agediv,
+                'compare' => '=',
+            ),
+            array(
+                'key'     => 'cat',
+                'value'   => $cat,
+                'compare' => '=',
+            ),
+        ),
+        'orderby' => 'meta_value_num',
+		'meta_key' => 'total_score',
+        'order' => 'DESC',
+    );
+    $routines = ts_get_posts('ts_routine',-1,$args);
+    return $routines;
 }
 
-function ts_display_awards_table($routines) {
+function ts_winners_array($tour_id, $agediv, $cat, $limit=5) {
+
+	$winners = array();
+	$routines = ts_winners_posts($tour_id, $agediv, $cat, $limit);
+	if($routines){
+		foreach ($routines as $r) {
+			$id = $r->ID;
+			$winners[] = array(
+				'id' => $id,
+				'number' => get_post_meta($id, 'routine_number', true),
+				'name' => get_the_title($id),
+				'studio' => ts_post_studio($id),
+				'score' => get_post_meta($id, 'total_score', true),
+			);
+		}
+	}	
+	return $winners;
+}
+
+function ts_overallwinners_posts($tour_id, $agediv, $limit=3) {
+    $args = array(
+        'posts_per_page' => $limit,
+        'post__in' => ts_tour_routines_ids($tour_id),
+        'meta_query' => array(
+        	'relation' => 'AND',
+            array(
+                'key'     => 'agediv',
+                'value'   => $agediv,
+                'compare' => '=',
+            ),
+        ),
+        'orderby' => 'meta_value_num',
+		'meta_key' => 'total_score',
+        'order' => 'DESC',
+    );
+    $routines = ts_get_posts('ts_routine',-1,$args);
+    return $routines;
+}
+
+function ts_overallwinners_array($tour_id, $agediv, $limit=3) {
+	$winners = array();
+	$routines = ts_overallwinners_posts($tour_id, $agediv, $limit);
+	if($routines){
+		foreach ($routines as $r) {
+			$id = $r->ID;
+			$winners[] = array(
+				'id' => $id,
+				'number' => get_post_meta($id, 'routine_number', true),
+				'name' => get_the_title($id),
+				'studio' => ts_post_studio($id),
+				'score' => get_post_meta($id, 'total_score', true),
+			);
+		}
+	}	
+	return $winners;
+}
+
+function ts_generate_tour_music_zip( $schedules, $tour_id ) {
+	if( $tour_id && 'publish' === get_post_status($tour_id) ) {
+
+		$musiczip_filename = get_post_meta($tour_id, 'musiczip_filename', true);
+		if($musiczip_filename) {
+			$musiczip_file = TS_MUSIC_ZIP_FOLDER . "/" .$musiczip_filename;
+			unlink($musiczip_file);
+		}
+
+		// Prepare File
+
+		if ( !is_dir(TS_MUSIC_ZIP_FOLDER) ) {
+			mkdir(TS_MUSIC_ZIP_FOLDER, 0775, true);
+		}
+
+		$file = tempnam(TS_MUSIC_ZIP_FOLDER, "zip");
+		$zip = new ZipArchive();
+		if($zip->open($file, ZipArchive::OVERWRITE) === TRUE) {
+			$counter = 1;
+			for( $i=0 ;$i<count($schedules); $i++ ){
+				if(is_array($schedules[$i]['lineup'])) {
+					for( $y=0 ;$y<count($schedules[$i]['lineup']); $y++ ) {
+						if( 'Judges Break' != $schedules[$i]['lineup'][$y]['action'] || 'Awards' != $schedules[$i]['lineup'][$y]['action'] ) {
+							$routine_id = $schedules[$i]['lineup'][$y]['routine'];
+							$music_id = (int)get_post_meta($routine_id,'music',true);
+							if($music_id) {
+								$name = explode('/', get_attached_file($music_id) );
+								$name = $name[sizeof($name) - 1];
+								$name = sprintf("%03d",$counter).'_'.$name;
+								$zip->addFile(get_attached_file($music_id), $name);
+							}
+							$counter++;
+						}
+					}
+				}
+			}
+			$filename_array = explode('/', $zip->filename);
+			$filename = $filename_array[sizeof($filename_array) - 1];
+			update_post_meta( $tour_id, 'musiczip_filename', $filename);
+		}	
+		$zip->close();
+	}
+}
+
+function ts_select_tour_city($base_url, $tour_id='', $off='') {
 	?>
-	<div class="table-container table-pad">
-		<div class="row table-head">
-			<div class="col-md-2">#</div>
-			<div class="col-md-4">Name</div>
-			<div class="col-md-4">Studio</div>
-			<div class="col-md-2">Award</div>
+	<select name="tour_city" class="select-redirect validate[required]">
+		<option value="">Select Tour City</option>
+		<?php
+		$args = array(
+			'meta_key' => 'date_from',
+			'meta_type' => 'DATE',
+			'orderby' => 'meta_value',
+			'order' => 'ASC',
+		);
+		$tour_cities = ts_get_posts('ts_tour', -1, $args);
+		if($tour_cities) {
+			$count=0;
+			foreach ($tour_cities as $ct) {
+				$count++;
+				setup_postdata($ct);
+				$ct_id 		= $ct->ID;
+				$title 		= get_the_title($ct_id);
+				$selected 	= $tour_id == $ct_id ? 'selected' : '';
+				$disabled 	= is_array($off) && in_array($ct_id, $off) ? 'disabled' : '';
+				?>
+				<option <?php echo $disabled; ?> <?php echo $selected; ?> value="<?php echo $ct_id; ?>" data-url="<?php echo $base_url .'&tour=' . $ct_id; ?>" ><?php echo $title; ?></option>
+				<?php
+			}
+		}
+		?>
+	</select>
+	<?php	
+}
+
+function ts_tours_with_workshop_schedule() {
+	$args = array(
+		'post_status' => 'any',
+		'meta_query' => array(
+			array(
+				'key'     => 'event_city',
+				'value'   => '',
+				'compare' => '!=',
+			),
+		),
+		'tax_query' => array(
+			array(
+				'taxonomy' => 'ts_schedules_type',
+				'field'    => 'slug',
+				'terms'    => 'workshop',
+			),
+		),
+	);
+	$schedules = ts_get_posts('ts_event', -1, $args);
+	$tour_ids = array();
+	if($schedules) {
+		foreach ($schedules as $s) {
+			$tour_id = get_post_meta($s->ID, 'event_city', true);
+			if(! in_array($tour_id, $tour_ids))
+				$tour_ids[] = $tour_id;
+		}
+	}
+	return $tour_ids;
+}
+
+function ts_tours_with_competition_schedule() {
+	$args = array(
+		'post_status' => 'any',
+		'meta_query' => array(
+			array(
+				'key'     => 'event_city',
+				'value'   => '',
+				'compare' => '!=',
+			),
+		),
+		'tax_query' => array(
+			array(
+				'taxonomy' => 'ts_schedules_type',
+				'field'    => 'slug',
+				'terms'    => 'competition',
+			),
+		),
+	);
+	$schedules = ts_get_posts('ts_event', -1, $args);
+	$tour_ids = array();
+	if($schedules) {
+		foreach ($schedules as $s) {
+			$tour_id = get_post_meta($s->ID, 'event_city', true);
+			if(! in_array($tour_id, $tour_ids))
+				$tour_ids[] = $tour_id;
+		}
+	}
+	return $tour_ids;
+}
+
+function ts_save_routine_total_score($score_id) {
+
+	$tour_scores = get_field('tour_scores', $score_id);
+
+	foreach ($tour_scores as $s) {
+		$lineup = $s['lineup'];
+		foreach ($lineup as $l) {
+			update_post_meta($l['routine'], 'total_score', $l['score']);
+		}
+	}	
+}
+
+function ts_display_results() {
+
+	wp_enqueue_style('jquery-ui-css');
+
+	if(isset($_GET['tour']) && $_GET['tour']!='') {
+		$tour_id = $_GET['tour'];
+	}	
+	if(is_admin()) {
+		$base_url = admin_url('admin.php?page=ts-results');
+	}
+	else {
+		$base_url = get_permalink() .'?page=results';
+	}
+	?>
+	<p><?php ts_select_tour_city($base_url, $tour_id); ?></p>
+	<?php
+	if($tour_id && current_user_can('is_organizer')) { 
+		?>
+		<h3>Adjudicated Awards:</h3>
+		<div class="adjudicated-container">
+			<?php
+			$routine_ids = ts_tour_routines_ids($tour_id);
+
+			if(! empty($routine_ids)) {
+				$args = array(
+					'include' => $routine_ids,
+			        'orderby' => 'meta_value_num',
+					'meta_key' => 'routine_number',
+			        'order' => 'ASC',
+				);
+				$routines = ts_get_posts('ts_routine', -1, $args);
+				?>
+				<table class="ts-data-table" data-length="-1" data-exporttitle="Adjudicated Awards" data-exportcol="0,1,2,3" data-dom="fBrt<'table-footer clearfix'p>">
+					<thead><tr>
+						<th style="width: 10%; text-align: center;">#</th>
+						<th style="width: 30%; text-align: center;">Routine Name</th>
+						<th style="width: 30%; text-align: center;">Studio</th>
+						<th style="width: 30%; text-align: center;">Award</th>
+					</tr></thead>
+					<tbody>
+						<?php
+						foreach ($routines as $r) { 
+							$id = $r->ID;
+							$number = get_post_meta($id, 'routine_number', true);
+							$score = get_post_meta($id, 'total_score', true);
+							$name = get_the_title($id);
+							$studio = ts_post_studio($id);
+							?>
+							<tr id="routine-<?php echo $id; ?>">
+								<td style="text-align: center;"><?php echo $number; ?></div>
+								<td style="text-align: center;"><?php echo $name; ?></div>
+								<td style="text-align: center;"><?php echo $studio; ?></div>
+								<td style="text-align: center;"><?php echo ts_adjudicated_award($score); ?></div>
+							</tr>
+							<?php
+						} ?>
+					</tbody>
+				</table>
+				<?php
+			}	
+			?>
+		</div>			
+		<h3>Category High Scores:</h3>
+		<div class="category-container ts-tabs">
+			<ul>
+				<li><a href="#tabs-1">Solo</a></li>
+				<li><a href="#tabs-2">Duo/Trio</a></li>
+				<li><a href="#tabs-3">Small Group</a></li>
+				<li><a href="#tabs-4">Large Group</a></li>
+				<li><a href="#tabs-5">Line</a></li>
+				<li><a href="#tabs-6">Production</a></li>
+			</ul>			
+			<div class="row" id="tabs-1">
+				<?php
+				$hiscore_solo_mini = ts_hiscore_solo_mini($tour_id);
+				if(! empty($hiscore_solo_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Mini</h4>
+						<?php ts_display_awards_table($hiscore_solo_mini, 'High Scores - Mini Solo'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_solo_junior = ts_hiscore_solo_junior($tour_id);
+				if(! empty($ts_hiscore_solo_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Junior</h4>
+						<?php ts_display_awards_table($ts_hiscore_solo_junior, 'High Scores - Junior Solo'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_solo_teen = ts_hiscore_solo_teen($tour_id);
+				if(! empty($ts_hiscore_solo_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_solo_teen, 'High Scores - Teen Solo'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_solo_senior = ts_hiscore_solo_senior($tour_id);
+				if(! empty($ts_hiscore_solo_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_solo_senior, 'High Scores - Senior Solo'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_solo_pro = ts_hiscore_solo_pro($tour_id);
+				if(! empty($ts_hiscore_solo_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_solo_pro, 'High Scores - Pro Solo'); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+			<div class="row" id="tabs-2">
+				<?php
+				$hiscore_duotrio_mini = ts_hiscore_duotrio_mini($tour_id);
+				if(! empty($hiscore_duotrio_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Mini</h4>
+						<?php ts_display_awards_table($hiscore_duotrio_mini, 'High Scores - Mini Duo/Trio'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_duotrio_junior = ts_hiscore_duotrio_junior($tour_id);
+				if(! empty($ts_hiscore_duotrio_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Junior</h4>
+						<?php ts_display_awards_table($ts_hiscore_duotrio_junior, 'High Scores - Junior Duo/Trio'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_duotrio_teen = ts_hiscore_duotrio_teen($tour_id);
+				if(! empty($ts_hiscore_duotrio_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_duotrio_teen, 'High Scores - Teen Duo/Trio'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_duotrio_senior = ts_hiscore_duotrio_senior($tour_id);
+				if(! empty($ts_hiscore_duotrio_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_duotrio_senior, 'High Scores - Senior Duo/Trio'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_duotrio_pro = ts_hiscore_duotrio_pro($tour_id);
+				if(! empty($ts_hiscore_duotrio_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_duotrio_pro, 'High Scores - Pro Duo/Trio'); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+			<div class="row" id="tabs-3">
+				<?php
+				$hiscore_smallgroup_mini = ts_hiscore_smallgroup_mini($tour_id);
+				if(! empty($hiscore_smallgroup_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Mini</h4>
+						<?php ts_display_awards_table($hiscore_smallgroup_mini, 'High Scores - Mini Small Group'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_smallgroup_junior = ts_hiscore_smallgroup_junior($tour_id);
+				if(! empty($ts_hiscore_smallgroup_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Junior</h4>
+						<?php ts_display_awards_table($ts_hiscore_smallgroup_junior, 'High Scores - Junior Small Group'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_smallgroup_teen = ts_hiscore_smallgroup_teen($tour_id);
+				if(! empty($ts_hiscore_smallgroup_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_smallgroup_teen, 'High Scores - Teen Small Group'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_smallgroup_senior = ts_hiscore_smallgroup_senior($tour_id);
+				if(! empty($ts_hiscore_smallgroup_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_smallgroup_senior, 'High Scores - Senior Small Group'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_smallgroup_pro = ts_hiscore_smallgroup_pro($tour_id);
+				if(! empty($ts_hiscore_smallgroup_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_smallgroup_pro, 'High Scores - Pro Small Group'); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+			<div class="row" id="tabs-4">
+				<?php
+				$hiscore_largegroup_mini = ts_hiscore_largegroup_mini($tour_id);
+				if(! empty($hiscore_largegroup_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Mini</h4>
+						<?php ts_display_awards_table($hiscore_largegroup_mini, 'High Scores - Mini Large Group'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_largegroup_junior = ts_hiscore_largegroup_junior($tour_id);
+				if(! empty($ts_hiscore_largegroup_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Junior</h4>
+						<?php ts_display_awards_table($ts_hiscore_largegroup_junior, 'High Scores - Junior Large Group'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_largegroup_teen = ts_hiscore_largegroup_teen($tour_id);
+				if(! empty($ts_hiscore_largegroup_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_largegroup_teen, 'High Scores - Teen Large Group'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_largegroup_senior = ts_hiscore_largegroup_senior($tour_id);
+				if(! empty($ts_hiscore_largegroup_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_largegroup_senior, 'High Scores - Senior Large Group'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_largegroup_pro = ts_hiscore_largegroup_pro($tour_id);
+				if(! empty($ts_hiscore_largegroup_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_largegroup_pro, 'High Scores - Pro Large Group'); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>
+			<div class="row" id="tabs-5">
+				<?php
+				$hiscore_line_mini = ts_hiscore_line_mini($tour_id);
+				if(! empty($hiscore_line_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Mini</h4>
+						<?php ts_display_awards_table($hiscore_line_mini, 'High Scores - Mini Line'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_line_junior = ts_hiscore_line_junior($tour_id);
+				if(! empty($ts_hiscore_line_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Junior</h4>
+						<?php ts_display_awards_table($ts_hiscore_line_junior, 'High Scores - Junior Line'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_line_teen = ts_hiscore_line_teen($tour_id);
+				if(! empty($ts_hiscore_line_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_line_teen, 'High Scores - Teen Line'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_line_senior = ts_hiscore_line_senior($tour_id);
+				if(! empty($ts_hiscore_line_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_line_senior, 'High Scores - Senior Line'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_line_pro = ts_hiscore_line_pro($tour_id);
+				if(! empty($ts_hiscore_line_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_line_pro, 'High Scores - Pro Line'); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+			<div class="row" id="tabs-6">
+				<?php
+				$hiscore_production_mini = ts_hiscore_production_mini($tour_id);
+				if(! empty($hiscore_production_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Mini</h4>
+						<?php ts_display_awards_table($hiscore_production_mini, 'High Scores - Mini Production'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_production_junior = ts_hiscore_production_junior($tour_id);
+				if(! empty($ts_hiscore_production_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Junior</h4>
+						<?php ts_display_awards_table($ts_hiscore_production_junior, 'High Scores - Junior Production'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_production_teen = ts_hiscore_production_teen($tour_id);
+				if(! empty($ts_hiscore_production_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_production_teen, 'High Scores - Teen Production'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_production_senior = ts_hiscore_production_senior($tour_id);
+				if(! empty($ts_hiscore_production_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_production_senior, 'High Scores - Senior Production'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_production_pro = ts_hiscore_production_pro($tour_id);
+				if(! empty($ts_hiscore_production_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_production_pro, 'High Scores - Pro Production'); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>													
 		</div>
-		<div class="table-body">
+		<h3>Overall High Scores:</h3>
+		<div class="overall-container">
+			<div class="row">
+				<?php
+				$hiscore_overall_mini = ts_hiscore_overall_mini($tour_id);
+				if(! empty($hiscore_overall_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Mini</h4>
+						<?php ts_display_awards_table($hiscore_overall_mini, 'Overall High Scores - Mini'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_overall_junior = ts_hiscore_overall_junior($tour_id);
+				if(! empty($ts_hiscore_overall_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Junior</h4>
+						<?php ts_display_awards_table($ts_hiscore_overall_junior, 'Overall High Scores - Junior'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_overall_teen = ts_hiscore_overall_teen($tour_id);
+				if(! empty($ts_hiscore_overall_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_overall_teen, 'Overall High Scores - Teen'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_overall_senior = ts_hiscore_overall_senior($tour_id);
+				if(! empty($ts_hiscore_overall_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_overall_senior, 'Overall High Scores - Senior'); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_overall_pro = ts_hiscore_overall_pro($tour_id);
+				if(! empty($ts_hiscore_overall_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_overall_pro, 'Overall High Scores - Pro'); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+		</div>	
+		<?php
+		$special_awards = get_post_meta($tour_id, 'special_awards', true);
+		if($special_awards) {
+			$studio_innovator 		= isset($special_awards['studio_innovator']) ? $special_awards['studio_innovator'] : '';
+			$choreo12below_num 		= isset($special_awards['twelve_below']['choreography']['routine_number']) 		? $special_awards['twelve_below']['choreography']['routine_number'] : '';
+			$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) 			? $special_awards['twelve_below']['choreography']['routine_id'] : '';
+			$standnom12below_num 	= isset($special_awards['twelve_below']['standout_nominee']['routine_number']) 	? $special_awards['twelve_below']['standout_nominee']['routine_number'] : '';
+			$standnom12below_id 	= isset($special_awards['twelve_below']['standout_nominee']['routine_id']) 		? $special_awards['twelve_below']['standout_nominee']['routine_id'] : '';
+			$standwin12below_num 	= isset($special_awards['twelve_below']['standout_winner']['routine_number']) 	? $special_awards['twelve_below']['standout_winner']['routine_number'] : '';
+			$standwin12below_id 	= isset($special_awards['twelve_below']['standout_winner']['routine_id']) 		? $special_awards['twelve_below']['standout_winner']['routine_id'] : '';
+			$choreo13above_num 		= isset($special_awards['thirteen_above']['choreography']['routine_number']) 	 ? $special_awards['thirteen_above']['choreography']['routine_number'] : '';
+			$choreo13above_id 		= isset($special_awards['thirteen_above']['choreography']['routine_id']) 		 ? $special_awards['thirteen_above']['choreography']['routine_id'] : '';
+			$standnom13above_num 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_number']) ? $special_awards['thirteen_above']['standout_nominee']['routine_number'] : '';
+			$standnom13above_id 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_id']) 	 ? $special_awards['thirteen_above']['standout_nominee']['routine_id'] : '';
+			$standwin13above_num 	= isset($special_awards['thirteen_above']['standout_winner']['routine_number'])  ? $special_awards['thirteen_above']['standout_winner']['routine_number'] : '';
+			$standwin13above_id 	= isset($special_awards['thirteen_above']['standout_winner']['routine_id']) 	 ? $special_awards['thirteen_above']['standout_winner']['routine_id'] : '';
+			?>
+			<h3>Specialty Awards:</h3>
+			<div class="awards-container">
+				<h4>(for all 12 and under)</h4>
+				<table class="ts-data-table" data-length="-1" data-exporttitle="Specialty Awards (for all 12 and under)" data-exportcol="0,1,2,3" data-dom="fBrt<'table-footer clearfix'p>">
+					<thead>
+						<tr>
+							<th style="width: 25%;">Award</th>
+							<th style="width: 25%; text-align: center;">Routine #</th>
+							<th style="width: 25%; text-align: center;">Routine Name</th>
+							<th style="width: 25%; text-align: center;">Studio</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Choreography Award:</div>
+							<td style="text-align: center;"><?php echo $choreo12below_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($choreo12below_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($choreo12below_id);?></div>
+						</tr>
+						<tr>
+							<td>Judges Standout Nominee:</div>
+							<td style="text-align: center;"><?php echo $standnom12below_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($standnom12below_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($standnom12below_id);?></div>
+						</tr>
+						<tr>
+							<td>Judges Standout Winner:</div>
+							<td style="text-align: center;"><?php echo $standwin12below_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($standwin12below_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($standwin12below_id);?></div>
+						</tr>
+					</tbody>	
+				</table>
+				<h4>(for all 13 and above)</h4>
+				<table class="ts-data-table" data-length="-1" data-exporttitle="Specialty Awards (for all 13 and above)" data-exportcol="0,1,2,3" data-dom="fBrt<'table-footer clearfix'p>">
+					<thead>
+						<tr>
+							<th style="width: 25%;">Award</th>
+							<th style="width: 25%; text-align: center;">Routine #</th>
+							<th style="width: 25%; text-align: center;">Routine Name</th>
+							<th style="width: 25%; text-align: center;">Studio</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Choreography Award:</div>
+							<td style="text-align: center;"><?php echo $choreo13above_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($choreo13above_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($choreo13above_id);?></div>
+						</tr>
+						<tr>
+							<td>Judges Standout Nominee:</div>
+							<td style="text-align: center;"><?php echo $standnom13above_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($standnom13above_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($standnom13above_id);?></div>
+						</tr>
+						<tr>
+							<td>Judges Standout Winner:</div>
+							<td style="text-align: center;"><?php echo $standwin13above_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($standwin13above_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($standwin13above_id);?></div>
+						</tr>
+					</tbody>	
+				</table>
+				<h4>Studio Innovator: <strong><?php echo $studio_innovator; ?></strong></h4>
+			</div>
+			<?php 
+		}
+		$scholarships = get_post_meta($tour_id, 'scholarships', true);
+		if($scholarships) { 
+			?>
+			<h3>Scholarships:</h3>
+			<div class="scholarships-container">
+				<table class="ts-data-table" data-length="-1" data-exporttitle="Sunday Scholarships" data-exportcol="0,1,2,3,4" data-dom="fBrt<'table-footer clearfix'p>">
+					<?php
+					$scholarships = get_post_meta($tour_id, 'scholarships', true);
+					if(! empty($scholarships)) {
+						?>
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th style="text-align: center;">Age Division</th>
+								<th style="text-align: center;">Studio</th>
+								<th style="text-align: center;">Scholarship Number</th>
+								<th style="text-align: center;">Scholarship</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							foreach ($scholarships as $key=>$val) {
+								$id = $key;
+								if(empty($val)) continue;
+								?>
+								<tr id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
+									<td><?php echo get_the_title($id); ?></td>
+									<td style="text-align: center;"><?php echo ts_participant_agediv($id); ?></td>
+									<td style="text-align: center;"><?php echo ts_post_studio($id); ?></td>
+									<td style="text-align: center;"><?php echo $val['number']; ?></td>
+									<td style="text-align: center;"><?php echo $val['title']; ?></td>
+								</tr>
+								<?php
+							}
+							?>
+						</tbody>
+						<?php
+					}
+					?>
+				</table>
+			</div>	
+			<?php
+		}
+	}
+}
+
+function ts_display_awards_table($routines, $title="") {
+	?>
+	<table class="ts-data-table" data-length="-1" data-exporttitle="<?php echo $title; ?>" data-exportcol="0,1,2,3" data-dom="fBrt<'table-footer clearfix'p>">
+		<thead>
+			<tr>
+				<th style="text-align: center; width: 60px;">#</th>
+				<th>Name</th>
+				<th>Studio</th>
+				<th style="text-align: center;">Award</th>
+			</tr>
+		</thead>
+		<tbody>
 			<?php
 			foreach ($routines as $key=>$val) { 
 				$id 	= $val['id'];
 				$number = $val['number'];
 				$name 	= $val['name'];
 				$studio = $val['studio'];
-				$award 	= ts_add_suffix($key);
+				$award 	= ts_add_suffix($key+1);
 				?>
-				<div class="row" id="routine-<?php echo $id; ?>">
-					<div class="col-md-2"><?php echo $number; ?></div>
-					<div class="col-md-4"><?php echo $name; ?></div>
-					<div class="col-md-4"><?php echo $studio; ?></div>
-					<div class="col-md-2"><?php echo $award; ?></div>
-				</div>
+				<tr id="routine-<?php echo $id; ?>">	
+					<td style="text-align: center;"><?php echo $number; ?></td>
+					<td><?php echo $name; ?></td>
+					<td><?php echo $studio; ?></td>
+					<td style="text-align: center;"><?php echo $award; ?> Place</td>
+				</tr>	
 				<?php
 			} ?>
+		</tbody>
+	</table>
+	<?php	
+}
+
+function ts_display_results_frontend() {
+
+	wp_enqueue_style('jquery-ui-css');
+	$status = 'draft';
+
+	if(isset($_GET['tour']) && $_GET['tour']!='') {
+		$tour_id = $_GET['tour'];
+		$status = get_post_meta($tour_id, 'results_status', true);
+	}	
+	if(is_admin()) {
+		$base_url = admin_url('admin.php?page=ts-results');
+	}
+	else {
+		$base_url = get_permalink() .'?page=results';
+	}
+	?>
+	<p><?php ts_select_tour_city($base_url, $tour_id); ?></p>
+	<?php
+	if($tour_id && $status=='publish') { 
+		?>
+		<h3>Category High Scores:</h3>
+		<div class="category-container ts-tabs">
+			<ul>
+				<li><a href="#tabs-1">Solo</a></li>
+				<li><a href="#tabs-2">Duo/Trio</a></li>
+				<li><a href="#tabs-3">Small Group</a></li>
+				<li><a href="#tabs-4">Large Group</a></li>
+				<li><a href="#tabs-5">Line</a></li>
+				<li><a href="#tabs-6">Production</a></li>
+			</ul>			
+			<div class="row" id="tabs-1">
+				<?php
+				$hiscore_solo_mini = ts_hiscore_solo_mini($tour_id);
+				if(! empty($hiscore_solo_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Mini</h4>
+						<?php ts_display_awards_table_frontend($hiscore_solo_mini); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_solo_junior = ts_hiscore_solo_junior($tour_id);
+				if(! empty($ts_hiscore_solo_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Junior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_solo_junior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_solo_teen = ts_hiscore_solo_teen($tour_id);
+				if(! empty($ts_hiscore_solo_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Teen</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_solo_teen); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_solo_senior = ts_hiscore_solo_senior($tour_id);
+				if(! empty($ts_hiscore_solo_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Senior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_solo_senior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_solo_pro = ts_hiscore_solo_pro($tour_id);
+				if(! empty($ts_hiscore_solo_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Pro</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_solo_pro); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+			<div class="row" id="tabs-2">
+				<?php
+				$hiscore_duotrio_mini = ts_hiscore_duotrio_mini($tour_id);
+				if(! empty($hiscore_duotrio_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Mini</h4>
+						<?php ts_display_awards_table_frontend($hiscore_duotrio_mini); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_duotrio_junior = ts_hiscore_duotrio_junior($tour_id);
+				if(! empty($ts_hiscore_duotrio_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Junior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_duotrio_junior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_duotrio_teen = ts_hiscore_duotrio_teen($tour_id);
+				if(! empty($ts_hiscore_duotrio_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Teen</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_duotrio_teen); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_duotrio_senior = ts_hiscore_duotrio_senior($tour_id);
+				if(! empty($ts_hiscore_duotrio_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Senior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_duotrio_senior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_duotrio_pro = ts_hiscore_duotrio_pro($tour_id);
+				if(! empty($ts_hiscore_duotrio_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Pro</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_duotrio_pro); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+			<div class="row" id="tabs-3">
+				<?php
+				$hiscore_smallgroup_mini = ts_hiscore_smallgroup_mini($tour_id);
+				if(! empty($hiscore_smallgroup_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Mini</h4>
+						<?php ts_display_awards_table_frontend($hiscore_smallgroup_mini); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_smallgroup_junior = ts_hiscore_smallgroup_junior($tour_id);
+				if(! empty($ts_hiscore_smallgroup_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Junior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_smallgroup_junior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_smallgroup_teen = ts_hiscore_smallgroup_teen($tour_id);
+				if(! empty($ts_hiscore_smallgroup_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Teen</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_smallgroup_teen); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_smallgroup_senior = ts_hiscore_smallgroup_senior($tour_id);
+				if(! empty($ts_hiscore_smallgroup_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Senior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_smallgroup_senior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_smallgroup_pro = ts_hiscore_smallgroup_pro($tour_id);
+				if(! empty($ts_hiscore_smallgroup_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Pro</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_smallgroup_pro); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+			<div class="row" id="tabs-4">
+				<?php
+				$hiscore_largegroup_mini = ts_hiscore_largegroup_mini($tour_id);
+				if(! empty($hiscore_largegroup_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Mini</h4>
+						<?php ts_display_awards_table_frontend($hiscore_largegroup_mini); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_largegroup_junior = ts_hiscore_largegroup_junior($tour_id);
+				if(! empty($ts_hiscore_largegroup_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Junior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_largegroup_junior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_largegroup_teen = ts_hiscore_largegroup_teen($tour_id);
+				if(! empty($ts_hiscore_largegroup_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Teen</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_largegroup_teen); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_largegroup_senior = ts_hiscore_largegroup_senior($tour_id);
+				if(! empty($ts_hiscore_largegroup_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Senior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_largegroup_senior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_largegroup_pro = ts_hiscore_largegroup_pro($tour_id);
+				if(! empty($ts_hiscore_largegroup_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Pro</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_largegroup_pro); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>
+			<div class="row" id="tabs-5">
+				<?php
+				$hiscore_line_mini = ts_hiscore_line_mini($tour_id);
+				if(! empty($hiscore_line_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Mini</h4>
+						<?php ts_display_awards_table_frontend($hiscore_line_mini); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_line_junior = ts_hiscore_line_junior($tour_id);
+				if(! empty($ts_hiscore_line_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Junior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_line_junior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_line_teen = ts_hiscore_line_teen($tour_id);
+				if(! empty($ts_hiscore_line_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Teen</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_line_teen); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_line_senior = ts_hiscore_line_senior($tour_id);
+				if(! empty($ts_hiscore_line_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Senior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_line_senior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_line_pro = ts_hiscore_line_pro($tour_id);
+				if(! empty($ts_hiscore_line_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Pro</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_line_pro); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+			<div class="row" id="tabs-6">
+				<?php
+				$hiscore_production_mini = ts_hiscore_production_mini($tour_id);
+				if(! empty($hiscore_production_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Mini</h4>
+						<?php ts_display_awards_table_frontend($hiscore_production_mini); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_production_junior = ts_hiscore_production_junior($tour_id);
+				if(! empty($ts_hiscore_production_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Junior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_production_junior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_production_teen = ts_hiscore_production_teen($tour_id);
+				if(! empty($ts_hiscore_production_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Teen</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_production_teen); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_production_senior = ts_hiscore_production_senior($tour_id);
+				if(! empty($ts_hiscore_production_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Senior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_production_senior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_production_pro = ts_hiscore_production_pro($tour_id);
+				if(! empty($ts_hiscore_production_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Pro</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_production_pro); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>													
+		</div>
+		<h3>Overall High Scores:</h3>
+		<div class="overall-container">
+			<div class="row">
+				<?php
+				$hiscore_overall_mini = ts_hiscore_overall_mini($tour_id);
+				if(! empty($hiscore_overall_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Mini</h4>
+						<?php ts_display_awards_table_frontend($hiscore_overall_mini); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_overall_junior = ts_hiscore_overall_junior($tour_id);
+				if(! empty($ts_hiscore_overall_junior)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Junior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_overall_junior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_overall_teen = ts_hiscore_overall_teen($tour_id);
+				if(! empty($ts_hiscore_overall_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Teen</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_overall_teen); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_overall_senior = ts_hiscore_overall_senior($tour_id);
+				if(! empty($ts_hiscore_overall_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Senior</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_overall_senior); ?>
+					</div>
+					<?php
+				} 
+				$ts_hiscore_overall_pro = ts_hiscore_overall_pro($tour_id);
+				if(! empty($ts_hiscore_overall_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Overall - Pro</h4>
+						<?php ts_display_awards_table_frontend($ts_hiscore_overall_pro); ?>
+					</div>
+					<?php
+				} 
+				?>
+			</div>	
+		</div>	
+		<?php
+		$special_awards = get_post_meta($tour_id, 'special_awards', true);
+		if($special_awards) {
+			$studio_innovator 		= isset($special_awards['studio_innovator']) ? $special_awards['studio_innovator'] : '';
+			$choreo12below_num 		= isset($special_awards['twelve_below']['choreography']['routine_number']) 		? $special_awards['twelve_below']['choreography']['routine_number'] : '';
+			$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) 			? $special_awards['twelve_below']['choreography']['routine_id'] : '';
+			$standnom12below_num 	= isset($special_awards['twelve_below']['standout_nominee']['routine_number']) 	? $special_awards['twelve_below']['standout_nominee']['routine_number'] : '';
+			$standnom12below_id 	= isset($special_awards['twelve_below']['standout_nominee']['routine_id']) 		? $special_awards['twelve_below']['standout_nominee']['routine_id'] : '';
+			$standwin12below_num 	= isset($special_awards['twelve_below']['standout_winner']['routine_number']) 	? $special_awards['twelve_below']['standout_winner']['routine_number'] : '';
+			$standwin12below_id 	= isset($special_awards['twelve_below']['standout_winner']['routine_id']) 		? $special_awards['twelve_below']['standout_winner']['routine_id'] : '';
+			$choreo13above_num 		= isset($special_awards['thirteen_above']['choreography']['routine_number']) 	 ? $special_awards['thirteen_above']['choreography']['routine_number'] : '';
+			$choreo13above_id 		= isset($special_awards['thirteen_above']['choreography']['routine_id']) 		 ? $special_awards['thirteen_above']['choreography']['routine_id'] : '';
+			$standnom13above_num 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_number']) ? $special_awards['thirteen_above']['standout_nominee']['routine_number'] : '';
+			$standnom13above_id 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_id']) 	 ? $special_awards['thirteen_above']['standout_nominee']['routine_id'] : '';
+			$standwin13above_num 	= isset($special_awards['thirteen_above']['standout_winner']['routine_number'])  ? $special_awards['thirteen_above']['standout_winner']['routine_number'] : '';
+			$standwin13above_id 	= isset($special_awards['thirteen_above']['standout_winner']['routine_id']) 	 ? $special_awards['thirteen_above']['standout_winner']['routine_id'] : '';
+			?>
+			<h3>Specialty Awards:</h3>
+			<div class="awards-container">
+				<h4>(for all 12 and under)</h4>
+				<table class="ts-data-table" data-length="-1" data-dom="frt<'table-footer clearfix'p>">
+					<thead>
+						<tr>
+							<th style="width: 25%;">Award</th>
+							<th style="width: 25%; text-align: center;">Routine #</th>
+							<th style="width: 25%; text-align: center;">Routine Name</th>
+							<th style="width: 25%; text-align: center;">Studio</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Choreography Award:</div>
+							<td style="text-align: center;"><?php echo $choreo12below_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($choreo12below_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($choreo12below_id);?></div>
+						</tr>
+						<tr>
+							<td>Judges Standout Nominee:</div>
+							<td style="text-align: center;"><?php echo $standnom12below_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($standnom12below_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($standnom12below_id);?></div>
+						</tr>
+						<tr>
+							<td>Judges Standout Winner:</div>
+							<td style="text-align: center;"><?php echo $standwin12below_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($standwin12below_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($standwin12below_id);?></div>
+						</tr>
+					</tbody>	
+				</table>
+				<h4>(for all 13 and above)</h4>
+				<table class="ts-data-table" data-length="-1" data-dom="frt<'table-footer clearfix'p>">
+					<thead>
+						<tr>
+							<th style="width: 25%;">Award</th>
+							<th style="width: 25%; text-align: center;">Routine #</th>
+							<th style="width: 25%; text-align: center;">Routine Name</th>
+							<th style="width: 25%; text-align: center;">Studio</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Choreography Award:</div>
+							<td style="text-align: center;"><?php echo $choreo13above_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($choreo13above_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($choreo13above_id);?></div>
+						</tr>
+						<tr>
+							<td>Judges Standout Nominee:</div>
+							<td style="text-align: center;"><?php echo $standnom13above_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($standnom13above_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($standnom13above_id);?></div>
+						</tr>
+						<tr>
+							<td>Judges Standout Winner:</div>
+							<td style="text-align: center;"><?php echo $standwin13above_num; ?></div>
+							<td style="text-align: center;"><?php echo get_the_title($standwin13above_id);?></div>
+							<td style="text-align: center;"><?php echo ts_post_studio($standwin13above_id);?></div>
+						</tr>
+					</tbody>	
+				</table>
+				<h4>Studio Innovator: <strong><?php echo $studio_innovator; ?></strong></h4>
+			</div>
+			<?php 
+		}
+		$scholarships = get_post_meta($tour_id, 'scholarships', true);
+		if($scholarships) { 
+			?>
+			<h3>Scholarships:</h3>
+			<div class="scholarships-container">
+				<table class="ts-data-table" data-length="-1" data-dom="frt<'table-footer clearfix'p>">
+					<?php
+					$scholarships = get_post_meta($tour_id, 'scholarships', true);
+					if(! empty($scholarships)) {
+						?>
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th style="text-align: center;">Age Division</th>
+								<th style="text-align: center;">Studio</th>
+								<th style="text-align: center;">Scholarship Number</th>
+								<th style="text-align: center;">Scholarship</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							foreach ($scholarships as $key=>$val) {
+								$id = $key;
+								if(empty($val)) continue;
+								?>
+								<tr id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
+									<td><?php echo get_the_title($id); ?></td>
+									<td style="text-align: center;"><?php echo ts_participant_agediv($id); ?></td>
+									<td style="text-align: center;"><?php echo ts_post_studio($id); ?></td>
+									<td style="text-align: center;"><?php echo $val['number']; ?></td>
+									<td style="text-align: center;"><?php echo $val['title']; ?></td>
+								</tr>
+								<?php
+							}
+							?>
+						</tbody>
+						<?php
+					}
+					?>
+				</table>
+			</div>	
+			<?php
+		}
+	}
+	else if($tour_id && $status=='draft') {
+		echo '
+		<h3 class="t-center">No results for this tour city yet.</h3>';
+	}
+}
+
+function ts_display_awards_table_frontend($routines) {
+	?>
+	<table class="ts-data-table" data-length="-1" data-dom="frt<'table-footer clearfix'p>">
+		<thead>
+			<tr>
+				<th style="text-align: center; width: 60px;">#</th>
+				<th>Name</th>
+				<th>Studio</th>
+				<th style="text-align: center;">Award</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php
+			foreach ($routines as $key=>$val) { 
+				$id 	= $val['id'];
+				$number = $val['number'];
+				$name 	= $val['name'];
+				$studio = $val['studio'];
+				$award 	= ts_add_suffix($key+1);
+				?>
+				<tr id="routine-<?php echo $id; ?>">	
+					<td style="text-align: center;"><?php echo $number; ?></td>
+					<td><?php echo $name; ?></td>
+					<td><?php echo $studio; ?></td>
+					<td style="text-align: center;"><?php echo $award; ?> Place</td>
+				</tr>	
+				<?php
+			} ?>
+		</tbody>
+	</table>
+	<?php	
+}
+
+function ts_admin_footer_code() {
+	$screen = get_current_screen();
+	if($screen->parent_base!='ts-post-entry'){
+	    ?>
+	    <div id="popup-refresh" class="modal fade" role="dialog">
+	        <div class="modal-dialog">
+	            <div class="modal-content">
+	                <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+	                <span class="sr-only">Loading...</span>
+	            </div>
+	        </div>
+	    </div>
+	    <?php
+	}
+}
+
+function ts_waiver_popup() {
+	?>
+	<div id="popup-waiver" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form name="popup-waiver-form" id="popup-waiver-form" class="validate boxed" method="post" action="">
+					<?php
+					if(current_user_can('is_studio')) {
+						?>
+						<h2 style="text-align: center;">WAIVER AND RELEASE OF LIABILITY</h2>
+						<p><strong>PLEASE BE ADVISED</strong>:</p>
+						<p>***This form must be read and signed before the participant is permitted to take part in any Transcend event sessions (each, “an Event”). By signing this agreement, the participant and the participant"™s parent/guardian affirms having read it. ***</p>
+						<ol>
+							<li>In consideration of being allowed to participate in any way in any Transcend event, I, the undersigned, acknowledge, appreciate, and agree that:
+								<ol>
+									<li>I know that via my participation, I may risk bodily injury, as well as the risk of damage to or loss of property; and</li>
+									<li>I understand that by signing this form and participating in an Event, I assume all such risks, both known and unknown; and</li>
+									<li>I agree to comply with all terms and condition communicated by TRANSCEND, the Event venue, and all persons managing the event. I agree to pay full attention at all times during my participation in any Event. I agree that if I observe any unusual hazard, I will immediately bring such to the attention of the nearest staff person associated with the Event. I agree that if I am feeling ill, dizzy, or in any way uncomfortable with my ability to safely participate in any event, I will notify staff and withdraw from participation the event;</li>
+									<li>I, for myself, and on behalf of my heirs, assigns, hereby release, indemnify, hold harmless, and covenant not to sue Transcend Productions, LLC or its affiliates ("Transcend"), its officers, officials, volunteers, employees, agents, and/or other participants, sponsors, advertisers, and, if applicable, the owners and lessors of premises used for the activity ("RELEASEES"), any injury and/or loss or damage to person or property, whether caused by the negligence of the releases or otherwise related to any event in which I participate, except that which is the result of gross negligence or intentional misconduct, to the fullest extent permitted by law.</li>
+									<li>I understand that Transcend from time to time produces audio-visual programs, promotions, and other materials relating to its Events. I and my Guardian hereby grant Transcend and its agents, successors, assigns and licensees the perpetual right to use my name, likeness, biographical information, photographs, voice, personal characteristics, and other personal identification (collectively “Likeness”) and any digital, videotape, sound and audio-visual recordings in any way (collectively “Recordings”) in any and all manner and media, now known or hereafter devised, throughout the world, for any and all purposes including, without limitation, in productions and in connection with the advertising and promotion of productions and/or Transcend, provided that Transcend is under no obligation to exercise any of the foregoing rights.</li>
+									<li>I have elected, on a voluntary basis, and, if I am under the age of 18, with the acknowledgement and permission of my parents or legal guardians (individually and collectively referred to herein as “Guardian”), to participate in dance and other athletic performance-related activities (individually and collectively, “Activities”) for which I am registered with TRANSCEND, I and my Guardian agree and acknowledge that I may only attend Events under the supervision of a chaperone who is at least 21 years of age (“Chaperone”), that such Chaperone is responsible for my supervision at all times, and that Transcend is not responsible in any way or to any extent for supervision of me or for my welfare during my attendance at Events and participation in Activities.</li>
+									<li>By signing this waiver, you release Transcend and all its employees from all claims arising out of related to any injury which may be sustained by you/your child while attending any dance class, performance, or other event associated with Transcend. You also affirm you now have, and will continue to carry, proper primary medical, health, and hospitalization and accident insurance, which you consider adequate for the protection of both your child.</li>
+								</ol>
+							</li>
+						</ol>
+						<p><strong>For Studio Owners/Directors of Registered Participants:</strong></p>
+						<p class="f-larger">I have read this Release of Liability and Waiver Agreement, fully understand its terms, and sign it freely and voluntarily on behalf of all my registered participants.</p>
+						<p><label><input type="checkbox" class="validate[required]" name="agree1" value="1" /><span></span></label></p>
+						<?php
+					}
+					else if(current_user_can('is_individual')){
+						?>
+						<h2 style="text-align:center;">WAIVER AND RELEASE OF LIABILITY</h2>
+						<p><strong>PLEASE BE ADVISED</strong>:</p>
+						<p>***This form must be read and signed before the participant is permitted to take part in any Transcend event sessions (each, "an Event"). By signing this agreement, the participant and the participant's parent/guardian affirms having read it. ***</p>
+						<ol>
+							<li>In consideration of being allowed to participate in any way in any Transcend event, I, the undersigned, acknowledge, appreciate, and agree that:
+								<ol>
+									<li>I know that via my participation, I may risk bodily injury, as well as the risk of damage to or loss of property; and</li>
+									<li>I understand that by signing this form and participating in an Event, I assume all such risks, both known and unknown; and</li>
+									<li>I agree to comply with all terms and condition communicated by TRANSCEND, the Event venue, and all persons managing the event. I agree to pay full attention at all times during my participation in any Event. I agree that if I observe any unusual hazard, I will immediately bring such to the attention of the nearest staff person associated with the Event. I agree that if I am feeling ill, dizzy, or in any way uncomfortable with my ability to safely participate in any event, I will notify staff and withdraw from participation the event;</li>
+									<li>I, for myself, and on behalf of my heirs, assigns, hereby release, indemnify, hold harmless, and covenant not to sue Transcend Productions, LLC or its affiliates ("Transcend"), its officers, officials, volunteers, employees, agents, and/or other participants, sponsors, advertisers, and, if applicable, the owners and lessors of premises used for the activity ("RELEASEES"), any injury and/or loss or damage to person or property, whether caused by the negligence of the releases or otherwise related to any event in which I participate, except that which is the result of gross negligence or intentional misconduct, to the fullest extent permitted by law.</li>
+									<li>I understand that Transcend from time to time produces audio-visual programs, promotions, and other materials relating to its Events. I and my Guardian hereby grant Transcend and its agents, successors, assigns and licensees the perpetual right to use my name, likeness, biographical information, photographs, voice, personal characteristics, and other personal identification (collectively "Likeness") and any digital, videotape, sound and audio-visual recordings in any way (collectively "Recordings") in any and all manner and media, now known or hereafter devised, throughout the world, for any and all purposes including, without limitation, in productions and in connection with the advertising and promotion of productions and/or Transcend, provided that Transcend is under no obligation to exercise any of the foregoing rights.</li>
+									<li>I have elected, on a voluntary basis, and, if I am under the age of 18, with the acknowledgement and permission of my parents or legal guardians (individually and collectively referred to herein as "Guardian"), to participate in dance and other athletic performance-related activities (individually and collectively, "Activities") for which I am registered with TRANSCEND,  I and my Guardian agree and acknowledge that I may only attend Events under the supervision of a chaperone who is at least 21 years of age ("Chaperone"), that such Chaperone is responsible for my supervision at all times, and that Transcend is not responsible in any way or to any extent for supervision of me or for my welfare during my attendance at Events and participation in Activities.</li>
+									<li>By signing this waiver, you release Transcend and all its employees from all claims arising out of related to any injury which may be sustained by you/your child while attending any dance class, performance, or other event associated with Transcend. You also affirm you now have, and will continue to carry, proper primary medical, health, and hospitalization and accident insurance, which you consider adequate for the protection of both your child.</li>
+								</ol>
+							</li>
+						</ol>
+						<p><strong>If under 18 (for Parents/Guardians): </strong></p>
+						<p class="f-larger">This is to certify that I/we, as parent(s)/guardian(s) with legal responsibility for this participant, do consent and agree not only to his/her release, but also for myself/ourselves, and my/ourselves, and my/our heirs, assigns and next of kin to release and indemnify the Releases from any and all Liability incident to my/our minor child's involvement as stated above, even arising from the negligence of the releases, to the fullest extent permitted by law.</p>
+						<p><label><input type="radio" class="validate[required]" name="agree[]" value="1" /><span></span></label></p>
+						<p><strong>If over 18: </strong></p>
+						<p class="f-larger">I have read this Release of Liability and Waiver Agreement, fully understand its terms, and sign it freely and voluntarily.</p>
+						<p><label><input type="radio" class="validate[required]" name="agree[]" value="1" /><span></span></label></p>
+						<?php
+					}
+					?>
+					<input class="btn btn-green" type="submit" value="Continue">
+				</form>
+			</div>
 		</div>
 	</div>
-	<?php	
+	<?php
 }

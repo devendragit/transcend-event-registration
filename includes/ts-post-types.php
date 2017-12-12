@@ -206,7 +206,7 @@ function ts_register_custom_post_types() {
 		'rewrite' => array('slug' => 'routine', 'with_front' => true),
 		'query_var' => true,
 		'supports' => array('title','author'),
-		'taxonomies' => array(),
+		'taxonomies' => array('ts_agediv'),
 		'labels' => array (
 			'name' => 'Routines',
 			'singular_name' => 'Routine',
