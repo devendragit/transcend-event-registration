@@ -34,7 +34,7 @@ function ts_new_entry_admin_notification($entry_id, $user_id, $payment_method='s
 
 	$body.= '<h2>Method of Payment: '. $payment .'</h2>';
 	$body.= '<h2>Profile:</h2>';
-	$body.= ts_display_user_details($user_id)
+	$body.= ts_display_user_details($user_id);
 	$body.= '<h2>Summary:</h2>';
 	$body.= ts_display_entry_details($entry_id, $user_id);
 
@@ -82,7 +82,7 @@ function ts_reg_edited_notification($entry_id, $user_id) {
 	';
 
 	$body.= '<h2>Profile:</h2>';
-	$body.= ts_display_user_details($user_id)
+	$body.= ts_display_user_details($user_id);
 	$body.= '<h2>Summary:</h2>';
 	$body.= ts_display_entry_details($entry_id, $user_id);
 
