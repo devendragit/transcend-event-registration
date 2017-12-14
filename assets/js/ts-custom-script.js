@@ -386,7 +386,7 @@ jQuery(document).ready(function($) {
 	$('.btn-previewschedule').on('click', function(e) {
 		e.preventDefault();
 		$('#popup-competitionsched-preview').modal('show');
-	});	
+	});
 
 	$('.btn-editmusicinfo').on('click', function(e) {
 		e.preventDefault();
@@ -493,6 +493,11 @@ jQuery(document).ready(function($) {
 		custom_uploader.open();
 
 		$('.media-modal-content .media-menu-item:first-child').click();
+	});
+
+	$('.btn-downloadschedule').on('click', function(e) {
+		e.preventDefault();
+		$('#downloadschedule').printThis();
 	});
 
 });

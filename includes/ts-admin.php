@@ -1253,6 +1253,7 @@ function ts_post_competition_schedule() {
 			<div class="ts-admin-wrapper schedule-wrapper">
 				<div class="row">
 					<div class="col-md-12 t-right">
+						<a href="javascript:void(0)" class="btn btn-green btn-downloadschedule">Download</a>
 						<button class="btn btn-red btn-resetschedule" data-id="<?php echo $schedule_id; ?>" data-return="<?php echo admin_url('admin.php?page=ts-edit-competition-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>">Reset</button>&nbsp;&nbsp;
 						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>
 					</div>
@@ -1281,7 +1282,7 @@ function ts_post_competition_schedule() {
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 							<h4 class="modal-title">Competition Schedule Preview</h4>
 						</div>
-						<div class="modal-body">
+						<div id="downloadschedule" class="modal-body">
 							<?php 
 							$schedule = get_post($schedule_id);
 							ts_display_competition_schedules(array($schedule)); 

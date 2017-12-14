@@ -1988,6 +1988,8 @@ function ts_generate_tour_music_zip( $schedules, $tour_id ) {
 							if($music_id) {
 								$name = explode('/', get_attached_file($music_id) );
 								$name = $name[sizeof($name) - 1];
+								$newMediaFileName = get_the_title( $routine_id );
+								$name = $newMediaFileName . strstr($name, '.');
 								$name = sprintf("%03d",$counter).'_'.$name;
 								$zip->addFile(get_attached_file($music_id), $name);
 							}
