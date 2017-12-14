@@ -1404,7 +1404,7 @@ function ts_custom_admin_head() {
 
     global $pagenow;
 
-    if($pagenow == 'admin.php' && ($_GET['page'] == 'ts-new-schedule' || $_GET['page'] == 'ts-view-schedule' || $_GET['page'] == 'ts-new-competition-schedule' || $_GET['page'] == 'ts-edit-competition-schedule') || $_GET['page'] == 'ts-view-scores') {
+    if($pagenow == 'admin.php' && ($_GET['page'] == 'ts-new-schedule' || $_GET['page'] == 'ts-view-schedule' || $_GET['page'] == 'ts-new-competition-schedule' || $_GET['page'] == 'ts-edit-competition-schedule' || $_GET['page'] == 'ts-new-workshop-schedule' || $_GET['page'] == 'ts-edit-workshop-schedule') || $_GET['page'] == 'ts-view-scores') {
         acf_form_head();
     }
 }
