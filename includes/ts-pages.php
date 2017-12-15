@@ -167,7 +167,7 @@ function ts_workshopentries_page() {
 						$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
 						$agediv_name 	= $age_div[0]->name;
 						$name 			= get_the_title($rid);
-						
+
 						/*if($agedivname!==$agediv_name) {
 							echo '
 							<tr class="agediv-sep"><td colspan="5" align="center"><strong>'. $agediv_name .'<strong></td></tr>
@@ -827,14 +827,14 @@ function ts_my_entries_page() {
 							<td><?php echo get_the_title($tour_city); ?></td>
 							<td style="text-align:center;"><?php echo $status->label; ?></td>
 							<td style="text-align:center;">
-								<?php 
+								<?php
 								if($tour_status !=2) { ?>
 									<a title="edit" href="javascript:void(0);" class="btn btn-blue btn-edit-entry" data-eid="<?php echo $entry_id; ?>" data-url="<?php echo admin_url('admin.php?page=ts-edit-entry&action=edit&step='. $step .'&id='. $entry_id); ?>"><small>Edit</small></a>
-								<?php 
+								<?php
 								}
 								else { ?>
 									<span class="btn btn-gray">Edit</span>
-								<?php 
+								<?php
 								} ?>
 							</td>
 							<td style="text-align:center;"><a title="delete" href="javascript:void(0);" class="btn btn-red btn-delete" data-id="<?php echo $entry_id; ?>" data-type="post"><small>Delete</small></a></td>
@@ -1043,6 +1043,7 @@ function ts_tours_page() {
 						$venue 		= get_post_meta($tour_id, 'venue', true);
 						$city 		= get_post_meta($tour_id, 'city', true);
 						$workshop 	= get_post_meta($tour_id, 'workshop', true);
+                        $competition= get_post_meta($tour_id, 'competition', true);
 						$list_id 	= get_post_meta($tour_id, 'list_id', true);
 						$wstattext  = $workshop==2 ? 'Closed' : 'Open';
 						$stattext 	= $status==2 ? 'Closed' : 'Open';
@@ -1066,6 +1067,7 @@ function ts_tours_page() {
 								   data-venue="<?php echo $venue; ?>"
 								   data-city="<?php echo $city; ?>"
 								   data-workshop="<?php echo $workshop; ?>"
+                                   data-competition="<?php echo $competition; ?>"
 								   data-listid="<?php echo $list_id; ?>"
 								><small>Edit</small></a>
 								<a title="<?php echo $btntext; ?>" href="javascript:void(0);"
@@ -1101,6 +1103,7 @@ function ts_tours_page() {
 						<input type="hidden" name="tour-id" id="tour-id" value="" />
 						<p><label><input type="checkbox" name="tour-status" id="tour-status" value="1" checked="true" /> Enable Tour</label></p>
 						<p><label><input type="checkbox" name="tour-workshop" id="tour-workshop" value="1" checked="true" /> Enable Workshop</label></p>
+                        <p><label><input type="checkbox" name="tour-competition" id="tour-competition" value="1" checked="true" /> Enable Competition</label></p>
 						<p>Title <br /><input type="text" name="tour-title" id="tour-title" value="" /></p>
 						<p>City <br /><input type="text" name="tour-city" id="tour-city" value="" /></p>
 						<p>Venue <br /><input type="text" name="tour-venue" id="tour-venue" value="" /></p>
@@ -1239,7 +1242,7 @@ function ts_schedules_page() {
 				<?php
 				$args = array(
 					'post_status' => 'any',
-				);				
+				);
 				$schedules = ts_get_posts('ts_event', -1, $args);
 				if($schedules) {
 					foreach ($schedules as $schedule) {
@@ -1286,7 +1289,7 @@ function ts_schedules_page() {
 			</table>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_workshopschedules_page() {
@@ -1389,10 +1392,10 @@ function ts_view_schedule_page() {
                     'updated_message'  => 'Schedule Updated.',
                 );
                 acf_form($options);
-                ?>  
+                ?>
 			</div>
 		</div>
-		<?php	
+		<?php
 	}
 	else {
 		?>
@@ -1414,10 +1417,10 @@ function ts_view_schedule_page() {
                     'updated_message'  => 'Schedule Saved.',
                 );
                 acf_form($options);
-                ?>  
+                ?>
 			</div>
 		</div>
-		<?php		
+		<?php
 	}
 }
 
@@ -1731,7 +1734,7 @@ function ts_mysched_preview() {
 	<div id="schedules-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper schedules-wrapper">
-			<?php 
+			<?php
 	        $args = array(
 	            'post_status' => array('paid', 'paidcheck'),
 	            'meta_key' => 'tour_date',
@@ -1755,9 +1758,9 @@ function ts_mysched_preview() {
 	                $routines = $competition['routines'];
 	                if(! empty($routines)) {
 		                $routine_ids = array_keys($routines);
-		                $routines_array = array_merge($routine_ids, $routines_array); 
+		                $routines_array = array_merge($routine_ids, $routines_array);
 	                }
-	            } 
+	            }
 
 				$args = array(
 					'meta_query' => array(
@@ -1807,7 +1810,7 @@ function ts_mysched_preview() {
 	        }
 	        ?>
 		</div>
-	</div>	
+	</div>
 	<?php
 }
 
@@ -1816,7 +1819,7 @@ function ts_workshopsched_preview() {
 	<div id="schedules-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper schedules-wrapper">
-			<?php 
+			<?php
 			$args = array(
 				'tax_query' => array(
 					array(
@@ -1832,7 +1835,7 @@ function ts_workshopsched_preview() {
 			ts_display_workshop_schedules($schedules);
 		    ?>
 		</div>
-	</div>	
+	</div>
 	<?php
 }
 
@@ -1841,7 +1844,7 @@ function ts_competitionsched_preview() {
 	<div id="schedules-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper schedules-wrapper">
-			<?php 
+			<?php
 			$args = array(
 				'tax_query' => array(
 					array(
@@ -1857,14 +1860,14 @@ function ts_competitionsched_preview() {
 			ts_display_competition_schedules($schedules);
 		    ?>
 		</div>
-	</div>	
+	</div>
 	<?php
 }
 
 function ts_special_awards_page() {
 	if(isset($_GET['tour']) && $_GET['tour']!='') {
 		$tour_id = $_GET['tour'];
-	}	
+	}
 	?>
 	<div id="awards-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
@@ -1932,7 +1935,7 @@ function ts_special_awards_page() {
 							<div class="col-md-3 t-center"></div>
 							<div class="col-md-3 t-center"></div>
 						</div>
-					</div>	
+					</div>
 				</div>
 				<h3>Special Awards: (for all 13 and above)</h3>
 				<div class="table-container">
@@ -1970,7 +1973,7 @@ function ts_special_awards_page() {
 							<div class="col-md-3 t-center"></div>
 							<div class="col-md-3 t-center"></div>
 						</div>
-					</div>	
+					</div>
 				</div>
 				<h3>Studio Innovator:</h3>
 				<div class="table-container">
@@ -1978,8 +1981,8 @@ function ts_special_awards_page() {
 						<div class="row">
 							<div class="col-md-4">Studio Name:</div>
 							<div class="col-md-8"><input type="text" name="special_awards[studio_innovator]" value=""></div>
-						</div>		
-					</div>	
+						</div>
+					</div>
 				</div>
 				<h3>Scholarships:</h3>
 				<div class="table-container scholarship-wrapper">
@@ -2073,7 +2076,7 @@ function ts_special_awards_page() {
 			</form>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_results_page() {
@@ -2083,7 +2086,7 @@ function ts_results_page() {
 		$status = get_post_meta($tour_id, 'results_status', true);
 		$btn_label = ! $status || $status == 'draft' ? 'Publish Results' : 'Unpublish Results';
 		$publish_button = '<button class="btn btn-blue btn-publishresults" data-id="'. $tour_id .'">'. $btn_label .'</button>';
-	}	
+	}
 	?>
 	<div id="results-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php echo $publish_button; ?></h1>
@@ -2091,7 +2094,7 @@ function ts_results_page() {
 			<?php ts_display_results(); ?>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_results_preview() {
@@ -2102,14 +2105,14 @@ function ts_results_preview() {
 			<?php ts_display_results(); ?>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_critiques_page() {
 	if(isset($_GET['tour']) && $_GET['tour']!='') {
 		$tour_id = $_GET['tour'];
 		wp_enqueue_media();
-	}	
+	}
 	?>
 	<div id="critiques-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
@@ -2157,7 +2160,7 @@ function ts_critiques_page() {
 					</div>
 					<div class="table-body">
 						<?php
-						foreach ($routines as $r) { 
+						foreach ($routines as $r) {
 							$id 		= $r->ID;
 							$name 		= $r->post_title;
 							$author 	= $r->post_author;
@@ -2189,9 +2192,9 @@ function ts_critiques_page() {
 					</div>
 				</div>
 				<?php
-			}	
-			?>			
+			}
+			?>
 		</div>
 	</div>
-	<?php	
+	<?php
 }

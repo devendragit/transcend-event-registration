@@ -344,6 +344,7 @@ jQuery(document).ready(function($) {
 		var venue = $(this).attr('data-venue');
 		var listid = $(this).attr('data-listid');
 		var workshop = $(this).attr('data-workshop');
+        var competition = $(this).attr('data-competition');
 		var status = $(this).attr('data-status');
 		$('#tour-id').val(id);
 		$('#tour-title').val(title);
@@ -364,6 +365,12 @@ jQuery(document).ready(function($) {
 		else {
 			$('#tour-workshop').prop('checked',false);
 		}
+        if(competition!=2) {
+            $('#tour-competition').prop('checked',true);
+        }
+        else {
+            $('#tour-competition').prop('checked',false);
+        }
 		$('#popup-save-tour .modal-title').text('Edit Tour');
 		$('#popup-save-tour').modal('show');
 	});

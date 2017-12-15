@@ -887,6 +887,7 @@ function ts_tours_page() {
 						$venue 		= get_post_meta($tour_id, 'venue', true);
 						$city 		= get_post_meta($tour_id, 'city', true);
 						$workshop 	= get_post_meta($tour_id, 'workshop', true);
+                        $competition= get_post_meta($tour_id, 'competition', true);
 						$list_id 	= get_post_meta($tour_id, 'list_id', true);
 						$wstattext  = $workshop==2 ? 'Closed' : 'Open';
 						$stattext 	= $status==2 ? 'Closed' : 'Open';
@@ -913,6 +914,7 @@ function ts_tours_page() {
 								   data-venue="<?php echo $venue; ?>"
 								   data-city="<?php echo $city; ?>"
 								   data-workshop="<?php echo $workshop; ?>"
+                                   data-competition="<?php echo $competition; ?>"
 								   data-listid="<?php echo $list_id; ?>"
 								><small>Edit</small></a>
 								<a title="<?php echo $btntext; ?>" href="javascript:void(0);"
@@ -948,6 +950,7 @@ function ts_tours_page() {
 						<input type="hidden" name="tour-id" id="tour-id" value="" />
 						<p><label><input type="checkbox" name="tour-status" id="tour-status" value="1" checked="true" /> Enable Tour</label></p>
 						<p><label><input type="checkbox" name="tour-workshop" id="tour-workshop" value="1" checked="true" /> Enable Workshop</label></p>
+                        <p><label><input type="checkbox" name="tour-competition" id="tour-competition" value="1" checked="true" /> Enable Competition</label></p>
 						<p>Title <br /><input type="text" name="tour-title" id="tour-title" value="" /></p>
 						<p>City <br /><input type="text" name="tour-city" id="tour-city" value="" /></p>
 						<p>Venue <br /><input type="text" name="tour-venue" id="tour-venue" value="" /></p>

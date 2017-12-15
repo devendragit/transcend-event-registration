@@ -902,7 +902,7 @@ function ts_grand_total($eid, $data=false) {
 
 function ts_discounted_grand_total($total, $discount_code, $entry_id) {
 
-	if($discount_code=='') 
+	if($discount_code=='')
 		return $total;
 
 	$voucher_id  = ts_post_exists($discount_code, '', '', 'ts_coupon');
@@ -1636,7 +1636,7 @@ function ts_find_adjudicated_awards($score) {
 	}
 
 	return $adjudicated_awards_title;
-}  
+}
 
 function ts_display_workshop_schedules($schedules) {
 
@@ -1653,7 +1653,7 @@ function ts_display_workshop_schedules($schedules) {
 	        <div class="SchedTable">
 	        	<div class="TableCont">
 		            <div id="Day_<?php echo $counter; ?>" class="TableHeading">
-		                <?php echo get_sub_field('day'); ?>	
+		                <?php echo get_sub_field('day'); ?>
 		            </div>
 		            <div class="TableBody text-center">
 		            	<div class="clearfix RowHeading">
@@ -1676,37 +1676,37 @@ function ts_display_workshop_schedules($schedules) {
 		                    	<span>Munchkins/Pro/Teachers</span>
 		                    </div>
 		                </div>
-		                <?php $c = 1;  
+		                <?php $c = 1;
 		                while(has_sub_field('lineup')): ?>
 		                    <div class="clearfix Row_<?php echo $c; ?> <?php echo get_sub_field('columns');?>">
 		                        <div>
-		                            <span><?php echo get_sub_field('time'); ?>&nbsp;</span>    
+		                            <span><?php echo get_sub_field('time'); ?>&nbsp;</span>
 		                        </div>
 		                        <div>
-		                            <span><?php echo get_sub_field('seniors'); ?>&nbsp;</span>	    
+		                            <span><?php echo get_sub_field('seniors'); ?>&nbsp;</span>
 		                        </div>
 		                        <div>
-		                            <span><?php echo get_sub_field('teens'); ?>&nbsp;</span>	    
+		                            <span><?php echo get_sub_field('teens'); ?>&nbsp;</span>
 		                        </div>
 		                        <div>
-		                            <span><?php echo get_sub_field('juniors'); ?>&nbsp;</span>	    
+		                            <span><?php echo get_sub_field('juniors'); ?>&nbsp;</span>
 		                        </div>
 		                        <div>
-		                            <span><?php echo get_sub_field('minis'); ?>&nbsp;</span>	    
+		                            <span><?php echo get_sub_field('minis'); ?>&nbsp;</span>
 		                        </div>
 		                        <div>
-		                            <span><?php echo get_sub_field('munchkinsproteachers'); ?></span>    
+		                            <span><?php echo get_sub_field('munchkinsproteachers'); ?></span>
 		                        </div>
 		                    </div>
-		                <?php 
-		                $c++; 
-		                endwhile; 
-		                ?> 
+		                <?php
+		                $c++;
+		                endwhile;
+		                ?>
 		            </div>
 	            </div>
 	        </div>
         <?php
-        $counter++; 
+        $counter++;
         endwhile;
 	}
 	echo '
@@ -1824,7 +1824,7 @@ function ts_save_routine_number($schedule_id) {
 			update_post_meta($l['routine'], 'routine_number', $l['number']);
 		}
 
-	}	
+	}
 }
 
 function ts_adjudicated_award($score) {
@@ -1918,7 +1918,7 @@ function ts_winners_array($tour_id, $agediv, $cat, $limit=5) {
 				'score' => get_post_meta($id, 'total_score', true),
 			);
 		}
-	}	
+	}
 	return $winners;
 }
 
@@ -1956,7 +1956,7 @@ function ts_overallwinners_array($tour_id, $agediv, $limit=3) {
 				'score' => get_post_meta($id, 'total_score', true),
 			);
 		}
-	}	
+	}
 	return $winners;
 }
 
@@ -2001,7 +2001,7 @@ function ts_generate_tour_music_zip( $schedules, $tour_id ) {
 			$filename_array = explode('/', $zip->filename);
 			$filename = $filename_array[sizeof($filename_array) - 1];
 			update_post_meta( $tour_id, 'musiczip_filename', $filename);
-		}	
+		}
 		$zip->close();
 	}
 }
@@ -2034,7 +2034,7 @@ function ts_select_tour_city($base_url, $tour_id='', $off='') {
 		}
 		?>
 	</select>
-	<?php	
+	<?php
 }
 
 function ts_tours_with_workshop_schedule() {
@@ -2106,7 +2106,7 @@ function ts_save_routine_total_score($score_id) {
 		foreach ($lineup as $l) {
 			update_post_meta($l['routine'], 'total_score', $l['score']);
 		}
-	}	
+	}
 }
 
 function ts_display_results() {
@@ -2115,7 +2115,7 @@ function ts_display_results() {
 
 	if(isset($_GET['tour']) && $_GET['tour']!='') {
 		$tour_id = $_GET['tour'];
-	}	
+	}
 	if(is_admin()) {
 		$base_url = admin_url('admin.php?page=ts-results');
 	}
@@ -2125,7 +2125,7 @@ function ts_display_results() {
 	?>
 	<p><?php ts_select_tour_city($base_url, $tour_id); ?></p>
 	<?php
-	if($tour_id && current_user_can('is_organizer')) { 
+	if($tour_id && current_user_can('is_organizer')) {
 		?>
 		<h3>Adjudicated Awards:</h3>
 		<div class="adjudicated-container">
@@ -2150,7 +2150,7 @@ function ts_display_results() {
 					</tr></thead>
 					<tbody>
 						<?php
-						foreach ($routines as $r) { 
+						foreach ($routines as $r) {
 							$id = $r->ID;
 							$number = get_post_meta($id, 'routine_number', true);
 							$score = get_post_meta($id, 'total_score', true);
@@ -2168,9 +2168,9 @@ function ts_display_results() {
 					</tbody>
 				</table>
 				<?php
-			}	
+			}
 			?>
-		</div>			
+		</div>
 		<h3>Category High Scores:</h3>
 		<div class="category-container ts-tabs">
 			<ul>
@@ -2180,7 +2180,7 @@ function ts_display_results() {
 				<li><a href="#tabs-4">Large Group</a></li>
 				<li><a href="#tabs-5">Line</a></li>
 				<li><a href="#tabs-6">Production</a></li>
-			</ul>			
+			</ul>
 			<div class="row" id="tabs-1">
 				<?php
 				$hiscore_solo_mini = ts_hiscore_solo_mini($tour_id);
@@ -2191,7 +2191,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($hiscore_solo_mini, 'High Scores - Mini Solo'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_solo_junior = ts_hiscore_solo_junior($tour_id);
 				if(! empty($ts_hiscore_solo_junior)){
 					?>
@@ -2200,7 +2200,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_solo_junior, 'High Scores - Junior Solo'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_solo_teen = ts_hiscore_solo_teen($tour_id);
 				if(! empty($ts_hiscore_solo_teen)){
 					?>
@@ -2209,7 +2209,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_solo_teen, 'High Scores - Teen Solo'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_solo_senior = ts_hiscore_solo_senior($tour_id);
 				if(! empty($ts_hiscore_solo_senior)){
 					?>
@@ -2218,7 +2218,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_solo_senior, 'High Scores - Senior Solo'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_solo_pro = ts_hiscore_solo_pro($tour_id);
 				if(! empty($ts_hiscore_solo_pro)){
 					?>
@@ -2227,9 +2227,9 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_solo_pro, 'High Scores - Pro Solo'); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
+			</div>
 			<div class="row" id="tabs-2">
 				<?php
 				$hiscore_duotrio_mini = ts_hiscore_duotrio_mini($tour_id);
@@ -2240,7 +2240,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($hiscore_duotrio_mini, 'High Scores - Mini Duo/Trio'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_duotrio_junior = ts_hiscore_duotrio_junior($tour_id);
 				if(! empty($ts_hiscore_duotrio_junior)){
 					?>
@@ -2249,7 +2249,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_duotrio_junior, 'High Scores - Junior Duo/Trio'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_duotrio_teen = ts_hiscore_duotrio_teen($tour_id);
 				if(! empty($ts_hiscore_duotrio_teen)){
 					?>
@@ -2258,7 +2258,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_duotrio_teen, 'High Scores - Teen Duo/Trio'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_duotrio_senior = ts_hiscore_duotrio_senior($tour_id);
 				if(! empty($ts_hiscore_duotrio_senior)){
 					?>
@@ -2267,7 +2267,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_duotrio_senior, 'High Scores - Senior Duo/Trio'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_duotrio_pro = ts_hiscore_duotrio_pro($tour_id);
 				if(! empty($ts_hiscore_duotrio_pro)){
 					?>
@@ -2276,9 +2276,9 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_duotrio_pro, 'High Scores - Pro Duo/Trio'); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
+			</div>
 			<div class="row" id="tabs-3">
 				<?php
 				$hiscore_smallgroup_mini = ts_hiscore_smallgroup_mini($tour_id);
@@ -2289,7 +2289,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($hiscore_smallgroup_mini, 'High Scores - Mini Small Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_smallgroup_junior = ts_hiscore_smallgroup_junior($tour_id);
 				if(! empty($ts_hiscore_smallgroup_junior)){
 					?>
@@ -2298,7 +2298,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_smallgroup_junior, 'High Scores - Junior Small Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_smallgroup_teen = ts_hiscore_smallgroup_teen($tour_id);
 				if(! empty($ts_hiscore_smallgroup_teen)){
 					?>
@@ -2307,7 +2307,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_smallgroup_teen, 'High Scores - Teen Small Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_smallgroup_senior = ts_hiscore_smallgroup_senior($tour_id);
 				if(! empty($ts_hiscore_smallgroup_senior)){
 					?>
@@ -2316,7 +2316,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_smallgroup_senior, 'High Scores - Senior Small Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_smallgroup_pro = ts_hiscore_smallgroup_pro($tour_id);
 				if(! empty($ts_hiscore_smallgroup_pro)){
 					?>
@@ -2325,9 +2325,9 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_smallgroup_pro, 'High Scores - Pro Small Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
+			</div>
 			<div class="row" id="tabs-4">
 				<?php
 				$hiscore_largegroup_mini = ts_hiscore_largegroup_mini($tour_id);
@@ -2338,7 +2338,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($hiscore_largegroup_mini, 'High Scores - Mini Large Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_largegroup_junior = ts_hiscore_largegroup_junior($tour_id);
 				if(! empty($ts_hiscore_largegroup_junior)){
 					?>
@@ -2347,7 +2347,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_largegroup_junior, 'High Scores - Junior Large Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_largegroup_teen = ts_hiscore_largegroup_teen($tour_id);
 				if(! empty($ts_hiscore_largegroup_teen)){
 					?>
@@ -2356,7 +2356,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_largegroup_teen, 'High Scores - Teen Large Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_largegroup_senior = ts_hiscore_largegroup_senior($tour_id);
 				if(! empty($ts_hiscore_largegroup_senior)){
 					?>
@@ -2365,7 +2365,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_largegroup_senior, 'High Scores - Senior Large Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_largegroup_pro = ts_hiscore_largegroup_pro($tour_id);
 				if(! empty($ts_hiscore_largegroup_pro)){
 					?>
@@ -2374,7 +2374,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_largegroup_pro, 'High Scores - Pro Large Group'); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
 			</div>
 			<div class="row" id="tabs-5">
@@ -2387,7 +2387,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($hiscore_line_mini, 'High Scores - Mini Line'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_line_junior = ts_hiscore_line_junior($tour_id);
 				if(! empty($ts_hiscore_line_junior)){
 					?>
@@ -2396,7 +2396,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_line_junior, 'High Scores - Junior Line'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_line_teen = ts_hiscore_line_teen($tour_id);
 				if(! empty($ts_hiscore_line_teen)){
 					?>
@@ -2405,7 +2405,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_line_teen, 'High Scores - Teen Line'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_line_senior = ts_hiscore_line_senior($tour_id);
 				if(! empty($ts_hiscore_line_senior)){
 					?>
@@ -2414,7 +2414,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_line_senior, 'High Scores - Senior Line'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_line_pro = ts_hiscore_line_pro($tour_id);
 				if(! empty($ts_hiscore_line_pro)){
 					?>
@@ -2423,9 +2423,9 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_line_pro, 'High Scores - Pro Line'); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
+			</div>
 			<div class="row" id="tabs-6">
 				<?php
 				$hiscore_production_mini = ts_hiscore_production_mini($tour_id);
@@ -2436,7 +2436,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($hiscore_production_mini, 'High Scores - Mini Production'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_production_junior = ts_hiscore_production_junior($tour_id);
 				if(! empty($ts_hiscore_production_junior)){
 					?>
@@ -2445,7 +2445,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_production_junior, 'High Scores - Junior Production'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_production_teen = ts_hiscore_production_teen($tour_id);
 				if(! empty($ts_hiscore_production_teen)){
 					?>
@@ -2454,7 +2454,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_production_teen, 'High Scores - Teen Production'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_production_senior = ts_hiscore_production_senior($tour_id);
 				if(! empty($ts_hiscore_production_senior)){
 					?>
@@ -2463,7 +2463,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_production_senior, 'High Scores - Senior Production'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_production_pro = ts_hiscore_production_pro($tour_id);
 				if(! empty($ts_hiscore_production_pro)){
 					?>
@@ -2472,9 +2472,9 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_production_pro, 'High Scores - Pro Production'); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>													
+			</div>
 		</div>
 		<h3>Overall High Scores:</h3>
 		<div class="overall-container">
@@ -2488,7 +2488,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($hiscore_overall_mini, 'Overall High Scores - Mini'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_overall_junior = ts_hiscore_overall_junior($tour_id);
 				if(! empty($ts_hiscore_overall_junior)){
 					?>
@@ -2497,7 +2497,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_overall_junior, 'Overall High Scores - Junior'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_overall_teen = ts_hiscore_overall_teen($tour_id);
 				if(! empty($ts_hiscore_overall_teen)){
 					?>
@@ -2506,7 +2506,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_overall_teen, 'Overall High Scores - Teen'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_overall_senior = ts_hiscore_overall_senior($tour_id);
 				if(! empty($ts_hiscore_overall_senior)){
 					?>
@@ -2515,7 +2515,7 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_overall_senior, 'Overall High Scores - Senior'); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_overall_pro = ts_hiscore_overall_pro($tour_id);
 				if(! empty($ts_hiscore_overall_pro)){
 					?>
@@ -2524,10 +2524,10 @@ function ts_display_results() {
 						<?php ts_display_awards_table($ts_hiscore_overall_pro, 'Overall High Scores - Pro'); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
-		</div>	
+			</div>
+		</div>
 		<?php
 		$special_awards = get_post_meta($tour_id, 'special_awards', true);
 		if($special_awards) {
@@ -2576,7 +2576,7 @@ function ts_display_results() {
 							<td style="text-align: center;"><?php echo get_the_title($standwin12below_id);?></div>
 							<td style="text-align: center;"><?php echo ts_post_studio($standwin12below_id);?></div>
 						</tr>
-					</tbody>	
+					</tbody>
 				</table>
 				<h4>(for all 13 and above)</h4>
 				<table class="ts-data-table" data-length="-1" data-exporttitle="Specialty Awards (for all 13 and above)" data-exportcol="0,1,2,3" data-dom="fBrt<'table-footer clearfix'p>">
@@ -2607,14 +2607,14 @@ function ts_display_results() {
 							<td style="text-align: center;"><?php echo get_the_title($standwin13above_id);?></div>
 							<td style="text-align: center;"><?php echo ts_post_studio($standwin13above_id);?></div>
 						</tr>
-					</tbody>	
+					</tbody>
 				</table>
 				<h4>Studio Innovator: <strong><?php echo $studio_innovator; ?></strong></h4>
 			</div>
-			<?php 
+			<?php
 		}
 		$scholarships = get_post_meta($tour_id, 'scholarships', true);
-		if($scholarships) { 
+		if($scholarships) {
 			?>
 			<h3>Scholarships:</h3>
 			<div class="scholarships-container">
@@ -2653,7 +2653,7 @@ function ts_display_results() {
 					}
 					?>
 				</table>
-			</div>	
+			</div>
 			<?php
 		}
 	}
@@ -2672,24 +2672,24 @@ function ts_display_awards_table($routines, $title="") {
 		</thead>
 		<tbody>
 			<?php
-			foreach ($routines as $key=>$val) { 
+			foreach ($routines as $key=>$val) {
 				$id 	= $val['id'];
 				$number = $val['number'];
 				$name 	= $val['name'];
 				$studio = $val['studio'];
 				$award 	= ts_add_suffix($key+1);
 				?>
-				<tr id="routine-<?php echo $id; ?>">	
+				<tr id="routine-<?php echo $id; ?>">
 					<td style="text-align: center;"><?php echo $number; ?></td>
 					<td><?php echo $name; ?></td>
 					<td><?php echo $studio; ?></td>
 					<td style="text-align: center;"><?php echo $award; ?> Place</td>
-				</tr>	
+				</tr>
 				<?php
 			} ?>
 		</tbody>
 	</table>
-	<?php	
+	<?php
 }
 
 function ts_display_results_frontend() {
@@ -2700,7 +2700,7 @@ function ts_display_results_frontend() {
 	if(isset($_GET['tour']) && $_GET['tour']!='') {
 		$tour_id = $_GET['tour'];
 		$status = get_post_meta($tour_id, 'results_status', true);
-	}	
+	}
 	if(is_admin()) {
 		$base_url = admin_url('admin.php?page=ts-results');
 	}
@@ -2710,7 +2710,7 @@ function ts_display_results_frontend() {
 	?>
 	<p><?php ts_select_tour_city($base_url, $tour_id); ?></p>
 	<?php
-	if($tour_id && $status=='publish') { 
+	if($tour_id && $status=='publish') {
 		?>
 		<h3>Category High Scores:</h3>
 		<div class="category-container ts-tabs">
@@ -2721,7 +2721,7 @@ function ts_display_results_frontend() {
 				<li><a href="#tabs-4">Large Group</a></li>
 				<li><a href="#tabs-5">Line</a></li>
 				<li><a href="#tabs-6">Production</a></li>
-			</ul>			
+			</ul>
 			<div class="row" id="tabs-1">
 				<?php
 				$hiscore_solo_mini = ts_hiscore_solo_mini($tour_id);
@@ -2732,7 +2732,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($hiscore_solo_mini); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_solo_junior = ts_hiscore_solo_junior($tour_id);
 				if(! empty($ts_hiscore_solo_junior)){
 					?>
@@ -2741,7 +2741,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_solo_junior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_solo_teen = ts_hiscore_solo_teen($tour_id);
 				if(! empty($ts_hiscore_solo_teen)){
 					?>
@@ -2750,7 +2750,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_solo_teen); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_solo_senior = ts_hiscore_solo_senior($tour_id);
 				if(! empty($ts_hiscore_solo_senior)){
 					?>
@@ -2759,7 +2759,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_solo_senior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_solo_pro = ts_hiscore_solo_pro($tour_id);
 				if(! empty($ts_hiscore_solo_pro)){
 					?>
@@ -2768,9 +2768,9 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_solo_pro); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
+			</div>
 			<div class="row" id="tabs-2">
 				<?php
 				$hiscore_duotrio_mini = ts_hiscore_duotrio_mini($tour_id);
@@ -2781,7 +2781,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($hiscore_duotrio_mini); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_duotrio_junior = ts_hiscore_duotrio_junior($tour_id);
 				if(! empty($ts_hiscore_duotrio_junior)){
 					?>
@@ -2790,7 +2790,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_duotrio_junior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_duotrio_teen = ts_hiscore_duotrio_teen($tour_id);
 				if(! empty($ts_hiscore_duotrio_teen)){
 					?>
@@ -2799,7 +2799,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_duotrio_teen); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_duotrio_senior = ts_hiscore_duotrio_senior($tour_id);
 				if(! empty($ts_hiscore_duotrio_senior)){
 					?>
@@ -2808,7 +2808,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_duotrio_senior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_duotrio_pro = ts_hiscore_duotrio_pro($tour_id);
 				if(! empty($ts_hiscore_duotrio_pro)){
 					?>
@@ -2817,9 +2817,9 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_duotrio_pro); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
+			</div>
 			<div class="row" id="tabs-3">
 				<?php
 				$hiscore_smallgroup_mini = ts_hiscore_smallgroup_mini($tour_id);
@@ -2830,7 +2830,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($hiscore_smallgroup_mini); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_smallgroup_junior = ts_hiscore_smallgroup_junior($tour_id);
 				if(! empty($ts_hiscore_smallgroup_junior)){
 					?>
@@ -2839,7 +2839,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_smallgroup_junior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_smallgroup_teen = ts_hiscore_smallgroup_teen($tour_id);
 				if(! empty($ts_hiscore_smallgroup_teen)){
 					?>
@@ -2848,7 +2848,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_smallgroup_teen); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_smallgroup_senior = ts_hiscore_smallgroup_senior($tour_id);
 				if(! empty($ts_hiscore_smallgroup_senior)){
 					?>
@@ -2857,7 +2857,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_smallgroup_senior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_smallgroup_pro = ts_hiscore_smallgroup_pro($tour_id);
 				if(! empty($ts_hiscore_smallgroup_pro)){
 					?>
@@ -2866,9 +2866,9 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_smallgroup_pro); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
+			</div>
 			<div class="row" id="tabs-4">
 				<?php
 				$hiscore_largegroup_mini = ts_hiscore_largegroup_mini($tour_id);
@@ -2879,7 +2879,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($hiscore_largegroup_mini); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_largegroup_junior = ts_hiscore_largegroup_junior($tour_id);
 				if(! empty($ts_hiscore_largegroup_junior)){
 					?>
@@ -2888,7 +2888,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_largegroup_junior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_largegroup_teen = ts_hiscore_largegroup_teen($tour_id);
 				if(! empty($ts_hiscore_largegroup_teen)){
 					?>
@@ -2897,7 +2897,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_largegroup_teen); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_largegroup_senior = ts_hiscore_largegroup_senior($tour_id);
 				if(! empty($ts_hiscore_largegroup_senior)){
 					?>
@@ -2906,7 +2906,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_largegroup_senior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_largegroup_pro = ts_hiscore_largegroup_pro($tour_id);
 				if(! empty($ts_hiscore_largegroup_pro)){
 					?>
@@ -2915,7 +2915,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_largegroup_pro); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
 			</div>
 			<div class="row" id="tabs-5">
@@ -2928,7 +2928,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($hiscore_line_mini); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_line_junior = ts_hiscore_line_junior($tour_id);
 				if(! empty($ts_hiscore_line_junior)){
 					?>
@@ -2937,7 +2937,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_line_junior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_line_teen = ts_hiscore_line_teen($tour_id);
 				if(! empty($ts_hiscore_line_teen)){
 					?>
@@ -2946,7 +2946,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_line_teen); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_line_senior = ts_hiscore_line_senior($tour_id);
 				if(! empty($ts_hiscore_line_senior)){
 					?>
@@ -2955,7 +2955,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_line_senior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_line_pro = ts_hiscore_line_pro($tour_id);
 				if(! empty($ts_hiscore_line_pro)){
 					?>
@@ -2964,9 +2964,9 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_line_pro); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
+			</div>
 			<div class="row" id="tabs-6">
 				<?php
 				$hiscore_production_mini = ts_hiscore_production_mini($tour_id);
@@ -2977,7 +2977,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($hiscore_production_mini); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_production_junior = ts_hiscore_production_junior($tour_id);
 				if(! empty($ts_hiscore_production_junior)){
 					?>
@@ -2986,7 +2986,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_production_junior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_production_teen = ts_hiscore_production_teen($tour_id);
 				if(! empty($ts_hiscore_production_teen)){
 					?>
@@ -2995,7 +2995,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_production_teen); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_production_senior = ts_hiscore_production_senior($tour_id);
 				if(! empty($ts_hiscore_production_senior)){
 					?>
@@ -3004,7 +3004,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_production_senior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_production_pro = ts_hiscore_production_pro($tour_id);
 				if(! empty($ts_hiscore_production_pro)){
 					?>
@@ -3013,9 +3013,9 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_production_pro); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>													
+			</div>
 		</div>
 		<h3>Overall High Scores:</h3>
 		<div class="overall-container">
@@ -3029,7 +3029,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($hiscore_overall_mini); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_overall_junior = ts_hiscore_overall_junior($tour_id);
 				if(! empty($ts_hiscore_overall_junior)){
 					?>
@@ -3038,7 +3038,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_overall_junior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_overall_teen = ts_hiscore_overall_teen($tour_id);
 				if(! empty($ts_hiscore_overall_teen)){
 					?>
@@ -3047,7 +3047,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_overall_teen); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_overall_senior = ts_hiscore_overall_senior($tour_id);
 				if(! empty($ts_hiscore_overall_senior)){
 					?>
@@ -3056,7 +3056,7 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_overall_senior); ?>
 					</div>
 					<?php
-				} 
+				}
 				$ts_hiscore_overall_pro = ts_hiscore_overall_pro($tour_id);
 				if(! empty($ts_hiscore_overall_pro)){
 					?>
@@ -3065,10 +3065,10 @@ function ts_display_results_frontend() {
 						<?php ts_display_awards_table_frontend($ts_hiscore_overall_pro); ?>
 					</div>
 					<?php
-				} 
+				}
 				?>
-			</div>	
-		</div>	
+			</div>
+		</div>
 		<?php
 		$special_awards = get_post_meta($tour_id, 'special_awards', true);
 		if($special_awards) {
@@ -3117,7 +3117,7 @@ function ts_display_results_frontend() {
 							<td style="text-align: center;"><?php echo get_the_title($standwin12below_id);?></div>
 							<td style="text-align: center;"><?php echo ts_post_studio($standwin12below_id);?></div>
 						</tr>
-					</tbody>	
+					</tbody>
 				</table>
 				<h4>(for all 13 and above)</h4>
 				<table class="ts-data-table" data-length="-1" data-dom="frt<'table-footer clearfix'p>">
@@ -3148,14 +3148,14 @@ function ts_display_results_frontend() {
 							<td style="text-align: center;"><?php echo get_the_title($standwin13above_id);?></div>
 							<td style="text-align: center;"><?php echo ts_post_studio($standwin13above_id);?></div>
 						</tr>
-					</tbody>	
+					</tbody>
 				</table>
 				<h4>Studio Innovator: <strong><?php echo $studio_innovator; ?></strong></h4>
 			</div>
-			<?php 
+			<?php
 		}
 		$scholarships = get_post_meta($tour_id, 'scholarships', true);
-		if($scholarships) { 
+		if($scholarships) {
 			?>
 			<h3>Scholarships:</h3>
 			<div class="scholarships-container">
@@ -3194,7 +3194,7 @@ function ts_display_results_frontend() {
 					}
 					?>
 				</table>
-			</div>	
+			</div>
 			<?php
 		}
 	}
@@ -3217,24 +3217,24 @@ function ts_display_awards_table_frontend($routines) {
 		</thead>
 		<tbody>
 			<?php
-			foreach ($routines as $key=>$val) { 
+			foreach ($routines as $key=>$val) {
 				$id 	= $val['id'];
 				$number = $val['number'];
 				$name 	= $val['name'];
 				$studio = $val['studio'];
 				$award 	= ts_add_suffix($key+1);
 				?>
-				<tr id="routine-<?php echo $id; ?>">	
+				<tr id="routine-<?php echo $id; ?>">
 					<td style="text-align: center;"><?php echo $number; ?></td>
 					<td><?php echo $name; ?></td>
 					<td><?php echo $studio; ?></td>
 					<td style="text-align: center;"><?php echo $award; ?> Place</td>
-				</tr>	
+				</tr>
 				<?php
 			} ?>
 		</tbody>
 	</table>
-	<?php	
+	<?php
 }
 
 function ts_admin_footer_code() {
