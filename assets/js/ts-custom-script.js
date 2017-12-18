@@ -6,6 +6,7 @@ jQuery(document).ready(function($) {
 
 	$('.formatted-date').mask('99/99/9999',{placeholder:'MM/DD/YYYY'});
 	$('.formatted-phone').mask('(999) 999-9999');
+	$(".tabs_2").tabs();
 
 	$('.btn-select-all').on('click', function(e){
 		e.preventDefault();
@@ -252,7 +253,7 @@ jQuery(document).ready(function($) {
 		});
 
 		custom_uploader.on('select', function(){
-			attachment = custom_uploader.state().get('selection').first().toJSON();
+			var attachment = custom_uploader.state().get('selection').first().toJSON();
 			if ( attachment.url != '' ) {
 				var currroutine = $('#routine-music-'+id);
 				currroutine.val(attachment.id);
@@ -382,6 +383,11 @@ jQuery(document).ready(function($) {
 		$('#popup-create-invoice').modal('show');
 	});
 
+	$('.btn-previewschedule').on('click', function(e) {
+		e.preventDefault();
+		$('#popup-competitionsched-preview').modal('show');
+	});	
+
 	$('.btn-editmusicinfo').on('click', function(e) {
 		e.preventDefault();
 		var id = $(this).attr('data-id');
@@ -391,10 +397,7 @@ jQuery(document).ready(function($) {
 		$('#popup-save-music-info').modal('show');
 	});
 
-
-  $(".tabs_2").tabs();
-
-  $('.critiques-wrapper').on('click', '.btn-addroutinecritique', function(e){
+  	$('.critiques-wrapper').on('click', '.btn-addroutinecritique', function(e){
 		e.preventDefault();
 
 		var button = $(this);
@@ -415,7 +418,7 @@ jQuery(document).ready(function($) {
 		});
 
 		custom_uploader.on('select', function(){
-			attachment = custom_uploader.state().get('selection').first().toJSON();
+			var attachment = custom_uploader.state().get('selection').first().toJSON();
 			if ( attachment.url != '' ) {
 				var currroutine = $('#routine-'+id);
 				currroutine.find('.routine-critique-container').html('<div><small>'+attachment.filename+'</small><a href="javascript:void(0);" class="btn-removeroutinecritique btn btn-red" data-id="'+id+'"><small>Remove</small></a></div>');
@@ -446,7 +449,186 @@ jQuery(document).ready(function($) {
 		clone.appendTo('.scholarship-container');
 	});
 
+	$('#critiques-page').on('click', '.btn-uploadcritiques', function(e){
+		e.preventDefault();
+
+		var button = $(this);
+		var tour_id = button.siblings('select').find('option:selected').val();
+		var custom_uploader;
+
+		if(custom_uploader) {
+			custom_uploader.open();
+			return;
+		}
+
+		custom_uploader = wp.media.frames.file_frame = wp.media({
+			title    : 'Add Routine Critiques',
+			button   : {
+				text     : 'Add Critiques'
+			},
+			multiple : true
+		});
+
+		custom_uploader.on('select', function(){
+
+			var selections = custom_uploader.state().get('selection');
+
+			/*var critiques = selections.map( function (a) {
+                var item = {};
+                item[a.id] = a.filename; 
+                return a.filename;
+            });
+            addVideoCritiques(critiques, tour_id);*/
+			//addVideoCritiques(selections.toJSON(), tour_id);
+			addVideoCritiques(JSON.stringify(selections), tour_id);
+			//console.log(attachment);
+		});
+
+		custom_uploader.open();
+
+		$('.media-modal-content .media-menu-item:first-child').click();
+	});
+
+	if(typeof acf != 'undefined'){
+
+		acf.add_action('load', function( $el ){
+			if($('.acf-field-59d2674f77f7b').length > 0) {
+				$('.acf-field-59d2674f77f7b .acf-repeater tbody tr').each(function() {
+					var tr = $(this);
+					var value = tr.find('.acf-field-59d2674f98ba4 select option:selected').val();
+					if(value=='Day'){
+						$(this).closest('tr').addClass('day-separator');
+					}
+					else if(value=='Judges Break'){
+						$(this).closest('tr').addClass('break-separator');
+					}
+					else if(value=='Awards'){
+						$(this).closest('tr').addClass('awards-separator');
+					}
+					else {
+						$(this).closest('tr').addClass('normal-row');
+					}
+					if(value!='Day'){
+						$(this).closest('tr').addClass('has-duration');
+					}
+				});
+			}	
+			if($('.acf-field-59ce7b5b2bdcf').length > 0) {
+				selectMenuWorkshopSched();
+			}	
+		});
+
+		acf.add_action('append', function( $el ){
+			if($('.acf-field-59d2674f77f7b').length > 0) {
+				updateRoutineNumbers();
+				updateRoutineTimes();
+			}
+			if($('.acf-field-59ce7b5b2bdcf').length > 0) {
+				selectMenuWorkshopSched();
+			}	
+		});
+
+		acf.add_action('change', function( $el ){
+			if($('.acf-field-59d2674f77f7b').length > 0) {
+				updateRoutineNumbers();
+				updateRoutineTimes();
+			}
+		});
+
+		acf.add_action('remove', function( $el ){
+			if($('.acf-field-59d2674f77f7b').length > 0) {
+				updateRoutineNumbers();
+				updateRoutineTimes();
+			}
+		});	
+
+		$('.acf-field-59d2674f77f7b .acf-table tbody').sortable({
+			update: function( event, ui ) {
+				updateRoutineNumbers();
+				updateRoutineTimes();
+			}
+		});	
+
+		$('.acf-field-59d2674f77f7b').on('change', 'select', function(){
+			var value = $(this).val();
+			if(value=='Day'){
+				$(this).closest('tr').addClass('day-separator').removeClass('normal-row awards-separator break-separator');
+				$(this).closest('tr').find('.acf-field-59d2674f9703c input').val('');
+				$(this).closest('tr').find('.acf-field-59d2674f973fa input').val('');
+				$(this).closest('tr').find('.acf-field-5a0aecd9b6bb4 input').val('');
+			}
+			else if(value=='Judges Break'){
+				$(this).closest('tr').addClass('break-separator').removeClass('normal-row awards-separator day-separator');
+				$(this).closest('tr').find('.acf-field-59d2674f9703c input').val('');
+			}
+			else if(value=='Awards'){
+				$(this).closest('tr').addClass('awards-separator').removeClass('normal-row break-separator day-separator');
+				$(this).closest('tr').find('.acf-field-59d2674f9703c input').val('');
+			}
+			else {
+				$(this).closest('tr').addClass('normal-row').removeClass('awards-separator break-separator day-separator');
+			}
+			if(value!='Day'){
+				$(this).closest('tr').addClass('has-duration');
+			}
+			else {
+				$(this).closest('tr').removeClass('has-duration');
+			}
+			updateRoutineNumbers();
+			updateRoutineTimes();
+		});
+
+	}	
+
 });
+
+var updateRoutineTimes = function() {
+	var rows = jQuery('.acf-field-59d2674f77f7b .acf-table tbody').find('tr');
+	var start = '17:00 pm';
+	rows.each(function(index) {
+		if(jQuery(this).hasClass('day-separator')){
+			start = '17:00 pm';
+		}
+		else {	
+			var field_start = jQuery(this).find('.acf-field-59d2674f973fa input');
+			var field_end = jQuery(this).find('.acf-field-5a0aecd9b6bb4 input');
+			var curr_start = moment(field_start.val(), 'hh:mm a'); 
+			var curr_end = moment(field_end.val(), 'hh:mm a'); 
+			var duration = curr_end.diff(curr_start, 'minutes');
+			var time_start = moment(start, 'hh:mm a'); ;
+			var time_end = moment(start, 'hh:mm a').add(duration, 'minutes');
+			if(jQuery(this).hasClass('break-separator')){
+				duration = 10;
+			}
+			else if(jQuery(this).hasClass('awards-separator')) {
+				duration = 30;
+			}
+			field_start.val(moment(time_start).format('hh:mm a'));
+			field_end.val(moment(time_end).format('hh:mm a'));
+			start = time_end;
+		}
+	});			
+}
+
+var updateRoutineNumbers = function() {
+	var rows = jQuery('.acf-field-59d2674f77f7b .acf-table tbody').find('tr.normal-row');
+	rows.each(function(index) {
+		var value = index+1; 
+		jQuery(this).find('.acf-field-59d2674f9703c input').val(value);
+	});			
+}
+
+var selectMenuWorkshopSched = function() {
+	jQuery('.acf-field-59ce7b5b2bdcf select').selectmenu({
+		/*create: function( event, ui ) {
+			var span = jQuery(this).next('span');
+			jQuery(this).next('span').remove();
+		},*/
+  		change: function( event, ui ) {
+  			jQuery(this).next('span').find('.ui-selectmenu-text').attr('class', '').addClass('ui-selectmenu-text '+ui.item.value);
+  		},
+	});
+}
 
 function callback(data) {
 	if(data.success==true) {
@@ -454,6 +636,39 @@ function callback(data) {
 		if(data.redirect){
 			window.location.href = data.redirect;
 		}
+	}
+}
+
+function callbackSaveScholarships(data) {
+	if(data.success==true) {
+		jQuery('#form-scholarships input[type="submit"]').val('Save Changes').prop('disabled',false);
+	}
+}
+
+function callbackSaveSpecidalAwards(data) {
+	if(data.success==true) {
+		jQuery('#form-special-awards input[type="submit"]').val('Save Changes').prop('disabled',false);
+	}
+}
+
+function callbackSaveRoutineScores(data) {
+	if(data.success==true) {
+		var id = data.id;
+		var total_score = data.total_score;
+		jQuery('#routine-'+id+' .total-score').html(total_score);
+		jQuery('#routine-'+id+' button').html('Submit').prop('disabled',false);
+	}
+}
+
+function callbackChangeRoutine(data) {
+	if(data.success==true) {
+		var routine_id = data.routine_id;
+		var name = data.name;
+		var studio = data.studio;
+		var row = data.row;
+		jQuery('#'+row+' .routine-id').val(routine_id);
+		jQuery('#'+row+' .routine-name').html(name);
+		jQuery('#'+row+' .routine-studio').html(studio);
 	}
 }
 
@@ -465,7 +680,8 @@ function callbackChangeScholar(data) {
 		var studio = data.studio;
 		jQuery('#item-'+temp_id+' .age-division').html(agediv);
 		jQuery('#item-'+temp_id+' .studio-name').html(studio);
-		jQuery('#item-'+temp_id+' .participant-scholarship').find('input').attr({'name':'scholarships['+id+']'});
+		jQuery('#item-'+temp_id+' .participant-number').find('input').attr({'name':'scholarships['+id+'][number]'});
+		jQuery('#item-'+temp_id+' .participant-scholarship').find('input').attr({'name':'scholarships['+id+'][title]'});
 	}
 }
 
@@ -859,68 +1075,189 @@ function callbackMarkAsPaid(data) {
 }
 
 var init_dataTable = function() {
-	if(jQuery('.ts-data-table').length > 0) {
-		jQuery('.ts-data-table').each(function() {
-			var dom 		= jQuery(this).attr('data-dom') !=null ? jQuery(this).attr('data-dom') : 'frt<"table-footer clearfix"pl>';
-			var orderby 	= jQuery(this).attr('data-orderby') !=null ? jQuery(this).attr('data-orderby') : 0;
-			var sort 		= jQuery(this).attr('data-sort') !=null ? jQuery(this).attr('data-sort').toString() : 'desc';
-			var length 		= jQuery(this).attr('data-length') !=null ? jQuery(this).attr('data-length') : 5;
-			var filter 		= jQuery(this).attr('data-filter') !=null ? true : false;
-			var colfilter 	= jQuery(this).attr('data-colfilter') !=null ? true : false;
-			var exportcol 	= jQuery(this).attr('data-exportcol') !=null ? jQuery(this).attr('data-exportcol') : '0';
+	var tables = jQuery('.ts-data-table'); 
+	if(tables.length > 0) {
+		tables.each(function() {
+			var table_el    = jQuery(this);
+			var table_id 	= table_el.attr('id');
+			var dom 		= table_el.attr('data-dom') !=null ? table_el.attr('data-dom') : 'frt<"table-footer clearfix"p>';
+			var orderby 	= table_el.attr('data-orderby') !=null ? table_el.attr('data-orderby') : null;
+			var sort 		= table_el.attr('data-sort') !=null ? table_el.attr('data-sort').toString() : 'desc';
+			var length 		= table_el.attr('data-length') !=null ? table_el.attr('data-length') : 25;
+			var filter 		= table_el.attr('data-filter') !=null ? true : false;
+			var reorder 	= table_el.attr('data-reorder') !=null ? true : false;
+			var colfilter 	= table_el.attr('data-colfilter') !=null ? table_el.attr('data-colfilter') : null;
+			var exportcol 	= table_el.attr('data-exportcol') !=null ? table_el.attr('data-exportcol') : null;
+			var exporttitle = table_el.attr('data-exporttitle') !=null ? table_el.attr('data-exporttitle') : '';
+			var multiorder 	= table_el.attr('data-multiorder') !=null ? table_el.attr('data-multiorder') : null;
+			var trimtrigger = table_el.attr('data-trimtrigger') !=null ? table_el.attr('data-trimtrigger') : null;
+			var trimtarget 	= table_el.attr('data-trimtarget') !=null ? table_el.attr('data-trimtarget') : null;
+			var titleswitch = table_el.attr('data-titleswitch') !=null ? table_el.attr('data-titleswitch') : null;
 
-			var table = jQuery(this).DataTable({
-				'aaSorting' : [],
-				'bLengthChange' : true,
-				'bFilter' : filter,
-				'bInfo' : true,
-				'iDisplayLength' : parseInt(length),
-				'aLengthMenu' : [[10, 25, 50, -1], [10, 25, 50, 'All']],
-				'order' : [[orderby, sort]],
-				'buttons' : [
-                    {
-                        'extend': 'print',
-                        'exportOptions': {
-                    		'columns': [exportcol]
-                		}
-                    },
-                    {
-                        'extend': 'pdf',
-                        'exportOptions': {
-                    		'columns': [exportcol]
-                		}
-                    }
-                ],
-				'dom' : dom,
-				'language': {
-					'sSearch' : '',
-					'sSearchPlaceholder' : 'Search',
-					'lengthMenu': '_MENU_ Records per page',
+			var options = {
+				aaSorting : [],
+				bLengthChange : true,
+				bFilter : filter,
+				bInfo : true,
+				iDisplayLength : parseInt(length),
+				aLengthMenu : [[10, 25, 50, -1], [10, 25, 50, 'All']],
+				dom : dom,
+				language: {
+					sSearch : '',
+					sSearchPlaceholder : 'Search',
+					lengthMenu: '_MENU_ Records per page',
 				},
-			});
+				rowReorder: reorder,
+				/*render : function(data, type, row, meta) {
+	                if (type === 'sort') {
+	                    var sel = jQuery("input:checked").val();
+	                    return jQuery(sel, jQuery(data)).data('value');
+	                }
+	                return data;
+	            }*/				
+			};
 
-			if(colfilter) {
-				table.columns().every( function () {
-					var column = this;
-					var select = jQuery('<select><option value="">All '+jQuery(column.footer()).text()+'</option></select>')
-						.appendTo( jQuery(column.footer()).empty() )
-						.on( 'change', function () {
-							var val = jQuery.fn.dataTable.util.escapeRegex(
-								jQuery(this).val()
-							);
-							column
-								.search( val ? '^'+val+'$' : '', true, false )
-								.draw();
-						} );
 
-					column.data().unique().sort().each( function ( d, j ) {
-						d = d.replace(/(<([^>]+)>)/ig,"");
-						select.append( '<option value="'+d+'">'+d+'</option>' )
-					});
+			if(orderby!=null){
+				order = {
+					order : [[orderby, sort]]
+				};
+				jQuery.extend(options, order);
+			}
+			else if(multiorder!=null){
+				order = {
+					order : JSON.parse(multiorder)
+				};
+				jQuery.extend(options, order);
+			}
+
+			if(exportcol!=null) {
+				buttons = {
+					buttons : [
+	                    {
+	                        extend: 'print',
+                    		title: exporttitle,
+	                        exportOptions: {
+	                    		columns: [exportcol],
+	                		},
+							action: function (e, dt, node, config) {
+							    config.title = table_el.attr('data-exporttitle');
+							    jQuery.fn.dataTable.ext.buttons.print.action.call(this, e, dt, node, config);
+							},
+							customize: function(win) {
+								jQuery(win.document.body).find('table').css({
+									'font-size' : '9pt',
+								});
+								jQuery(win.document.body).find('h1').css({
+									'text-align' : 'center',
+									'font-size' : '18pt',
+									'font-weight' : 'bold',
+								});
+							},
+	                    },
+	                    {
+	                        extend: 'pdf',
+                    		title: exporttitle,
+	                        exportOptions: {
+	                    		columns: [exportcol]
+	                		},
+							customize: function(doc) {
+								doc.content[1].table.widths = 
+						        Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+						        doc.styles.tableHeader.alignment = 'left';
+							},
+							action: function (e, dt, node, config) {
+							    config.title = table_el.attr('data-exporttitle');
+							    jQuery.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, node, config);
+							},
+	                    }
+	                ],
+				};
+
+				jQuery.extend(options, buttons);
+			}
+
+			//console.log(options);
+			var table = table_el.DataTable(options);
+
+			table_el.parent().prepend('<div id="'+table_id+'_column-filter" class="dataTables_column-filter"></div>');
+
+			if(colfilter!=null) {
+				jQuery.each(JSON.parse(colfilter), function( index, value ) {
+					var column = table.column(value);
+					if(jQuery(column.footer()).hasClass('hidden')==false) {
+						var select = jQuery('<select id="filter-'+value+'"><option value="">'+jQuery(column.footer()).text()+'</option></select>')
+							.appendTo(jQuery('#'+table_id+'_column-filter'))
+							.on('change', function() {
+								var val = jQuery.fn.dataTable.util.escapeRegex(
+									jQuery(this).val()
+								);
+								column.search( val ? '^'+val+'$' : '', true, false ).draw();
+								if(trimtrigger!=null && trimtarget!=null) {
+									if(index==trimtrigger){
+										trim_filter(trimtarget, table, table_el, val);
+									}
+								}
+								if(index==titleswitch) {
+									//table.buttons(0).title( 'Not available' );
+									var titleswitch_val = jQuery(this).find('option:selected').val();
+									jQuery('#'+table_id).attr('data-exporttitle', titleswitch_val+' Registrations');
+
+									/*var oldoptions = table.fn.Settings(); 
+									var newoptions = jQuery.extend(oldoptions, { 
+										order : [[3, 'asc']],
+									}); 
+									table.fnDestroy(); 
+									table_el.dataTable(newoptions);*/
+									//table.rows().invalidate();
+									if(table_id=='entries-list') {
+										if(titleswitch_val=='Studio') {
+											table.order([[2, 'asc']]).draw();
+										}
+										else if(titleswitch_val=='Individual') {
+											table.order([[3, 'asc']]).draw();
+										}
+										else {
+											table.order([[orderby, sort]]).draw();
+										}
+									}
+								}
+							});
+						if(jQuery(column.footer()).attr('data-sort')=='true'){	
+							column.data().unique().sort().each( function ( d, j ) {
+								d = d.replace(/(<([^>]+)>)/ig,"");
+								select.append( '<option value="'+d+'">'+d+'</option>' )
+							});
+						}
+						else {
+							column.data().unique().each( function ( d, j ) {
+								d = d.replace(/(<([^>]+)>)/ig,"");
+								select.append( '<option value="'+d+'">'+d+'</option>' )
+							});
+						}	
+					}	
 				});
 			}
 		});
 	}
+}
+
+var trim_filter = function(value, table, table_el, select_val) {
+	//jQuery.each(JSON.parse(colfilter), function( index, value ) {
+		var column;
+		if(select_val!=''){
+			column = table.column(value, {search:'applied'});
+		}
+		else {
+			column = table.column(value);
+		}
+		var select = table_el.parent().find('#filter-'+value);
+		select.find('option').not(':first').remove();
+		column.data().unique().sort().each( function ( d, j ) {
+			d = d.replace(/(<([^>]+)>)/ig,"");
+			select.append( '<option value="'+d+'">'+d+'</option>' )
+		});
+	//});
 }
 
 /*var init_datePicker = function() {
@@ -951,6 +1288,37 @@ var init_dataTable = function() {
  }
  }*/
 
+Number.prototype.formatMoney = function(c, d, t){
+	var n = this,
+		c = isNaN(c = Math.abs(c)) ? 2 : c,
+		d = d == undefined ? "." : d,
+		t = t == undefined ? "," : t,
+		s = n < 0 ? "-" : "",
+		i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
+		j = (j = i.length) > 3 ? j % 3 : 0;
+	return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+}
+
+function moveIndex(arr, from, to) {
+	arr.splice(to, 0, arr.splice(from, 1)[0]);
+}
+
+/*Array.prototype.move = function (from, to) {
+	this.splice(to, 0, this.splice(from, 1)[0]);
+};
+*/
+//var ar = [1,2,3,4,5];
+//ar.move(0,3);
+//moveIndex(ar, 0, 3);
+//alert(ar);
+
+/*Object.defineProperty(Array.prototype, 'move', {
+    enumerable: false,
+    value: function (from, to) {
+		this.splice(to, 0, this.splice(from, 1)[0]);
+    }
+});*/
+
 var getParameterByName = function(name) {
 	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 	var regexS = "[\\?&]"+name+"=([^&#]*)";
@@ -972,17 +1340,6 @@ function getSelectedIds(container) {
 		});
 	}
 	return ids;
-}
-
-Number.prototype.formatMoney = function(c, d, t){
-	var n = this,
-		c = isNaN(c = Math.abs(c)) ? 2 : c,
-		d = d == undefined ? "." : d,
-		t = t == undefined ? "," : t,
-		s = n < 0 ? "-" : "",
-		i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
-		j = (j = i.length) > 3 ? j % 3 : 0;
-	return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
 }
 
 function dateFormat(el){

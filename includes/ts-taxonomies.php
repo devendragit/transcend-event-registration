@@ -35,7 +35,7 @@ function ts_register_custom_taxonomies() {
 
 	register_taxonomy(
 		'ts_agediv',
-		array('ts_studio_roster', 'ts_sibling'),
+		array('ts_studio_roster', 'ts_sibling', 'ts_routine'),
 		array(
 			'public' => false,
 			'hierarchical' => false,

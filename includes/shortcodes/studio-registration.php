@@ -208,8 +208,8 @@ function ts_get_studio_roster_html($entry_data, $entry_id, $eid, $prev_step, $ne
 			    'taxonomy' => 'ts_rostertype',
 			    'hide_empty' => false,
 			    'hierarchical' => false,
-			    'orderby' => 'meta_value_num',
-			    'meta_key' => 'type_order',
+			    //'orderby' => 'meta_value_num',
+			    //'meta_key' => 'type_order',
 			);									
 			$roster_types = get_terms($argsRosterType);
 			?>
@@ -341,15 +341,15 @@ function ts_get_studio_roster_html($entry_data, $entry_id, $eid, $prev_step, $ne
 				<div class="col-md-2 t-center"> 
 					<?php
 					if($roster_types) {
-					?>
-					<select name="" class="rosternew-roster_type">
-						<?php
-						foreach ($roster_types as $rt) {
-							echo '<option value="'. $rt->term_id .'">'. $rt->name .'</option>';
-						}
 						?>
-					</select>
-					<?php
+						<select name="" class="rosternew-roster_type">
+							<?php
+							foreach ($roster_types as $rt) {
+								echo '<option value="'. $rt->term_id .'">'. $rt->name .'</option>';
+							}
+							?>
+						</select>
+						<?php
 					} ?>
 				</div>
 				<div class="col-md-1 t-center"> 
@@ -375,15 +375,15 @@ function ts_get_studio_roster_html($entry_data, $entry_id, $eid, $prev_step, $ne
 				<div class="col-md-2 t-center"> 
 					<?php
 					if($roster_types) {
-					?>
-					<select name="" class="rosternew-roster_type">
-						<?php
-						foreach ($roster_types as $rt) {
-							echo '<option value="'. $rt->term_id .'">'. $rt->name .'</option>';
-						}
 						?>
-					</select>
-					<?php
+						<select name="" class="rosternew-roster_type">
+							<?php
+							foreach ($roster_types as $rt) {
+								echo '<option value="'. $rt->term_id .'">'. $rt->name .'</option>';
+							}
+							?>
+						</select>
+						<?php
 					} ?>
 				</div>
 				<div class="col-md-1 t-center"> 

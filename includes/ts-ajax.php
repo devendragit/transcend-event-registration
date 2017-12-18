@@ -302,6 +302,10 @@ function ajax_studio_registration() {
 							update_post_meta($newRoutine, 'music', $music);
 							update_post_meta($newRoutine, 'fee', $fee);
 
+				            $term = get_term_by('name', $agediv, 'ts_agediv');
+				            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+							update_post_meta($newRoutine, 'agediv_order', $agediv_order);
+
 							$newRoutineInfo = array(
 								'name' => $name, 
 								'dancers' => $dancers, 
@@ -350,6 +354,10 @@ function ajax_studio_registration() {
 							update_post_meta($newRoutine, 'props', $props);
 							update_post_meta($newRoutine, 'music', $music);
 							update_post_meta($newRoutine, 'fee', $fee);
+
+				            $term = get_term_by('name', $agediv, 'ts_agediv');
+				            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+							update_post_meta($newRoutine, 'agediv_order', $agediv_order);
 
 							$newRoutineInfo = array(
 								'name' => $name, 
@@ -424,7 +432,7 @@ function ajax_studio_registration() {
 				wp_set_object_terms($updated, $entry_type->term_id, 'ts_entry_type');
 
 				$grand_total = ts_grand_total($eid, $temp_data);
-				if(isset($temp_data['discount_code'])) {
+				if(isset($temp_data['discount_code']) && $temp_data['discount_code']!='') {
 					$grand_total = ts_discounted_grand_total($grand_total, $temp_data['discount_code'], $entry_id);
 					update_post_meta($updated, 'discount_code', $discount_code);
 				}
@@ -857,6 +865,10 @@ function ajax_individual_registration() {
 							update_post_meta($newRoutine, 'music', $music);
 							update_post_meta($newRoutine, 'fee', $fee);
 
+				            $term = get_term_by('name', $agediv, 'ts_agediv');
+				            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+							update_post_meta($newRoutine, 'agediv_order', $agediv_order);
+
 							$newRoutineInfo = array(
 								'name' => $name, 
 								'dancers' => $dancers, 
@@ -905,6 +917,10 @@ function ajax_individual_registration() {
 							update_post_meta($newRoutine, 'props', $props);
 							update_post_meta($newRoutine, 'music', $music);
 							update_post_meta($newRoutine, 'fee', $fee);
+
+				            $term = get_term_by('name', $agediv, 'ts_agediv');
+				            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+							update_post_meta($newRoutine, 'agediv_order', $agediv_order);
 
 							$newRoutineInfo = array(
 								'name' => $name, 
@@ -979,7 +995,7 @@ function ajax_individual_registration() {
 				wp_set_object_terms($updated, $entry_type->term_id, 'ts_entry_type');
 
 				$grand_total = ts_grand_total($eid, $temp_data);
-				if(isset($temp_data['discount_code'])) {
+				if(isset($temp_data['discount_code']) && $temp_data['discount_code']!='') {
 					$grand_total = ts_discounted_grand_total($grand_total, $temp_data['discount_code'], $entry_id);
 					update_post_meta($updated, 'discount_code', $discount_code);
 				}
@@ -1263,7 +1279,7 @@ function ajax_add_routine_dancers() {
 		check_ajax_referer('ts-save-item', 'token');
 
 		$eid		= $_POST['eid'];
-		$id			= $_POST['routine-id'];
+		$id			= absint($_POST['routine-id']);
 		$name 		= $_POST['routine-name'];
 		$dancers 	= $_POST['dancers'];
 
@@ -1287,7 +1303,21 @@ function ajax_add_routine_dancers() {
 			$count = 0;
 			$fee = 0;
 
-			$count = count($dancers);
+			if(get_post_status($eid)=='paid' || get_post_status($eid)=='paidcheck') {
+				$dancers_count = get_post_meta($id, 'dancers_count', true);
+				if($dancers_count) {
+					if(count($dancers) < $dancers_count) {
+						$count = $dancers_count;
+					}
+					else {
+						$count = count($dancers);
+					}
+					update_post_meta($id, 'dancers_count_edited', $count);
+				}
+			}
+			else {
+				$count = count($dancers);
+			}
 
 			$cat = ts_get_competition_categories();
 
@@ -1352,13 +1382,20 @@ function ajax_add_routine_dancers() {
 			}
 				
 			if($routine_id && !is_wp_error($routine_id)) {
+				if(get_post_status($eid)!='paid' && get_post_status($eid)!='paidcheck') {
+					update_post_meta($routine_id, 'dancers_count', $count);
+				}
 				update_post_meta($routine_id, 'dancers', $dancer_ids);
-				update_post_meta($routine_id, 'agediv', $age_ave);
+				update_post_meta($routine_id, 'agediv', $age_div_name);
 				update_post_meta($routine_id, 'cat', $routine_cat_id);
 				update_post_meta($routine_id, 'fee', $fee);
 
+	            $term = get_term_by('name', $age_div_name, 'ts_agediv');
+	            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+				update_post_meta($routine_id, 'agediv_order', $agediv_order);
+
 				$routineArray[$routine_id]['dancers'] = $dancer_ids;
-				$routineArray[$routine_id]['agediv'] = $age_ave;
+				$routineArray[$routine_id]['agediv'] = $age_div_name;
 				$routineArray[$routine_id]['cat'] = $routine_cat_id;
 				$routineArray[$routine_id]['fee'] = $fee;
 			}
@@ -2251,7 +2288,7 @@ function ajax_create_invoice() {
 
         $invoice_id = false;
         if(isset($ts_entry_invoice_amount)) {
-            $ts_entry_invoice_amount = intval( $ts_entry_invoice_amount );
+            $ts_entry_invoice_amount = number_format($ts_entry_invoice_amount, 2, '.', '');
             update_post_meta($id, "ts_entry_invoice_amount", $ts_entry_invoice_amount);
             $invoice_id = wp_insert_post(array (
                 'post_type' => 'ts_invoice',
@@ -2261,8 +2298,7 @@ function ajax_create_invoice() {
             ));
             if ($id) {
                 update_post_meta($invoice_id, 'invoice_amount', $ts_entry_invoice_amount);
-                do_action('ts_invoice_created', $id, $invoice_id);
-                $has_error 		= false;
+                $has_error = false;
             }
         }
         if(isset($ts_entry_invoice_note)) {
@@ -2281,6 +2317,7 @@ function ajax_create_invoice() {
             array_unshift($response['message'], 'Error');
         }
         else{
+            do_action('ts_invoice_created', $id, $invoice_id);
             $response['success'] = true;
             $response['redirect'] = admin_url('admin.php?page=ts-invoices');
         }
@@ -2324,8 +2361,11 @@ function ajax_download_all_music(){
         $pretty_filename.=  '-'.$name;
         if(! empty($routines) ){
             // Prepare File
-            $upload_dir = wp_upload_dir();
-            $file = tempnam($upload_dir['path'], "zip");
+            if ( !is_dir(TS_MUSIC_ZIP_FOLDER) ) {
+                mkdir(TS_MUSIC_ZIP_FOLDER, 0775, true);
+            }
+
+            $file = tempnam(TS_MUSIC_ZIP_FOLDER, "zip");
             $zip = new ZipArchive();
             $zip->open($file, ZipArchive::OVERWRITE);
             foreach( $routines as  $routine ) {
@@ -2352,7 +2392,7 @@ function ajax_download_all_music(){
         }
         else{
             $response['success'] = true;
-            $response['redirect'] = TS_ZIP_ATTACHMENTS_URL."/ts-music-download.php?ts_pretty_filename=".sanitize_file_name($pretty_filename)."&ts_real_filename=".$filename;
+            $response['redirect'] = TS_ZIP_ATTACHMENTS_URL."/ts-music-download.php?ts_pretty_filename=".sanitize_file_name($pretty_filename)."&ts_real_filename=".$filename."&ts_unlink=".true;
         }
         echo json_encode($response);
 
@@ -2413,22 +2453,26 @@ function ajax_save_music_info() {
 function ajax_save_mark_as_paid() {
     if($_POST) :
         check_ajax_referer('ts-default', 'token');
-        $id				= (int)$_POST['id'];
+        $entry_id = (int)$_POST['id'];
         $response = array(
             'success' => false,
-            'id' => $id,
+            'id' => $entry_id,
         );
         $has_error = true;
-        if(current_user_can('edit_post', $id)){
-            do_action('registration_manually_mark_as_paid', $id);
+        if(current_user_can('edit_post', $entry_id)){
+			$user_id = get_post_field( 'post_author', $entry_id );
+			$grand_total = get_post_meta( 'grand_total', $entry_id, true );
+			do_action('registration_paid', $entry_id, $user_id, 'mail_in_check', $grand_total,	false, 0);
+			do_action('registration_completed', $entry_id, $user_id, 'mail_in_check');
             $has_error = false;
-        }  else{
+        } 
+        else{
             $response['message'][] = __('Access Denied');
         }
         if($has_error===true) {
-            $response['message'][] = __('Access Denied');
             array_unshift($response['message'], 'Error');
-        }else{
+        }
+        else{
             $response['success'] = true;
             $response['message'][] = __('Entry is now mark as paid.');
         }
@@ -2445,6 +2489,66 @@ function ajax_save_special_awards() {
 
         $tour_city 		= $_POST['tour_city'];
         $special_awards = $_POST['special_awards'];
+
+        $has_error 		= true;
+
+        $response = array(
+            'success' => false,
+        );
+
+        if($tour_city){
+			$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) ? $special_awards['twelve_below']['choreography']['routine_id'] : '';
+			$standnom12below_id 	= isset($special_awards['twelve_below']['standout_nominee']['routine_id']) ? $special_awards['twelve_below']['standout_nominee']['routine_id'] : '';
+			$standwin12below_id 	= isset($special_awards['twelve_below']['standout_winner']['routine_id']) ? $special_awards['twelve_below']['standout_winner']['routine_id'] : '';
+			$choreo13above_id 		= isset($special_awards['thirteen_above']['choreography']['routine_id']) ? $special_awards['thirteen_above']['choreography']['routine_id'] : '';
+			$standnom13above_id 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_id']) ? $special_awards['thirteen_above']['standout_nominee']['routine_id'] : '';
+			$standwin13above_id 	= isset($special_awards['thirteen_above']['standout_winner']['routine_id']) ? $special_awards['thirteen_above']['standout_winner']['routine_id'] : '';
+			$studio_innovator 		= isset($special_awards['studio_innovator']) ? $special_awards['studio_innovator'] : '';
+
+	        update_post_meta($choreo12below_id, 'special_award', 'Choreography Award');
+	        update_post_meta($standnom12below_id, 'special_award', 'Judges Standout Nominee');
+	        update_post_meta($standwin12below_id, 'special_award', 'Judges Standout Winner');
+	        update_post_meta($choreo13above_id, 'special_award', 'Choreography Award');
+	        update_post_meta($standnom13above_id, 'special_award', 'Judges Standout Nominee');
+	        update_post_meta($standwin13above_id, 'special_award', 'Judges Standout Winner');
+
+	        if($studio_innovator!==''){
+				$args = array(
+					'role'         => 'studio',
+					'meta_key'     => 'studio',
+					'meta_value'   => $studio_innovator,
+					'meta_compare' => 'LIKE',
+					'number'       => 1,
+				 ); 
+				$users = get_users($args);
+				print_r($users);
+				$special_awards['studio_innovator'] = $users[0]->ID;
+			}
+
+	        update_post_meta($tour_city, 'special_awards', $special_awards);
+	        $has_error = false;
+        }
+
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+        }
+        echo json_encode($response);
+
+    endif;
+
+    die();
+}
+
+function ajax_save_scholarships() {
+
+    if($_POST) :
+
+        check_ajax_referer('ts-save-item', 'token');
+
+        $tour_city 		= $_POST['tour_city'];
         $scholarships 	= $_POST['scholarships'];
 
         $has_error 		= true;
@@ -2454,8 +2558,12 @@ function ajax_save_special_awards() {
         );
 
         if($tour_city){
-	        update_post_meta($tour_city, 'special_awards', $special_awards);
 	        update_post_meta($tour_city, 'scholarships', $scholarships);
+
+	        foreach ($scholarships as $key => $value) {
+	        	update_post_meta($key, 'number', $value['number']);
+	        	update_post_meta($key, 'scholarship', $value['title']);
+	        }
 	        $has_error = false;
         }
 
@@ -2490,7 +2598,7 @@ function ajax_load_participant_info() {
 
         if(ts_post_exists_by_id($id)){
         	$response['agediv'] = ts_participant_agediv($id);
-        	$response['studio'] = ts_participant_studio($id);
+        	$response['studio'] = ts_post_studio($id);
 	        $has_error = false;
         }
 
@@ -2526,6 +2634,7 @@ function ajax_publish_results() {
 			$status = get_post_meta($tour_id, 'results_status', true);
 			$newval = ! $status || $status=='draft' ? 'publish' : 'draft';
 	        update_post_meta($tour_id, 'results_status', $newval);
+	        do_action('publish_results', $tour_id);
 	        $has_error = false;
 		}
 
@@ -2549,7 +2658,7 @@ function ajax_add_critique() {
 	
 		check_ajax_referer('ts-default', 'token');
 
-		$post_id 		= absint($_POST['post_id']);
+		$routine_id 	= absint($_POST['routine_id']);
 		$attachment_id 	= absint($_POST['attachment_id']);
 		$has_error 		= true;
 
@@ -2557,10 +2666,44 @@ function ajax_add_critique() {
 			'success' => false, 
 		);
 
-		if($post_id && $attachment_id){
-			update_post_meta($post_id, 'critique', $attachment_id);
+		if($routine_id && $attachment_id){
+			update_post_meta($routine_id, 'critique', $attachment_id);
 	        $has_error = false;
 		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
+
+	endif;
+
+    die();	
+}
+
+function ajax_add_critiques() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-default', 'token');
+
+		$tour_id 		= absint($_POST['tour_id']);
+		$attachments 	= json_decode(stripslashes($_POST['attachments']));
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+		);
+
+		foreach ($attachments as $att) {
+			$routine_num = absint(substr($att->filename, 0, 3));
+			$routine = ts_get_routine_by_num($routine_num, $tour_id);
+			update_post_meta($routine->ID, 'critique', $att->id);
+		}
+		$has_error = false;
 
 		if($has_error === true) {
 			array_unshift($response['message'], 'Error');
@@ -2602,6 +2745,130 @@ function ajax_remove_critique() {
 		echo json_encode($response);
 
 	endif;
+
+    die();	
+}
+
+function ajax_load_routine_info() {
+
+    if($_POST) :
+
+        check_ajax_referer('ts-default', 'token');
+
+		$routine_number	= absint($_POST['routine_number']);
+		$tour_id		= absint($_POST['tour_id']);
+		$row			= $_POST['row'];
+		$has_error 		= true;
+
+        $response = array(
+            'success' => false,
+            'row' => $row,
+        );
+
+        $tour_routines = ts_tour_routines_ids($tour_id);
+
+        if(is_array($tour_routines) && ! empty($tour_routines)) {
+			$args = array(
+				'post__in' => $tour_routines,
+				'posts_per_page' => 1,
+				'meta_query' => array(
+					array(
+						'key'     => 'routine_number',
+						'value'   => $routine_number,
+						'compare' => '=',
+					),
+				),
+			);
+			$routine = ts_get_posts('ts_routine', -1, $args);
+	        if(ts_post_exists_by_id($routine[0]->ID)){
+	        	$routine_id = $routine[0]->ID;
+	        	$response['routine_id'] = $routine_id;
+	        	$response['name'] = get_the_title($routine_id);
+	        	$response['studio'] = ts_post_studio($routine_id);
+		        $has_error = false;
+	        }
+	    }
+	        
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+        }
+        echo json_encode($response);
+
+    endif;
+
+    die();
+}
+
+function ajax_reset_competition_schedule() {
+
+    if($_POST) :
+
+        check_ajax_referer('ts-default', 'token');
+
+		$id			= absint($_POST['id']);
+		$return 	= $_POST['return'];
+		$has_error 	= true;
+
+        $response = array(
+            'success' => false,
+            'redirect' => $return,
+        );
+
+        if(ts_post_exists_by_id($id)){
+        	delete_post_meta($id, 'schedule_saved');
+	        $has_error = false;
+        }
+
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+        }
+        echo json_encode($response);
+
+    endif;
+
+    die();
+}
+
+function ajax_save_routine_scores() {
+
+    if($_POST) :
+
+        check_ajax_referer('ts-default', 'token');
+
+		$id			= absint($_POST['id']);
+		$judge1		= ($_POST['judge1']);
+		$judge2		= ($_POST['judge2']);
+		$judge3		= ($_POST['judge3']);
+		$has_error 	= true;
+
+        $response = array(
+            'success' => false,
+            'id' => $id,
+        );
+
+        if(ts_post_exists_by_id($id)){
+        	$total_score = $judge1+$judge2+$judge3;
+			update_post_meta($id, 'judges_scores', array($judge1,$judge2,$judge3));
+			update_post_meta($id, 'total_score', $total_score);
+            $response['total_score'] = $total_score;
+	        $has_error = false;
+        }
+
+        if($has_error === true) {
+            array_unshift($response['message'], 'Error');
+        }
+        else{
+            $response['success'] = true;
+        }
+        echo json_encode($response);
+
+    endif;
 
     die();	
 }

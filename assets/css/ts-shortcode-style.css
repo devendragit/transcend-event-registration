@@ -18,6 +18,15 @@
 .table-body .row:nth-child(even) {
     background-color: #f9f9f9;
 }
+.ts-tabs {
+    margin-bottom: 30px;
+}
+.category-container.ts-tabs {
+    min-height: 400px;
+}
+.category-container .col-md-6:nth-child(odd) {
+    clear: both;
+}
 
 /* Schedule */
 .SchedTable {
@@ -66,7 +75,9 @@
     margin-right: 30px;
     overflow: hidden;
 }
-
+.modal-dialog .SampleSched .SchedTable {
+    margin-right: 0;
+}
 .SampleSched h1 {
     margin-top: 30px;
 }
@@ -133,8 +144,9 @@
 .TableBody .Col_1_5 > div:nth-child(6) {
     display: none !important;
 }
-
-.Col_1_2_2_1 > div:nth-child(2), .Col_1_2_2_1 > div:nth-child(4) {
+.Col_1_2_1_1_1 > div:nth-child(2),
+.Col_1_2_2_1 > div:nth-child(2), 
+.Col_1_2_2_1 > div:nth-child(4) {
     width: 29% !important;
 }
 
@@ -142,6 +154,7 @@
     font-family: 'Omnes-Bold';
 }
 
+.Col_1_2_1_1_1 > div:nth-child(3),
 .Col_1_2_2_1 > div:nth-child(3),
 .Col_1_2_2_1 > div:nth-child(5),
 .Col_1_4_1 > div:nth-child(3),
@@ -211,4 +224,11 @@
 }
 .SchedTable .highlighted-row {
     background-color: #fff6ba;
+}
+.highlight-red {
+    background-color: #e2bdc3
+}
+.highlight-red span {
+    padding: 10px;
+    display: block;
 }
