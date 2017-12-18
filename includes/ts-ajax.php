@@ -1725,6 +1725,7 @@ function ajax_save_tour() {
 		$id				= $_POST['tour-id'];
 		$status 		= $_POST['tour-status'];
 		$workshop 		= $_POST['tour-workshop'];
+        $competition 	= $_POST['tour-competition'];
 		$title 			= $_POST['tour-title'];
 		$city 			= $_POST['tour-city'];
 		$venue 			= $_POST['tour-venue'];
@@ -1757,10 +1758,12 @@ function ajax_save_tour() {
 		if($tour_id && !is_wp_error($tour_id)) {
 
 			$workshop = isset($workshop) && isset($status) ? 1 : 2;
+            $competition = isset($competition) && isset($status) ? 1 : 2;
 			$status = isset($status) ? 1 : 2;
 
 			update_post_meta($tour_id, 'status', $status);
 			update_post_meta($tour_id, 'workshop', $workshop);
+            update_post_meta($tour_id, 'competition', $competition);
 			update_post_meta($tour_id, 'city', $city);
 			update_post_meta($tour_id, 'venue', $venue);
 			update_post_meta($tour_id, 'date_from', date_format(date_create($datefrom),'Y/m/d'));
@@ -1806,11 +1809,13 @@ function ajax_close_tour() {
 
 			if($status == 2) {
 				update_post_meta($tour_id, 'workshop', 1);
+                update_post_meta($tour_id, 'competition', 1);
 				update_post_meta($tour_id, 'status', 1);
 				$newstat = 1;
 			}
 			else {
 				update_post_meta($tour_id, 'status', 2);
+                update_post_meta($tour_id, 'competition', 2);
 				update_post_meta($tour_id, 'workshop', 2);
 				$newstat = 2;
 			}

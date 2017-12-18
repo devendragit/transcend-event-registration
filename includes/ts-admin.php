@@ -927,6 +927,7 @@ function ts_tours_page() {
 						$venue 		= get_post_meta($tour_id, 'venue', true);
 						$city 		= get_post_meta($tour_id, 'city', true);
 						$workshop 	= get_post_meta($tour_id, 'workshop', true);
+                        $competition= get_post_meta($tour_id, 'competition', true);
 						$list_id 	= get_post_meta($tour_id, 'list_id', true);
 						$wstattext  = $workshop==2 ? 'Closed' : 'Open';
 						$stattext 	= $status==2 ? 'Closed' : 'Open';
@@ -953,6 +954,7 @@ function ts_tours_page() {
 								   data-venue="<?php echo $venue; ?>"
 								   data-city="<?php echo $city; ?>"
 								   data-workshop="<?php echo $workshop; ?>"
+                                   data-competition="<?php echo $competition; ?>"
 								   data-listid="<?php echo $list_id; ?>"
 								><small>Edit</small></a>
 								<a title="<?php echo $btntext; ?>" href="javascript:void(0);"
@@ -988,6 +990,7 @@ function ts_tours_page() {
 						<input type="hidden" name="tour-id" id="tour-id" value="" />
 						<p><label><input type="checkbox" name="tour-status" id="tour-status" value="1" checked="true" /> Enable Tour</label></p>
 						<p><label><input type="checkbox" name="tour-workshop" id="tour-workshop" value="1" checked="true" /> Enable Workshop</label></p>
+                        <p><label><input type="checkbox" name="tour-competition" id="tour-competition" value="1" checked="true" /> Enable Competition</label></p>
 						<p>Title <br /><input type="text" name="tour-title" id="tour-title" value="" /></p>
 						<p>City <br /><input type="text" name="tour-city" id="tour-city" value="" /></p>
 						<p>Venue <br /><input type="text" name="tour-venue" id="tour-venue" value="" /></p>
@@ -1233,6 +1236,11 @@ function ts_post_workshop_schedule() {
 		<div id="view-schedule-page" class="wrap">
 			<h1 class="admin-page-title"><?php echo $title; ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-workshop-schedule'); ?>">Add New</a></h1>
 			<div class="ts-admin-wrapper schedule-wrapper">
+                <div class="row">
+                    <div class="col-md-12 t-right">
+                        <a href="javascript:void(0)" class="btn btn-green btn-previewworkshopschedule">Preview</a>
+                    </div>
+                </div>
 	        	<?php
                 $options = array(
                     'post_id'  => $schedule_id,
@@ -1249,6 +1257,22 @@ function ts_post_workshop_schedule() {
                 acf_form($options);
                 ?>  
 			</div>
+            <div id="popup-workshopsched-preview" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Workshop Schedule Preview</h4>
+                        </div>
+                        <div id="downloadschedule" class="modal-body">
+                            <?php
+                            $schedule = get_post($schedule_id);
+                            ts_display_workshop_schedules(array($schedule));
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
 		</div>
 		<?php	
 	}
@@ -1293,6 +1317,7 @@ function ts_post_competition_schedule() {
 			<div class="ts-admin-wrapper schedule-wrapper">
 				<div class="row">
 					<div class="col-md-12 t-right">
+						<a href="javascript:void(0)" class="btn btn-green btn-downloadschedule">Download</a>
 						<button class="btn btn-red btn-resetschedule" data-id="<?php echo $schedule_id; ?>" data-return="<?php echo admin_url('admin.php?page=ts-edit-competition-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>">Reset</button>&nbsp;&nbsp;
 						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>
 					</div>
@@ -1448,7 +1473,7 @@ function ts_post_competition_schedule() {
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 							<h4 class="modal-title">Competition Schedule Preview</h4>
 						</div>
-						<div class="modal-body">
+						<div id="downloadschedule" class="modal-body">
 							<?php 
 							$schedule = get_post($schedule_id);
 							ts_display_competition_schedules(array($schedule)); 
