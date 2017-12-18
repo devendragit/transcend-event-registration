@@ -1725,98 +1725,119 @@ function ts_display_competition_schedules($schedules, $routines_array=array()) {
 		<div class="inner SampleSched">';
 		foreach ($schedules as $schedule) {
 			$schedule_id = $schedule->ID;
-			$counter = 1;
+			$tour_id = get_post_meta($schedule_id, 'event_city', true);
+			$tour_date = get_post_meta($tour_id, 'date_from', true);
+			$first_day = date('l', strtotime($tour_date));
+			$daycount = 0;
 			echo '
 			<h3 class="t-center">'. $schedule->post_title .'</h3>';
 
 			while(has_sub_field('competition_event_schedules', $schedule_id)):
-				?>
-				<div class="CompetitionSched SchedTable">
-					<div class="TableCont">
-						<div id="Day_<?php echo $counter; ?>" class="TableHeading">
-							<?php echo date('l', strtotime(get_sub_field('day'))); ?>
-						</div>
-						<div class="TableBody text-center">
-							<div class="clearfix RowHeading">
+				
+				ts_compsched_header($first_day);
+
+					while(has_sub_field('lineup')):
+						$highlight = in_array(get_sub_field('routine'), $routines_array) ? 'highlighted-row' : '';
+						if('Judges Break' === get_sub_field('action')) {
+							?>
+							<div class="clearfix t-center highlight-red">
+								<span>Judges Break</span>
+							</div>
+							<?php
+						}
+						else if('Awards' === get_sub_field('action')) {
+							?>
+							<div class="clearfix t-center highlight-red">
+								<span>Awards</span>
+							</div>
+							<?php
+						}
+						else if('Day' === get_sub_field('action')) {
+							ts_compsched_footer();
+							$daycount++;
+							$day = date('l', strtotime('+'. $daycount .' day', strtotime($tour_date)));
+							ts_compsched_header($day);
+						}
+						else {
+							?>
+							<div class="clearfix <?php echo $highlight;?>">
 								<div>
-									<span>Number</span>
+									<span><?php echo get_sub_field('number'); ?>&nbsp;</span>
 								</div>
 								<div>
-									<span>Time</span>
+									<span><?php echo strtoupper(substr(get_sub_field('time_start'), 0, -3) .'-'. get_sub_field('time_end')); ?>&nbsp;</span>
 								</div>
 								<div>
-									<span>Studio</span>
+									<span><?php echo get_sub_field('studio'); ?>&nbsp;</span>
 								</div>
 								<div>
-									<span>Routine</span>
+									<span><?php echo get_the_title(get_sub_field('routine')); ?>&nbsp;</span>
 								</div>
 								<div>
-									<span>Age Division</span>
+									<span><?php echo get_sub_field('age_division'); ?>&nbsp;</span>
 								</div>
 								<div>
-									<span>Category</span>
+									<span><?php echo get_sub_field('category'); ?>&nbsp;</span>
 								</div>
 								<div>
-									<span>Genre</span>
+									<span><?php echo get_sub_field('genre'); ?>&nbsp;</span>
 								</div>
 							</div>
-							<?php $c = 1;
-							while(has_sub_field('lineup')):
-								$highlight = in_array(get_sub_field('routine'), $routines_array) ? 'highlighted-row' : '';
-								if('Judges Break' === get_sub_field('action')) {
-									?>
-									<div class="clearfix t-center Row_<?php echo $c; ?> highlight-red">
-										<span>Judges Break</span>
-									</div>
-									<?php
-								}
-								else if('Awards' === get_sub_field('action')) {
-									?>
-									<div class="clearfix t-center Row_<?php echo $c; ?> highlight-red">
-										<span>Awards</span>
-									</div>
-									<?php
-								}
-								else {
-									?>
-									<div class="clearfix Row_<?php echo $c; ?> <?php echo $col;?> <?php echo $highlight;?>">
-										<div>
-											<span><?php echo get_sub_field('number'); ?>&nbsp;</span>
-										</div>
-										<div>
-											<span><?php echo strtoupper(substr(get_sub_field('time_start'), 0, -3) .'-'. get_sub_field('time_end')); ?>&nbsp;</span>
-										</div>
-										<div>
-											<span><?php echo get_sub_field('studio'); ?>&nbsp;</span>
-										</div>
-										<div>
-											<span><?php echo get_the_title(get_sub_field('routine')); ?>&nbsp;</span>
-										</div>
-										<div>
-											<span><?php echo get_sub_field('age_division'); ?>&nbsp;</span>
-										</div>
-										<div>
-											<span><?php echo get_sub_field('category'); ?>&nbsp;</span>
-										</div>
-										<div>
-											<span><?php echo get_sub_field('genre'); ?>&nbsp;</span>
-										</div>
-									</div>
-									<?php
-								}
-							$c++;
-							endwhile;
-							?>
-						</div>
-					</div>
-				</div>
-				<?php
+							<?php
+						}
+					$c++;
+					endwhile;
+
+				ts_compsched_footer();
+
 				$counter++;
 			endwhile;
 		}
 		echo '
 		</div>';
 	}
+}
+
+function ts_compsched_header($day) {
+	?>
+	<div class="CompetitionSched SchedTable">
+		<div class="TableCont">
+			<div class="TableHeading">
+				<?php echo $day; ?>
+			</div>
+			<div class="TableBody text-center">
+				<div class="clearfix RowHeading">
+					<div>
+						<span>Number</span>
+					</div>
+					<div>
+						<span>Time</span>
+					</div>
+					<div>
+						<span>Studio</span>
+					</div>
+					<div>
+						<span>Routine</span>
+					</div>
+					<div>
+						<span>Age Division</span>
+					</div>
+					<div>
+						<span>Category</span>
+					</div>
+					<div>
+						<span>Genre</span>
+					</div>
+				</div>
+	<?php	
+}
+
+function ts_compsched_footer() {
+	?>
+			</div>
+		</div>
+	</div>
+	<?php	
 }
 
 function ts_save_routine_number($schedule_id) {
@@ -2153,21 +2174,21 @@ if(! empty($routine_ids)) {
 	</tr></thead>
 <tbody>
 	<?php
-foreach ($routines as $r) {
-	$id = $r->ID;
-	$number = get_post_meta($id, 'routine_number', true);
-	$score = get_post_meta($id, 'total_score', true);
-	$name = get_the_title($id);
-	$studio = ts_post_studio($id);
-	?>
-<tr id="routine-<?php echo $id; ?>">
-	<td style="text-align: center;"><?php echo $number; ?></div>
-	<td style="text-align: center;"><?php echo $name; ?></div>
-	<td style="text-align: center;"><?php echo $studio; ?></div>
-	<td style="text-align: center;"><?php echo ts_adjudicated_award($score); ?></div>
-	</tr>
-	<?php
-} ?>
+	foreach ($routines as $r) {
+		$id = $r->ID;
+		$number = get_post_meta($id, 'routine_number', true);
+		$score = get_post_meta($id, 'total_score', true);
+		$name = get_the_title($id);
+		$studio = ts_post_studio($id);
+		?>
+		<tr id="routine-<?php echo $id; ?>">
+			<td style="text-align: center;"><?php echo $number; ?></div>
+			<td style="text-align: center;"><?php echo $name; ?></div>
+			<td style="text-align: center;"><?php echo $studio; ?></div>
+			<td style="text-align: center;"><?php echo ts_adjudicated_award($score); ?></div>
+		</tr>
+		<?php
+	} ?>
 	</tbody>
 	</table>
 	<?php

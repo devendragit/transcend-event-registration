@@ -1550,6 +1550,7 @@ function ts_scores_page() {
 								<th style="text-align:center; width:80px;">Judge 2</th>
 								<th style="text-align:center; width:80px;">Judge 3</th>
 								<th style="text-align:center;">Total</th>
+								<th style="text-align:center;">Adjudicated Award</th>
 								<th style="text-align:center;">Action</th>
 							</tr>
 							</thead>
@@ -1571,6 +1572,7 @@ function ts_scores_page() {
 												$routine_name 	= get_the_title($routine_id);
 												$judges_scores 	= get_post_meta($routine_id, 'judges_scores', true);
 												$total_score 	= get_post_meta($routine_id, 'total_score', true);
+												$adjudicated 	= ts_adjudicated_award($total_score);
 												$routine_num 	= get_post_meta($routine_id, 'routine_number', true);
 												?>
 												<tr id="routine-<?php echo $routine_id; ?>">
@@ -1583,6 +1585,7 @@ function ts_scores_page() {
 													<td style="text-align:center;"><input class="score-judge2" type="text" name="scores[<?php echo $routine_id?>][judge2]" value="<?php echo $judges_scores[1]; ?>"></td>
 													<td style="text-align:center;"><input class="score-judge3" type="text" name="scores[<?php echo $routine_id?>][judge3]" value="<?php echo $judges_scores[2]; ?>"></td>
 													<td style="text-align:center;" class="total-score"><?php echo $total_score; ?></td>
+													<td style="text-align:center;" class="adjudicated-award"><?php echo $adjudicated; ?></td>
 													<td style="text-align:center;"><button class="btn-submitscore" data-id="<?php echo $routine_id; ?>">Submit</button></td>
 												</tr>
 												<?php
