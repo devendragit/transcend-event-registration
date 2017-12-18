@@ -1196,6 +1196,11 @@ function ts_post_workshop_schedule() {
 		<div id="view-schedule-page" class="wrap">
 			<h1 class="admin-page-title"><?php echo $title; ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-workshop-schedule'); ?>">Add New</a></h1>
 			<div class="ts-admin-wrapper schedule-wrapper">
+                <div class="row">
+                    <div class="col-md-12 t-right">
+                        <a href="javascript:void(0)" class="btn btn-green btn-previewworkshopschedule">Preview</a>
+                    </div>
+                </div>
 	        	<?php
                 $options = array(
                     'post_id'  => $schedule_id,
@@ -1212,6 +1217,22 @@ function ts_post_workshop_schedule() {
                 acf_form($options);
                 ?>  
 			</div>
+            <div id="popup-workshopsched-preview" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Workshop Schedule Preview</h4>
+                        </div>
+                        <div id="downloadschedule" class="modal-body">
+                            <?php
+                            $schedule = get_post($schedule_id);
+                            ts_display_workshop_schedules(array($schedule));
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
 		</div>
 		<?php	
 	}

@@ -1645,10 +1645,15 @@ function ts_display_workshop_schedules($schedules) {
 	foreach ($schedules as $schedule) {
 		$schedule_id = $schedule->ID;
 		$counter = 1;
-		echo '
-			<h3 class="t-center">'. $schedule->post_title .'</h3>';
+
+		echo '<h3 class="t-center">'. $schedule->post_title .'</h3>';
 
         while(has_sub_field('event_schedules', $schedule_id)):
+            $column_1 = get_sub_field('column_1');
+            $column_2 = get_sub_field('column_2');
+            $column_3 = get_sub_field('column_3');
+            $column_4 = get_sub_field('column_4');
+            $column_5 = get_sub_field('column_5');
 	        ?>
 	        <div class="SchedTable">
 	        	<div class="TableCont">
@@ -1661,19 +1666,19 @@ function ts_display_workshop_schedules($schedules) {
 		                    	<span>Time</span>
 		                    </div>
 		                    <div>
-		                    	<span>Seniors</span>
+		                    	<span><?php echo $column_1;?></span>
 		                    </div>
 		                    <div>
-		                    	<span>Teens</span>
+		                    	<span><?php echo $column_2;?></span>
 		                    </div>
 		                    <div>
-		                    	<span>Juniors</span>
+		                    	<span><?php echo $column_3;?></span>
 		                    </div>
 		                    <div>
-		                    	<span>Minis</span>
+		                    	<span><?php echo $column_4;?></span>
 		                    </div>
 		                    <div>
-		                    	<span>Munchkins/Pro/Teachers</span>
+		                    	<span><?php echo $column_5;?></span>
 		                    </div>
 		                </div>
 		                <?php $c = 1;

@@ -390,12 +390,17 @@ jQuery(document).ready(function($) {
 		$('#popup-create-invoice').modal('show');
 	});
 
-	$('.btn-previewschedule').on('click', function(e) {
-		e.preventDefault();
-		$('#popup-competitionsched-preview').modal('show');
-	});
+    $('.btn-previewschedule').on('click', function(e) {
+        e.preventDefault();
+        $('#popup-competitionsched-preview').modal('show');
+    });
 
-	$('.btn-editmusicinfo').on('click', function(e) {
+    $('.btn-previewworkshopschedule').on('click', function(e) {
+        e.preventDefault();
+        $('#popup-workshopsched-preview').modal('show');
+    });
+
+    $('.btn-editmusicinfo').on('click', function(e) {
 		e.preventDefault();
 		var id = $(this).attr('data-id');
 		var title = $(this).attr('data-title');
