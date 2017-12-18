@@ -562,12 +562,15 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 										$count_d = count($ids);
 										$age_total = 0;
 										if(! empty($ids)){
+											$count=0;
 											foreach ($ids as $d) {
 												if(ts_post_exists_by_id($d)){
-													echo get_the_title($d) .', ';
+													if($count>0) echo ', ';
+													echo get_the_title($d);
 													$birth_date = get_post_meta($d, 'birth_date', true);
 													$age = ts_get_the_age($birth_date);
 													$age_total = $age_total + $age;
+													$count++;
 												}
 											}
 											$age_ave = round($age_total / $count_d);

@@ -388,7 +388,7 @@ function ts_get_competition_categories() {
 		'title' => 'Solo',
 		'desc' => '(1 person)',
 		'fee' => 100,
-		'time_limit' => 300,
+		'time_limit' => 180,
 	);
 
 	$categories[2] = array(
@@ -396,7 +396,7 @@ function ts_get_competition_categories() {
 		'title' => 'Duo/Trio',
 		'desc' => '(2-3 people)',
 		'fee' => 60,
-		'time_limit' => 300,
+		'time_limit' => 180,
 	);
 
 	$categories[3] = array(
@@ -404,7 +404,7 @@ function ts_get_competition_categories() {
 		'title' => 'Small Group',
 		'desc' => '(4-9 people)',
 		'fee' => 47,
-		'time_limit' => 300,
+		'time_limit' => 180,
 	);
 
 	$categories[4] = array(
@@ -412,7 +412,7 @@ function ts_get_competition_categories() {
 		'title' => 'Large Group',
 		'desc' => '(10-16 people)',
 		'fee' => 47,
-		'time_limit' => 300,
+		'time_limit' => 180,
 	);
 
 	$categories[5] = array(
@@ -420,7 +420,7 @@ function ts_get_competition_categories() {
 		'title' => 'Line',
 		'desc' => '(17-24 people)',
 		'fee' => 47,
-		'time_limit' => 300,
+		'time_limit' => 240,
 	);
 
 	$categories[6] = array(

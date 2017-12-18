@@ -52,10 +52,15 @@ function ts_in_date_range($start, $end, $date){
 	return (($date >= $start) && ($date <= $end));
 }
 
-function ts_get_days_before_date($date) {
+function ts_get_days_before_date($end, $start=false) {
 
-	$date1 = new DateTime($date);
-	$date2 = new DateTime();
+	$date1 = new DateTime($end);
+	if($start) {
+		$date2 = new DateTime($start);
+	}
+	else {
+		$date2 = new DateTime();
+	}
 	$diff = $date2->diff($date1);
 	return $diff->days;
 }
@@ -65,9 +70,6 @@ function ts_get_the_age($birthdate) {
 	$from = new DateTime($birthdate);
 	$to   = new DateTime('today');
 	$age = $from->diff($to)->y;	
-
-	//$birthdate = explode('/', $birthdate);
-	//$age = (date('md', date('U', mktime(0, 0, 0, $birthdate[0], $birthdate[1], $birthdate[2]))) > date('md') ? ((date('Y') - $birthdate[2]) - 1) : (date('Y') - $birthdate[2]));
 
 	return $age;
 }
@@ -490,6 +492,15 @@ function ts_post_studio($participant_id) {
 	$author = $post->post_author;
 	$studio = get_field('studio', 'user_'. $author);
 	return $studio;
+}
+
+function ts_post_author_role($participant_id) {
+	$post = get_post($participant_id);
+	$author = $post->post_author;
+	$authordata = get_userdata($author);
+    $author_roles = $authordata->roles;
+    $author_role = array_shift($author_roles);
+    return $author_role;
 }
 
 function ts_participant_agediv($participant_id) {
@@ -952,6 +963,9 @@ function ts_update_routines() {
             $agediv_order = get_term_meta($term->term_id, 'div_order', true);
             update_post_meta($id, 'agediv_order', $agediv_order);
             
+            $cat = get_post_meta($id, 'cat', true);
+            update_post_meta($id, 'cat_order', $cat);
+
             $dancers = get_post_meta($id, 'dancers', true);
             update_post_meta($id, 'dancers_count', count(explode(',', $dancers)));
         }
@@ -1020,12 +1034,17 @@ function ts_display_entry_details($entry_id, $user_id=false, $invoiceform=false,
 
 	$routines 						= ts_check_value($competition,'routines');
 
-	$workshop_fee 					= ts_get_total_workshop_fee($entry_id, $entry_data);
+	$tour_id 						= $workshop['tour_city'];
+	$date_paid 						= get_post_meta($entry_id, 'date_paid', true);
+	$tour_date 						= get_post_meta($tour_id, 'date_from', true);
+	$force_early 					= $date_paid && ts_get_days_before_date($tour_date, $date_paid) > 30 ? true : false; 
+
+	$workshop_fee 					= ts_get_total_workshop_fee($entry_id, $entry_data, $force_early);
 	$workshop_teacher_discount 		= ts_get_total_teacher_discount($entry_id, $entry_data);
 	$workshop_scholarship_discount 	= ts_get_total_scholarship_discount($entry_id, $entry_data);
-	$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($entry_id, $entry_data);
+	$workshop_fee_discounted 		= ts_get_discounted_total_workshop_fee($entry_id, $entry_data, $force_early);
 	$competition_fee 				= ts_get_total_competition_fee($entry_id, $entry_data);
-	$grand_total        			= ts_grand_total($entry_id, $entry_data);
+	$grand_total        			= ts_grand_total($entry_id, $entry_data, $force_early);
 	$amount_credited                = absint(ts_check_value($entry_data,'amount_credited'));
 
 	if(! empty($discount_code)){
@@ -1036,7 +1055,7 @@ function ts_display_entry_details($entry_id, $user_id=false, $invoiceform=false,
 	?>
 	<table style="width: 100%; max-width: 800px; padding: 50px 0; <?php echo $center ? 'margin: 0 auto;' : ''; ?>" cellspacing="0" cellpadding="0" border="0">
 		<tr class="tour-city">
-			<td colspan="3" align="center"><strong><?php echo get_the_title($workshop['tour_city']); ?></strong></td>
+			<td colspan="3" align="center"><strong><?php echo get_the_title($tour_id); ?></strong></td>
 		</tr>
 		<tr>
 			<td colspan="3">&nbsp;</td>

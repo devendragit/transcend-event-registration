@@ -137,11 +137,15 @@ function ts_view_entry_page() {
 	$cell 		= get_field('cell', 'user_'. $user_id);
 	$contact 	= get_field('contact', 'user_'. $user_id);
 
-	$tour_city 			= get_the_title($workshop['tour_city']);
+	$tour_id 			= $workshop['tour_city'];
+	$tour_city 			= get_the_title($tour_id);
 	$free_teacher_ids 	= ts_get_free_teacher_ids($entry_id);
 	$participants 		= ts_check_value($workshop, 'participants');
 	$observer 			= ts_check_value($workshop, 'observers');
 	$munchkin_observer 	= ts_check_value($workshop, 'munchkin_observers');
+	$date_paid 			= get_post_meta($entry_id, 'date_paid', true);
+	$tour_date 			= get_post_meta($tour_id, 'date_from', true);
+	$force_early 		= $date_paid && ts_get_days_before_date($tour_date, $date_paid) > 30 ? true : false; 
 	?>
 	<div id="view-entry-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo $tour_city; ?></h1>
@@ -347,7 +351,6 @@ function ts_view_entry_page() {
 				</div>
 				<?php
 			}
-
 			if(! empty($participants) ){ ?>
 				<h2 class="admin-sub-title">Participants</h2>
 				<div class="table-container">
@@ -366,8 +369,6 @@ function ts_view_entry_page() {
 							'include'          => array_keys($participants),
 							'meta_key'         => 'age_cat_order',
 						);
-
-
 						if(in_array('studio', $user_roles)) {
 							$post_type = 'ts_studio_roster';
 						}
@@ -382,7 +383,7 @@ function ts_view_entry_page() {
 							$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
 							$discount_id 	= $participants[$rid]['discount'];
 							$duration_id 	= $participants[$rid]['duration'];
-							$base_fee 		= ts_get_workshop_fee($rid, $duration_id, $entry_id, $workshop['tour_city']);
+							$base_fee 		= ts_get_workshop_fee($rid, $duration_id, $entry_id, $tour_id, $force_early);
 							$discounted_fee = ts_get_discounted_workshop_fee($base_fee, $discount_id);
 							$fee_preview 	= in_array($rid, $free_teacher_ids) ? 'Free' : '$'. number_format($discounted_fee, 2);
 							?>
@@ -537,12 +538,15 @@ function ts_view_entry_page() {
 										$count_d = count($ids);
 										$age_total = 0;
 										if(! empty($ids)){
+											$count=0;
 											foreach ($ids as $d) {
 												if(ts_post_exists_by_id($d)){
-													echo get_the_title($d) .', ';
+													if($count>0) echo ', ';
+													echo get_the_title($d);
 													$birth_date = get_post_meta($d, 'birth_date', true);
 													$age = ts_get_the_age($birth_date);
 													$age_total = $age_total + $age;
+													$count++;
 												}
 											}
 											$age_ave = round($age_total / $count_d);
@@ -604,7 +608,8 @@ function ts_view_entry_page() {
 					</div>
 				</div>
 				<?php
-			} ?>
+			} 
+			?>
 			<h2 class="admin-sub-title">Summary</h2>
 			<div class="table-container entry-summary">
 				<div class="row table-head">
@@ -624,14 +629,16 @@ function ts_view_entry_page() {
 }
 
 function ts_workshopentries_page() {
+	$tour_id = ts_get_param('tour');
 	?>
 	<div id="entries-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-workshop-entries', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<table style="width: 100%;" id="entries-list" class="ts-data-table" data-length="25" data-multiorder='[[0,"asc"], [1, "asc"]]' data-filter="true" data-colfilter="[5,2]" data-exporttitle="Workshop Registrations" data-exportcol="1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
+			<?php if($tour_id) { ?>	
+			<table style="width: 100%;" id="entries-list" class="ts-data-table" data-length="25"  data-filter="true" data-colfilter="[5,2]" data-exporttitle="Workshop Registrations" data-exportcol="1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
-					<th class="hidden">#</th>
+					<th>#</th>
 					<th>Name</th>
 					<th style="text-align:center;">Age Division</th>
 					<th style="text-align:center;">Type</th>
@@ -642,63 +649,67 @@ function ts_workshopentries_page() {
 				<tbody>
 				<?php
 				$args = array(
+					'meta_key' => 'tour_city',
+					'meta_value' => $tour_id,
 					'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
 				);
 				$entries = ts_get_posts('ts_entry', -1, $args);
 				if($entries) {
 					$agedivname = '';
 					$roster_posts = array();
+					$participantsArray = array();
 					foreach ($entries as $entry) {
 						setup_postdata($entry);
 						$entry_id 		= $entry->ID;
 						$workshop 		= get_post_meta($entry_id, 'workshop', true);
 						$participants 	= $workshop['participants'];
-						$city 			= get_post_meta($workshop['tour_city'], 'city', true);
+						$tour_city 		= $workshop['tour_city'];
+						$city 			= get_post_meta($tour_city, 'city', true);
 						$user_id 		= $entry->post_author;
 						$user_meta 		= get_userdata($user_id);
 						$user_roles 	= $user_meta->roles;
 						$studio 		= get_field('studio', 'user_'. $user_id);
+						if(! empty($participants)) {
+							$participants_ids  = array_keys($participants);
+							$participantsArray = array_merge($participants_ids, $participantsArray);
+						}	
+					}
+					if(! empty($participantsArray) ){
+						$participantsArray = ts_trim_duplicate($participantsArray);
+						$args = array(
+							'meta_key' => 'age_cat_order',
+							'orderby' => 'meta_value_num',
+							'order' => 'ASC',								
+							'include' => $participantsArray,
+						);
+						$roster_posts = ts_get_posts(array('ts_studio_roster', 'ts_sibling'), -1, $args);
 
-						if(! empty($participants) ){
-
-							$args = array(
-								'include' => array_keys($participants),
-							);
-							if($user_roles[0]=='studio') {
-								$post_type = 'ts_studio_roster';
+						if(! empty($roster_posts)) {
+							$count=0;
+							foreach ($roster_posts as $rp) {
+								$count++;
+								$rid 			= $rp->ID;
+								$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
+								$agediv_name 	= $age_div[0]->name;
+								$name 			= get_the_title($rid);
+								?>
+								<tr id="item-<?php echo $entry_id; ?>">
+									<td><?php echo $count; ?></td>
+									<td><?php echo $name; ?></td>
+									<td style="text-align:center;"><?php echo $agediv_name; ?></td>
+									<td style="text-align:center;"><?php echo ucwords($user_roles[0]); ?></td>
+									<td style="text-align:center;"><?php echo $studio; ?></td>
+									<td style="text-align:center;"><?php echo $city; ?></td>
+								</tr>
+								<?php
 							}
-							else if($user_roles[0]=='individual'){
-								$post_type = 'ts_sibling';
-							}
-							$roster_posts = ts_get_posts($post_type, -1, $args);
-
-							if(! empty($roster_posts)) {
-								$roster_posts = ts_trim_duplicate_objects($roster_posts);
-								foreach ($roster_posts as $rp) {
-									$rid 			= $rp->ID;
-									$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
-									$agediv_name 	= $age_div[0]->name;
-									$name 			= get_the_title($rid);
-									$num 			= get_term_meta($age_div[0]->term_id, 'div_order', true);
-									?>
-									<tr id="item-<?php echo $entry_id; ?>">
-										<td class="hidden"><?php echo $num; ?></td>
-										<td><?php echo $name; ?></td>
-										<td style="text-align:center;"><?php echo $agediv_name; ?></td>
-										<td style="text-align:center;"><?php echo ucwords($user_roles[0]); ?></td>
-										<td style="text-align:center;"><?php echo $studio; ?></td>
-										<td style="text-align:center;"><?php echo $city; ?></td>
-									</tr>
-									<?php
-								}
-							}	
-						}
+						}	
 					}
 				}
 				else{
-					echo '<tr><td colspan="6">No Workshop Participants Found</td></tr>';
+					echo '<tr><td colspan="6" align="center">No Workshop Participants Found</td></tr>';
 				}
-				?>
+				?>	
 				</tbody>
 				<tfoot>
 				<tr>
@@ -707,24 +718,27 @@ function ts_workshopentries_page() {
 					<th>All Age Divisions</th>
 					<th class="hidden"></th>
 					<th class="hidden"></th>
-					<th>All Cities</th>
+					<th class="hidden">All Cities</th>
 				</tr>
 				</tfoot>
 			</table>
+			<?php } ?>
 		</div>
 	</div>
 	<?php
 }
 
 function ts_competitionentries_page() {
+	$tour_id = ts_get_param('tour');
 	?>
 	<div id="entries-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-competition-entries', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<table id="entries-list" class="ts-data-table" data-length="25" data-multiorder='[[0,"asc"], [1, "asc"]]' data-filter="true" data-colfilter="[5,3,4]" data-exporttitle="Competition Registrations" data-exportcol="1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
+			<?php if($tour_id) { ?>	
+			<table id="entries-list" class="ts-data-table" data-length="25" data-filter="true" data-colfilter="[5,3,4]" data-exporttitle="Competition Registrations" data-exportcol="1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
-					<th class="hidden">#</th>
+					<th>#</th>
 					<th style="width: 200px;">Routine Name</th>
 					<th>Dancers</th>
 					<th style="text-align:center; width: 180px;">Age Division</th>
@@ -737,11 +751,14 @@ function ts_competitionentries_page() {
 				<tbody>
 				<?php
 				$args = array(
+					'meta_key' => 'tour_city',
+					'meta_value' => $tour_id,
 					'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
 				);
 				$entries = ts_get_posts('ts_entry', -1, $args);
 
 				if($entries) {
+					$routinesArray = array();
 					foreach ($entries as $entry) {
 						setup_postdata($entry);
 						$entry_id 		= $entry->ID;
@@ -749,72 +766,94 @@ function ts_competitionentries_page() {
 						$routines 		= $competition['routines'];
 						$workshop 		= get_post_meta($entry_id, 'workshop', true);
 						$city 			= get_post_meta($workshop['tour_city'], 'city', true);
-
-						if(! empty($routines) ){
-							$routine_ids = array_keys($routines);
-							$args = array(
-								'order'            => 'ASC',
-								'include'          => $routine_ids,
-							);
-							$routine_posts = ts_get_posts('ts_routine', -1, $args);
-
-							foreach ($routine_posts as $rp) {
-								$rpid 			= $rp->ID;
-								$name 	 	= get_the_title($rpid);
-								$cat 	 	= get_post_meta($rpid, 'cat', true);
-								$categories = ts_get_competition_categories();
-								$cat_name 	= $categories[$cat]['title'];
-								$dancers 	= get_post_meta($rpid, 'dancers', true);
-								$dancers_array  = is_array($dancers) ? $dancers : explode(",", $dancers);
-								$dancers_string = '';
-								$ids = $dancers_array;
-								$count_d = count($ids);
-								$age_total = 0;
-								if(! empty($ids)){
-									foreach ($ids as $d) {
-										if(ts_post_exists_by_id($d)){
-											$dancers_string.= get_the_title($d) .', ';
-											$birth_date = get_post_meta($d, 'birth_date', true);
-											$age = ts_get_the_age($birth_date);
-											$age_total = $age_total + $age;
-										}
+						if(! empty($routines)){
+							$routine_ids  = array_keys($routines);
+							$routinesArray = array_merge($routine_ids, $routinesArray);
+						}	
+					}
+					if(! empty($routinesArray) ){
+						$routine_ids = array_keys($routines);
+						$args = array(
+						    'meta_query' => array(
+						        'relation' => 'AND',
+						        'agedivorder' => array(
+						            'key' => 'agediv_order',
+						            'compare' => 'EXISTS',
+						        ),
+						        'catorder' => array(
+						            'key' => 'cat_order',
+						            'compare' => 'EXISTS',
+						        ), 
+						    ),
+						    'orderby' => array( 
+						        'agedivorder' => 'ASC',
+						        'catorder' => 'ASC',
+						    ),							
+							/*'meta_key' => 'agediv_order',
+							'orderby' => 'meta_value_num',
+							'order' => 'ASC',*/								
+							'include' => $routinesArray,
+						);
+						$routine_posts = ts_get_posts('ts_routine', -1, $args);
+						$count=0;
+						foreach ($routine_posts as $rp) {
+							$count++;
+							$rpid 		= $rp->ID;
+							$name 	 	= get_the_title($rpid);
+							$cat 	 	= get_post_meta($rpid, 'cat', true);
+							$categories = ts_get_competition_categories();
+							$cat_name 	= $categories[$cat]['title'];
+							$dancers 	= get_post_meta($rpid, 'dancers', true);
+							$dancers_array  = is_array($dancers) ? $dancers : explode(",", $dancers);
+							$dancers_string = '';
+							$ids = $dancers_array;
+							$count_d = count($ids);
+							$age_total = 0;
+							if(! empty($ids)){
+								foreach ($ids as $d) {
+									if(ts_post_exists_by_id($d)){
+										$dancers_string.= get_the_title($d) .', ';
+										$birth_date = get_post_meta($d, 'birth_date', true);
+										$age = ts_get_the_age($birth_date);
+										$age_total = $age_total + $age;
 									}
-									$age_ave = round($age_total / $count_d);
-									$agediv_name = ts_get_routine_agediv_name($age_ave);
 								}
-								$musicid = (int)$routines[$rpid]['music'];
-								$musicurl = $musicid ? wp_get_attachment_url($musicid) : false;
-								$musicoutput = $musicurl ? '<a download class="btn btn-blue btn-downloadmusic" href="'.$musicurl.'">Download Music</a>' : 'No Music';
-								$musictitle = $musicid ? get_the_title($musicid) : false;
-								$agediv = get_term_by('name', $agediv_name, 'ts_agediv');
-								$num = get_term_meta($agediv->term_id, 'div_order', true);
-								?>
-								<tr id="item-<?php echo $entry_id; ?>">
-									<td class="hidden"><?php echo $num; ?></td>
-									<td><?php echo $name; ?></td>
-									<td><?php echo $dancers_string; ?></td>
-									<td style="text-align:center; width: 180px;"><?php echo $agediv_name; ?></td>
-									<td style="text-align:center;"><?php echo $cat_name; ?></td>
-									<td style="text-align:center;"><?php echo $city; ?></td>
-									<!-- <td style="text-align:center;"><?php echo $musicoutput;?></td>
-									<td style="text-align:center;">
-										<?php if($musicurl) { ?>
-											<a title="edit" href="javascript:void(0);"
-											   class="btn btn-blue btn-editmusicinfo"
-											   data-id="<?php echo $musicid; ?>"
-											   data-title="<?php echo $musictitle; ?>"
-											>Rename Music</a>
-										<?php } ?>
-									</td> -->
-								</tr>
-								<?php
+								$age_ave = round($age_total / $count_d);
+								$agediv_name = ts_get_routine_agediv_name($age_ave);
 							}
+							$musicid = (int)$routines[$rpid]['music'];
+							$musicurl = $musicid ? wp_get_attachment_url($musicid) : false;
+							$musicoutput = $musicurl ? '<a download class="btn btn-blue btn-downloadmusic" href="'.$musicurl.'">Download Music</a>' : 'No Music';
+							$musictitle = $musicid ? get_the_title($musicid) : false;
+							$agediv = get_term_by('name', $agediv_name, 'ts_agediv');
+							//$num = get_term_meta($agediv->term_id, 'div_order', true);
+							?>
+							<tr id="item-<?php echo $entry_id; ?>">
+								<td><?php echo $count; ?></td>
+								<td><?php echo $name; ?></td>
+								<td><?php echo $dancers_string; ?></td>
+								<td style="text-align:center; width: 180px;"><?php echo $agediv_name; ?></td>
+								<td style="text-align:center;"><?php echo $cat_name; ?></td>
+								<td style="text-align:center;"><?php echo $city; ?></td>
+								<!-- <td style="text-align:center;"><?php echo $musicoutput;?></td>
+								<td style="text-align:center;">
+									<?php if($musicurl) { ?>
+										<a title="edit" href="javascript:void(0);"
+										   class="btn btn-blue btn-editmusicinfo"
+										   data-id="<?php echo $musicid; ?>"
+										   data-title="<?php echo $musictitle; ?>"
+										>Rename Music</a>
+									<?php } ?>
+								</td> -->
+							</tr>
+							<?php
 						}
 					}
 					?>
 					<?php
-				}else{
-					echo '<tr><td colspan="8">No Routines Found</td></tr>';
+				}
+				else{
+					echo '<tr><td colspan="6" align="center">No Routines Found</td></tr>';
 				}
 				?>
 				</tbody>
@@ -825,12 +864,13 @@ function ts_competitionentries_page() {
 						<th class="hidden"></th>
 						<th>All Age Division</th>
 						<th>All Categories</th>
-						<th>All Cities</th>
+						<th class="hidden">All Cities</th>
 						<!-- <th class="hidden"></th>
 						<th class="hidden"></th> -->
 					</tr>
 				</tfoot>
 			</table>
+			<?php } ?>
 			<div id="popup-save-music-info" class="modal fade" role="dialog">
 				<div class="modal-dialog">
 					<div class="modal-content">
@@ -968,7 +1008,7 @@ function ts_schedules_page() {
 	<div id="schedules-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
 		<div class="ts-admin-wrapper schedules-wrapper">
-			<table id="schedules-list" class="ts-data-table" data-length="50" data-sort="asc">
+			<table id="schedules-list" class="ts-data-table" data-length="25" data-sort="asc">
 				<thead>
 				<tr>
 					<th style="text-align:left;">City</th>
@@ -1038,7 +1078,7 @@ function ts_workshopschedules_page() {
 	<div id="schedules-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-workshop-schedule'); ?>">Add New</a></h1>
 		<div class="ts-admin-wrapper schedules-wrapper">
-			<table id="schedules-list" class="ts-data-table" data-length="50" data-sort="asc">
+			<table id="schedules-list" class="ts-data-table" data-length="25" data-sort="asc">
 				<thead>
 				<tr>
 					<th style="text-align:left;">City</th>
@@ -1112,7 +1152,7 @@ function ts_competitionschedules_page() {
 	<div id="schedules-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-competition-schedule'); ?>">Add New</a></h1>
 		<div class="ts-admin-wrapper schedules-wrapper">
-			<table id="schedules-list" class="ts-data-table" data-length="50" data-sort="asc">
+			<table id="schedules-list" class="ts-data-table" data-length="25" data-sort="asc">
 				<thead>
 				<tr>
 					<th style="text-align:left;">City</th>
@@ -1257,6 +1297,133 @@ function ts_post_competition_schedule() {
 						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>
 					</div>
 				</div>
+				<?php
+				/*if($tour_id) {
+					$schedule_saved = get_post_meta($schedule_id, 'schedule_saved', true);
+					$tour_date = get_post_meta($tour_id, 'date_from', true);
+					$categories = ts_get_competition_categories();
+					$genres = ts_get_routine_genres();
+					if(! $schedule_saved){
+					    $args = array(
+					        'posts_per_page' => -1,
+					        'include' => ts_tour_routines_ids($tour_id),
+					        'orderby' => 'meta_value_num',
+							'meta_key' => 'agediv_order',
+					        'order' => 'ASC',
+					    );
+					    $routines = ts_get_posts('ts_routine',-1,$args);
+						if($routines){
+							$count_total = count($routines);
+							$count_perday = $count_total <= 5 ? absint($count_total/3)+1 : absint($count_total/3);
+							$count = 0;
+							$day1 = $day2 = $day3 = array();
+
+							$strtotime1 = strtotime($tour_date . '+17 hours');
+							$strtotime2 = strtotime($tour_date . '+1 days 17 hours');
+							$strtotime3 = strtotime($tour_date . '+2 days 17 hours');
+							$timeday1 = date('F j, Y g:i a', $strtotime1);
+							$timeday2 = date('F j, Y g:i a', $strtotime2);
+							$timeday3 = date('F j, Y g:i a', $strtotime3);
+
+							foreach ($routines as $r) {
+								$count++;
+								$id = $r->ID;
+								$studio = ts_post_studio($id);
+								$agediv = get_post_meta($id, 'agediv', true);
+								$cat = get_post_meta($id, 'cat', true);
+								$cat_name = $categories[$cat]['title'];
+								$genre = get_post_meta($id, 'genre', true);
+								$genre_name = $genres[$genre]['title'];
+								$time_limit = $categories[$cat]['time_limit'];
+
+								if($count <= $count_perday) {
+									$time_start1 = $strtotime1;
+									$time_end1 = $strtotime1+$time_limit;
+									$strtotime1 = $time_end1;
+									$day1[] = array(
+									    'field_59d2674f9703c' => $count,
+									    'field_59d2674f973fa' => date('g:i a', $time_start1),
+									    'field_5a0aecd9b6bb4' => date('g:i a', $time_end1),
+									    'field_59d2674f977de' => $studio,
+									    'field_59d2674f97bd8' => $id,
+									    'field_59d2674f97fbb' => $agediv,
+									    'field_59d2674f9839c' => $cat_name,
+									    'field_59d2674f9878a' => $genre_name,
+									    'field_59d2674f98ba4' => 'Normal',
+									);
+								}
+								else if($count > $count_perday && $count <= $count_perday*2) {
+									$time_start2 = $strtotime2;
+									$time_end2 = $strtotime2+$time_limit;
+									$strtotime2 = $time_end2;
+									$day2[] = array(
+									    'field_59d2674f9703c' => $count,
+									    'field_59d2674f973fa' => date('g:i a', $time_start2),
+									    'field_5a0aecd9b6bb4' => date('g:i a', $time_end2),
+									    'field_59d2674f977de' => $studio,
+									    'field_59d2674f97bd8' => $id,
+									    'field_59d2674f97fbb' => $agediv,
+									    'field_59d2674f9839c' => $cat_name,
+									    'field_59d2674f9878a' => $genre_name,
+									    'field_59d2674f98ba4' => 'Normal',
+									);
+								}
+								else {
+									$time_start3 = $strtotime3;
+									$time_end3 = $strtotime3+$time_limit;
+									$strtotime3 = $time_end3;
+									$day3[] = array(
+									    'field_59d2674f9703c' => $count,
+									    'field_59d2674f973fa' => date('g:i a', $time_start3),
+									    'field_5a0aecd9b6bb4' => date('g:i a', $time_end3),
+									    'field_59d2674f977de' => $studio,
+									    'field_59d2674f97bd8' => $id,
+									    'field_59d2674f97fbb' => $agediv,
+									    'field_59d2674f9839c' => $cat_name,
+									    'field_59d2674f9878a' => $genre_name,
+									    'field_59d2674f98ba4' => 'Normal',
+									);
+								}
+							}
+
+							$newvalue = array(
+								array(
+									'field_59d2674f77b98' => $timeday1,
+									'field_59d2674f77f7b' => $day1,
+								),
+								array(
+									'field_59d2674f77b98' => $timeday2,
+									'field_59d2674f77f7b' => $day2,
+								),
+								array(
+									'field_59d2674f77b98' => $timeday3,
+									'field_59d2674f77f7b' => $day3,
+								),
+							);
+						}
+					}
+					else {
+						$newvalue = $value;
+						$count = 0;
+						foreach ($value as $a => $b) {
+							$start = strtotime($b['field_59d2674f77b98']);
+							$lineup = $b['field_59d2674f77f7b'];
+							foreach ($lineup as $c => $d) {
+								if($d['field_59d2674f98ba4']=='Normal') {
+									$count++;
+									$newvalue[$a]['field_59d2674f77f7b'][$c]['field_59d2674f9703c'] = $count;
+								}	
+								$end = strtotime($d['field_5a0aecd9b6bb4']);
+								$newvalue[$a]['field_59d2674f77f7b'][$c]['field_59d2674f973fa'] = date('g:i a', $start);
+								$newvalue[$a]['field_59d2674f77f7b'][$c]['field_5a0aecd9b6bb4'] = date('g:i a', $end);
+								$start = $end;
+							}
+						}
+					}
+					$value = $newvalue;
+				}*/
+				?>
+
 				<?php
 				$options = array(
 					'post_id'  => $schedule_id,
@@ -1655,59 +1822,31 @@ function ts_scholarships_page() {
 
 function ts_results_page() {
 	$publish_button = '';
-	if(isset($_GET['tour']) && $_GET['tour']!='') {
-		$tour_id = $_GET['tour'];
+	$tour_id = ts_get_param('tour');
+	if($tour_id) {
 		$status = get_post_meta($tour_id, 'results_status', true);
 		$btn_label = ! $status || $status == 'draft' ? 'Publish Results' : 'Unpublish Results';
 		$publish_button = '<button class="btn btn-blue btn-publishresults" data-id="'. $tour_id .'">'. $btn_label .'</button>';
 	}	
 	?>
 	<div id="results-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php echo $publish_button; ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php?page=ts-results'), $tour_id); ?> <?php echo $publish_button; ?></h1>
 		<div class="ts-admin-wrapper results-wrapper">
-			<?php ts_display_results(); ?>
+			<?php ts_display_results($tour_id); ?>
 		</div>
 	</div>
 	<?php	
 }
 
 function ts_critiques_page() {
-	if(isset($_GET['tour']) && $_GET['tour']!='') {
-		$tour_id = $_GET['tour'];
-		wp_enqueue_media();
-	}
+	$tour_id = ts_get_param('tour');
+	wp_enqueue_media();
 	?>
 	<div id="critiques-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-critiques', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper critiques-wrapper">
-			<select name="tour_city" class="select-redirect validate[required]">
-				<option value="">Select City</option>
-				<?php
-				$args = array(
-					'meta_key' => 'date_from',
-					'meta_type' => 'DATE',
-					'orderby' => 'meta_value',
-					'order' => 'ASC',
-				);
-				$tour_cities = ts_get_posts('ts_tour', -1, $args);
-				if($tour_cities) {
-					$count=0;
-					foreach ($tour_cities as $ct) {
-						$count++;
-						setup_postdata($ct);
-						$ct_id 		= $ct->ID;
-						$title 		= get_the_title($ct_id);
-						$selected 	= $tour_id == $ct_id ? 'selected' : '';
-						?>
-						<option <?php echo $selected; ?> value="<?php echo $ct_id; ?>" data-url="<?php echo admin_url('admin.php?page=ts-critiques&tour=' . $ct_id); ?>" ><?php echo $title; ?></option>
-						<?php
-					}
-				}
-				?>
-			</select>&nbsp;&nbsp;&nbsp;
 			<?php
 			$routines = ts_tour_routines_by_number($tour_id);
-
 			if(! empty($routines)) {
 				?>
 				<a href="javascript:void(0);" class="btn-uploadcritiques btn btn-green"><small>Upload Critiques</small></a>

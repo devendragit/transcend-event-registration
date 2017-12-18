@@ -449,12 +449,6 @@ jQuery(document).ready(function($) {
 		clone.appendTo('.scholarship-container');
 	});
 
-	$('.acf-field-59ce7b5b2bdcf select').selectmenu({
-  		change: function( event, ui ) {
-  			$(this).next('span').find('.ui-selectmenu-text').attr('class', '').addClass('ui-selectmenu-text '+ui.item.value);
-  		},
-	});
-
 	$('#critiques-page').on('click', '.btn-uploadcritiques', function(e){
 		e.preventDefault();
 
@@ -495,7 +489,146 @@ jQuery(document).ready(function($) {
 		$('.media-modal-content .media-menu-item:first-child').click();
 	});
 
+	if(typeof acf != 'undefined'){
+
+		acf.add_action('load', function( $el ){
+			if($('.acf-field-59d2674f77f7b').length > 0) {
+				$('.acf-field-59d2674f77f7b .acf-repeater tbody tr').each(function() {
+					var tr = $(this);
+					var value = tr.find('.acf-field-59d2674f98ba4 select option:selected').val();
+					if(value=='Day'){
+						$(this).closest('tr').addClass('day-separator');
+					}
+					else if(value=='Judges Break'){
+						$(this).closest('tr').addClass('break-separator');
+					}
+					else if(value=='Awards'){
+						$(this).closest('tr').addClass('awards-separator');
+					}
+					else {
+						$(this).closest('tr').addClass('normal-row');
+					}
+					if(value!='Day'){
+						$(this).closest('tr').addClass('has-duration');
+					}
+				});
+			}	
+			if($('.acf-field-59ce7b5b2bdcf').length > 0) {
+				selectMenuWorkshopSched();
+			}	
+		});
+
+		acf.add_action('append', function( $el ){
+			if($('.acf-field-59d2674f77f7b').length > 0) {
+				updateRoutineNumbers();
+				updateRoutineTimes();
+			}
+			if($('.acf-field-59ce7b5b2bdcf').length > 0) {
+				selectMenuWorkshopSched();
+			}	
+		});
+
+		acf.add_action('change', function( $el ){
+			if($('.acf-field-59d2674f77f7b').length > 0) {
+				updateRoutineNumbers();
+				updateRoutineTimes();
+			}
+		});
+
+		acf.add_action('remove', function( $el ){
+			if($('.acf-field-59d2674f77f7b').length > 0) {
+				updateRoutineNumbers();
+				updateRoutineTimes();
+			}
+		});	
+
+		$('.acf-field-59d2674f77f7b .acf-table tbody').sortable({
+			update: function( event, ui ) {
+				updateRoutineNumbers();
+				updateRoutineTimes();
+			}
+		});	
+
+		$('.acf-field-59d2674f77f7b').on('change', 'select', function(){
+			var value = $(this).val();
+			if(value=='Day'){
+				$(this).closest('tr').addClass('day-separator').removeClass('normal-row awards-separator break-separator');
+				$(this).closest('tr').find('.acf-field-59d2674f9703c input').val('');
+				$(this).closest('tr').find('.acf-field-59d2674f973fa input').val('');
+				$(this).closest('tr').find('.acf-field-5a0aecd9b6bb4 input').val('');
+			}
+			else if(value=='Judges Break'){
+				$(this).closest('tr').addClass('break-separator').removeClass('normal-row awards-separator day-separator');
+				$(this).closest('tr').find('.acf-field-59d2674f9703c input').val('');
+			}
+			else if(value=='Awards'){
+				$(this).closest('tr').addClass('awards-separator').removeClass('normal-row break-separator day-separator');
+				$(this).closest('tr').find('.acf-field-59d2674f9703c input').val('');
+			}
+			else {
+				$(this).closest('tr').addClass('normal-row').removeClass('awards-separator break-separator day-separator');
+			}
+			if(value!='Day'){
+				$(this).closest('tr').addClass('has-duration');
+			}
+			else {
+				$(this).closest('tr').removeClass('has-duration');
+			}
+			updateRoutineNumbers();
+			updateRoutineTimes();
+		});
+
+	}	
+
 });
+
+var updateRoutineTimes = function() {
+	var rows = jQuery('.acf-field-59d2674f77f7b .acf-table tbody').find('tr');
+	var start = '17:00 pm';
+	rows.each(function(index) {
+		if(jQuery(this).hasClass('day-separator')){
+			start = '17:00 pm';
+		}
+		else {	
+			var field_start = jQuery(this).find('.acf-field-59d2674f973fa input');
+			var field_end = jQuery(this).find('.acf-field-5a0aecd9b6bb4 input');
+			var curr_start = moment(field_start.val(), 'hh:mm a'); 
+			var curr_end = moment(field_end.val(), 'hh:mm a'); 
+			var duration = curr_end.diff(curr_start, 'minutes');
+			var time_start = moment(start, 'hh:mm a'); ;
+			var time_end = moment(start, 'hh:mm a').add(duration, 'minutes');
+			if(jQuery(this).hasClass('break-separator')){
+				duration = 10;
+			}
+			else if(jQuery(this).hasClass('awards-separator')) {
+				duration = 30;
+			}
+			field_start.val(moment(time_start).format('hh:mm a'));
+			field_end.val(moment(time_end).format('hh:mm a'));
+			start = time_end;
+		}
+	});			
+}
+
+var updateRoutineNumbers = function() {
+	var rows = jQuery('.acf-field-59d2674f77f7b .acf-table tbody').find('tr.normal-row');
+	rows.each(function(index) {
+		var value = index+1; 
+		jQuery(this).find('.acf-field-59d2674f9703c input').val(value);
+	});			
+}
+
+var selectMenuWorkshopSched = function() {
+	jQuery('.acf-field-59ce7b5b2bdcf select').selectmenu({
+		/*create: function( event, ui ) {
+			var span = jQuery(this).next('span');
+			jQuery(this).next('span').remove();
+		},*/
+  		change: function( event, ui ) {
+  			jQuery(this).next('span').find('.ui-selectmenu-text').attr('class', '').addClass('ui-selectmenu-text '+ui.item.value);
+  		},
+	});
+}
 
 function callback(data) {
 	if(data.success==true) {
@@ -947,11 +1080,12 @@ var init_dataTable = function() {
 		tables.each(function() {
 			var table_el    = jQuery(this);
 			var table_id 	= table_el.attr('id');
-			var dom 		= table_el.attr('data-dom') !=null ? table_el.attr('data-dom') : 'frt<"table-footer clearfix"pl>';
+			var dom 		= table_el.attr('data-dom') !=null ? table_el.attr('data-dom') : 'frt<"table-footer clearfix"p>';
 			var orderby 	= table_el.attr('data-orderby') !=null ? table_el.attr('data-orderby') : null;
 			var sort 		= table_el.attr('data-sort') !=null ? table_el.attr('data-sort').toString() : 'desc';
 			var length 		= table_el.attr('data-length') !=null ? table_el.attr('data-length') : 25;
 			var filter 		= table_el.attr('data-filter') !=null ? true : false;
+			var reorder 	= table_el.attr('data-reorder') !=null ? true : false;
 			var colfilter 	= table_el.attr('data-colfilter') !=null ? table_el.attr('data-colfilter') : null;
 			var exportcol 	= table_el.attr('data-exportcol') !=null ? table_el.attr('data-exportcol') : null;
 			var exporttitle = table_el.attr('data-exporttitle') !=null ? table_el.attr('data-exporttitle') : '';
@@ -973,7 +1107,16 @@ var init_dataTable = function() {
 					sSearchPlaceholder : 'Search',
 					lengthMenu: '_MENU_ Records per page',
 				},
+				rowReorder: reorder,
+				/*render : function(data, type, row, meta) {
+	                if (type === 'sort') {
+	                    var sel = jQuery("input:checked").val();
+	                    return jQuery(sel, jQuery(data)).data('value');
+	                }
+	                return data;
+	            }*/				
 			};
+
 
 			if(orderby!=null){
 				order = {
@@ -1044,8 +1187,8 @@ var init_dataTable = function() {
 					var column = table.column(value);
 					if(jQuery(column.footer()).hasClass('hidden')==false) {
 						var select = jQuery('<select id="filter-'+value+'"><option value="">'+jQuery(column.footer()).text()+'</option></select>')
-							.appendTo( jQuery('#'+table_id+'_column-filter') )
-							.on( 'change', function () {
+							.appendTo(jQuery('#'+table_id+'_column-filter'))
+							.on('change', function() {
 								var val = jQuery.fn.dataTable.util.escapeRegex(
 									jQuery(this).val()
 								);
@@ -1057,7 +1200,27 @@ var init_dataTable = function() {
 								}
 								if(index==titleswitch) {
 									//table.buttons(0).title( 'Not available' );
-									jQuery('#'+table_id).attr('data-exporttitle', jQuery(this).find('option:selected').val()+' Registrations');
+									var titleswitch_val = jQuery(this).find('option:selected').val();
+									jQuery('#'+table_id).attr('data-exporttitle', titleswitch_val+' Registrations');
+
+									/*var oldoptions = table.fn.Settings(); 
+									var newoptions = jQuery.extend(oldoptions, { 
+										order : [[3, 'asc']],
+									}); 
+									table.fnDestroy(); 
+									table_el.dataTable(newoptions);*/
+									//table.rows().invalidate();
+									if(table_id=='entries-list') {
+										if(titleswitch_val=='Studio') {
+											table.order([[2, 'asc']]).draw();
+										}
+										else if(titleswitch_val=='Individual') {
+											table.order([[3, 'asc']]).draw();
+										}
+										else {
+											table.order([[orderby, sort]]).draw();
+										}
+									}
 								}
 							});
 						if(jQuery(column.footer()).attr('data-sort')=='true'){	

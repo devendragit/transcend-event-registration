@@ -598,7 +598,7 @@ function ts_get_munchkin_observer_fee() {
 	return 15;
 }
 
-function ts_get_workshop_fee($id, $duration_id=1, $eid, $tour_city=false) {
+function ts_get_workshop_fee($id, $duration_id=1, $eid, $tour_city=false, $force_early=false) {
 
 	if(! $tour_city){
 		$entry_data = ts_get_session_entry_data($eid);
@@ -611,7 +611,7 @@ function ts_get_workshop_fee($id, $duration_id=1, $eid, $tour_city=false) {
 	$tour_date 	= get_post_meta($tour_city, 'date_from', true);
 	$age_div 	= wp_get_object_terms($id, 'ts_agediv');
 
-	if($tour_date && ts_get_days_before_date($tour_date) > 30) {
+	if(($tour_date && ts_get_days_before_date($tour_date) > 30) || $force_early ) {
 		$fee_standard 			= get_term_meta($age_div[0]->term_id, 'fee_early', true);
 		$fee_standard_oneday 	= get_term_meta($age_div[0]->term_id, 'fee_early_oneday', true);
 	}
@@ -655,7 +655,7 @@ function ts_get_discounted_workshop_fee($base_fee, $discount_id) {
 	return $discounted_fee;
 }
 
-function ts_get_total_workshop_fee($eid, $data=false) {
+function ts_get_total_workshop_fee($eid, $data=false, $force_early=false) {
 
 	$entry_data 		= $data===false ? ts_get_session_entry_data($eid) : $data;
 	$workshop 			= ts_check_value($entry_data, 'workshop');
@@ -669,7 +669,7 @@ function ts_get_total_workshop_fee($eid, $data=false) {
 	if(is_array($participants) && ! empty($participants)){
 		foreach ($participants as $key => $value) {
 			$duration = (int)$value['duration'];
-			$base_fee = ts_get_workshop_fee($key, $duration, $eid);
+			$base_fee = ts_get_workshop_fee($key, $duration, $eid, false, $force_early);
 			$workshop_fee = $workshop_fee+$base_fee;
 		}
 	}
@@ -691,9 +691,9 @@ function ts_get_total_workshop_fee($eid, $data=false) {
 	return $workshop_fee;
 }
 
-function ts_get_discounted_total_workshop_fee($eid, $data=false) {
+function ts_get_discounted_total_workshop_fee($eid, $data=false, $force_early=false) {
 
-	$total_workshop_fee = ts_get_total_workshop_fee($eid, $data);
+	$total_workshop_fee = ts_get_total_workshop_fee($eid, $data, $force_early);
 	$total_scholarship_discount = ts_get_total_scholarship_discount($eid, $data);
 	$total_teacher_discount = ts_get_total_teacher_discount($eid, $data);
 
@@ -891,9 +891,9 @@ function ts_get_total_competition_fee($eid, $data=false) {
 	return $competition_fee;
 }
 
-function ts_grand_total($eid, $data=false) {
+function ts_grand_total($eid, $data=false, $force_early=false) {
 
-	$workshop_fee_discounted = ts_get_discounted_total_workshop_fee($eid, $data);
+	$workshop_fee_discounted = ts_get_discounted_total_workshop_fee($eid, $data, $force_early);
 	$competition_fee = ts_get_total_competition_fee($eid, $data);
 	$grand_total = $workshop_fee_discounted+$competition_fee;
 
@@ -930,7 +930,6 @@ function ts_mark_as_paid($entry_id, $user_id, $payment_method='stripe_payment') 
 	else {
 		ts_change_post_status($entry_id, 'paidcheck');
 	}
-
 	$date_paid = date_format(date_create('now'),'Y/m/d');
 	update_post_meta($entry_id, 'date_paid', $date_paid);
 }
@@ -1894,6 +1893,11 @@ function ts_winners_posts($tour_id, $agediv, $cat, $limit=5) {
                 'value'   => $cat,
                 'compare' => '=',
             ),
+            array(
+                'key'     => 'total_score',
+                'value'   => 0,
+                'compare' => '>',
+            ),
         ),
         'orderby' => 'meta_value_num',
 		'meta_key' => 'total_score',
@@ -1932,6 +1936,11 @@ function ts_overallwinners_posts($tour_id, $agediv, $limit=3) {
                 'key'     => 'agediv',
                 'value'   => $agediv,
                 'compare' => '=',
+            ),
+            array(
+                'key'     => 'total_score',
+                'value'   => 0,
+                'compare' => '>',
             ),
         ),
         'orderby' => 'meta_value_num',
@@ -2107,22 +2116,10 @@ function ts_save_routine_total_score($score_id) {
 	}	
 }
 
-function ts_display_results() {
+function ts_display_results($tour_id) {
 
 	wp_enqueue_style('jquery-ui-css');
 
-	if(isset($_GET['tour']) && $_GET['tour']!='') {
-		$tour_id = $_GET['tour'];
-	}	
-	if(is_admin()) {
-		$base_url = admin_url('admin.php?page=ts-results');
-	}
-	else {
-		$base_url = get_permalink() .'?page=results';
-	}
-	?>
-	<p><?php ts_select_tour_city($base_url, $tour_id); ?></p>
-	<?php
 	if($tour_id && current_user_can('is_organizer')) { 
 		?>
 		<h3>Adjudicated Awards:</h3>
@@ -2139,7 +2136,7 @@ function ts_display_results() {
 				);
 				$routines = ts_get_posts('ts_routine', -1, $args);
 				?>
-				<table class="ts-data-table" data-length="-1" data-exporttitle="Adjudicated Awards" data-exportcol="0,1,2,3" data-dom="fBrt<'table-footer clearfix'p>">
+				<table class="ts-data-table" data-length="25" data-exporttitle="Adjudicated Awards" data-exportcol="0,1,2,3" data-dom="fBrt<'table-footer clearfix'p>">
 					<thead><tr>
 						<th style="width: 10%; text-align: center;">#</th>
 						<th style="width: 30%; text-align: center;">Routine Name</th>
@@ -2676,12 +2673,13 @@ function ts_display_awards_table($routines, $title="") {
 				$name 	= $val['name'];
 				$studio = $val['studio'];
 				$award 	= ts_add_suffix($key+1);
+				//$score = get_post_meta($id, 'total_score', true);
 				?>
 				<tr id="routine-<?php echo $id; ?>">	
 					<td style="text-align: center;"><?php echo $number; ?></td>
 					<td><?php echo $name; ?></td>
 					<td><?php echo $studio; ?></td>
-					<td style="text-align: center;"><?php echo $award; ?> Place</td>
+					<td style="text-align: center;"><?php echo $award; //echo $score; ?> Place</td>
 				</tr>	
 				<?php
 			} ?>
