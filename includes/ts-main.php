@@ -73,16 +73,15 @@ add_action('ts_cron_jobs', 'ts_auto_delete_music_cron', 10, 1);
 //add_action('init', 'ts_import_individual');
 //add_action('init', 'ts_create_terms', 11);
 //add_action('init', 'ts_create_tour_posts');
-//add_action('init', 'ts_update_tour_posts');
-//add_action('init', 'ts_update_entries');
-//add_action('init', 'ts_update_agedivs');
-//add_action('init', 'ts_update_agediv_fees');
-//add_action('init', 'ts_update_agediv_order');
-//add_action('init', 'ts_update_roster_agedivs');
-//add_action('init', 'ts_update_roster_order');
-//add_action('init', 'ts_plugin_activate');
 //add_action('init', 'ts_update_entry');
-//add_action('init', 'ts_update_routines');
+add_action('init', 'ts_update_agedivs');
+add_action('init', 'ts_update_agediv_fees');
+add_action('init', 'ts_update_agediv_order');
+add_action('init', 'ts_update_roster_agedivs');
+add_action('init', 'ts_update_roster_order');
+add_action('init', 'ts_update_tour_posts');
+add_action('init', 'ts_update_entries');
+add_action('init', 'ts_update_routines');
 
 /* Remove */
 remove_action('admin_color_scheme_picker', 'admin_color_scheme_picker');
@@ -133,6 +132,7 @@ function ts_register_ts_scripts() {
         wp_register_style('jquery-ui-css', TS_URI .'assets/css/jquery-ui.css');
         wp_register_style('jquery-dataTables-style', TS_URI .'assets/js/jquery.dataTables/css/jquery.dataTables.min.css');
         wp_register_style('buttons-dataTables', TS_URI .'assets/js/jquery.dataTables/css/buttons.dataTables.min.css');
+        wp_register_style('rowReorder-dataTables', TS_URI .'assets/js/jquery.dataTables/css/rowReorder.dataTables.min.css');
         wp_register_style('jquery-validationEngine-style', TS_URI .'assets/js/jquery.validationEngine/css/validationEngine.jquery.css');
         wp_register_style('grid12', TS_URI .'assets/css/grid12.css');
         wp_register_style('bootstrap', TS_URI .'assets/css/bootstrap.min.css');
@@ -148,6 +148,7 @@ function ts_register_ts_scripts() {
            //wp_register_script('jquery-ui' , TS_URI .'assets/js/jquery-ui.js' );
         }
         wp_register_script('jquery-dataTables', TS_URI .'assets/js/jquery.dataTables/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core'), '', true);
+        wp_register_script('dataTables-rowReorder', TS_URI .'assets/js/jquery.dataTables/js/dataTables.rowReorder.min.js', array('jquery'), '', true);
         wp_register_script('dataTables-buttons', TS_URI .'assets/js/jquery.dataTables/js/dataTables.buttons.min.js', array('jquery'), '', true);
         wp_register_script('buttons-html5', TS_URI .'assets/js/jquery.dataTables/js/buttons.html5.min.js', array('jquery'), '', true);
         wp_register_script('buttons-print', TS_URI .'assets/js/jquery.dataTables/js/buttons.print.min.js', array('jquery'), '', true);
@@ -176,6 +177,7 @@ function ts_enqueue_admin_scripts() {
             wp_enqueue_style('jquery-ui-css');
             wp_enqueue_style('jquery-dataTables-style');
             wp_enqueue_style('buttons-dataTables');
+            wp_enqueue_style('rowReorder-dataTables');
             wp_enqueue_style('jquery-validationEngine-style');
             wp_enqueue_style('grid12');
             wp_enqueue_style('bootstrap');
@@ -192,6 +194,7 @@ function ts_enqueue_admin_scripts() {
             wp_enqueue_script('jquery-maskedinput');
             wp_enqueue_script('jquery-dataTables');
             wp_enqueue_script('dataTables-buttons');
+            wp_enqueue_script('dataTables-rowReorder');
             wp_enqueue_script('buttons-html5');
             wp_enqueue_script('buttons-print');
             wp_enqueue_script('jszip');

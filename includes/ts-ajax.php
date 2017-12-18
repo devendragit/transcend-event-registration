@@ -2823,7 +2823,7 @@ function ajax_reset_competition_schedule() {
         );
 
         if(ts_post_exists_by_id($id)){
-        	update_post_meta($id, 'schedule_saved', false);
+        	delete_post_meta($id, 'schedule_saved');
 	        $has_error = false;
         }
 
@@ -2847,9 +2847,9 @@ function ajax_save_routine_scores() {
         check_ajax_referer('ts-default', 'token');
 
 		$id			= absint($_POST['id']);
-		$judge1		= absint($_POST['judge1']);
-		$judge2		= absint($_POST['judge2']);
-		$judge3		= absint($_POST['judge3']);
+		$judge1		= ($_POST['judge1']);
+		$judge2		= ($_POST['judge2']);
+		$judge3		= ($_POST['judge3']);
 		$has_error 	= true;
 
         $response = array(

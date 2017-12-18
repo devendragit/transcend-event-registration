@@ -103,30 +103,41 @@ function ts_load_schedules( $value, $post_id, $field ) {
 		$genres = ts_get_routine_genres();
 		if(! $schedule_saved){
 		    $args = array(
-		        'posts_per_page' => -1,
 		        'include' => ts_tour_routines_ids($tour_id),
-		        'orderby' => 'meta_value_num',
+			    'meta_query' => array(
+			        'relation' => 'AND',
+			        'agedivorder' => array(
+			            'key' => 'agediv_order',
+			            'compare' => 'EXISTS',
+			        ),
+			        'catorder' => array(
+			            'key' => 'cat_order',
+			            'compare' => 'EXISTS',
+			        ), 
+			    ),
+			    'orderby' => array( 
+			        'agedivorder' => 'ASC',
+			        'catorder' => 'ASC',
+			    ),							
+		        /*'orderby' => 'meta_value_num',
 				'meta_key' => 'agediv_order',
-		        'order' => 'ASC',
+		        'order' => 'ASC',*/
 		    );
 		    $routines = ts_get_posts('ts_routine',-1,$args);
 			if($routines){
-				$count_total = count($routines);
-				$count_perday = $count_total <= 5 ? absint($count_total/3)+1 : absint($count_total/3);
 				$count = 0;
-				$day1 = $day2 = $day3 = array();
-
+				$day1 = array();
 				$strtotime1 = strtotime($tour_date . '+17 hours');
-				$strtotime2 = strtotime($tour_date . '+1 days 17 hours');
-				$strtotime3 = strtotime($tour_date . '+2 days 17 hours');
-				$timeday1 = date('F j, Y g:i a', $strtotime1);
-				$timeday2 = date('F j, Y g:i a', $strtotime2);
-				$timeday3 = date('F j, Y g:i a', $strtotime3);
+				$timeday1 = date('F j, Y h:i a', $strtotime1);
 
 				foreach ($routines as $r) {
 					$count++;
 					$id = $r->ID;
 					$studio = ts_post_studio($id);
+					$author_role = ts_post_author_role($id);
+					if($studio=='' && $author_role=='individual') {
+						$studio = 'Independent';
+					}
 					$agediv = get_post_meta($id, 'agediv', true);
 					$cat = get_post_meta($id, 'cat', true);
 					$cat_name = $categories[$cat]['title'];
@@ -134,54 +145,20 @@ function ts_load_schedules( $value, $post_id, $field ) {
 					$genre_name = $genres[$genre]['title'];
 					$time_limit = $categories[$cat]['time_limit'];
 
-					if($count <= $count_perday) {
-						$time_start1 = $strtotime1;
-						$time_end1 = $strtotime1+$time_limit;
-						$strtotime1 = $time_end1;
-						$day1[] = array(
-						    'field_59d2674f9703c' => $count,
-						    'field_59d2674f973fa' => date('g:i a', $time_start1),
-						    'field_5a0aecd9b6bb4' => date('g:i a', $time_end1),
-						    'field_59d2674f977de' => $studio,
-						    'field_59d2674f97bd8' => $id,
-						    'field_59d2674f97fbb' => $agediv,
-						    'field_59d2674f9839c' => $cat_name,
-						    'field_59d2674f9878a' => $genre_name,
-						    'field_59d2674f98ba4' => 'Normal',
-						);
-					}
-					else if($count > $count_perday && $count <= $count_perday*2) {
-						$time_start2 = $strtotime2;
-						$time_end2 = $strtotime2+$time_limit;
-						$strtotime2 = $time_end2;
-						$day2[] = array(
-						    'field_59d2674f9703c' => $count,
-						    'field_59d2674f973fa' => date('g:i a', $time_start2),
-						    'field_5a0aecd9b6bb4' => date('g:i a', $time_end2),
-						    'field_59d2674f977de' => $studio,
-						    'field_59d2674f97bd8' => $id,
-						    'field_59d2674f97fbb' => $agediv,
-						    'field_59d2674f9839c' => $cat_name,
-						    'field_59d2674f9878a' => $genre_name,
-						    'field_59d2674f98ba4' => 'Normal',
-						);
-					}
-					else {
-						$time_start3 = $strtotime3;
-						$time_end3 = $strtotime3+$time_limit;
-						$strtotime3 = $time_end3;
-						$day3[] = array(
-						    'field_59d2674f9703c' => $count,
-						    'field_59d2674f973fa' => date('g:i a', $time_start3),
-						    'field_5a0aecd9b6bb4' => date('g:i a', $time_end3),
-						    'field_59d2674f977de' => $studio,
-						    'field_59d2674f97bd8' => $id,
-						    'field_59d2674f97fbb' => $agediv,
-						    'field_59d2674f9839c' => $cat_name,
-						    'field_59d2674f9878a' => $genre_name,
-						    'field_59d2674f98ba4' => 'Normal',
-						);
-					}
+					$time_start1 = $strtotime1;
+					$time_end1 = $strtotime1+$time_limit;
+					$strtotime1 = $time_end1;
+					$day1[] = array(
+					    'field_59d2674f9703c' => $count,
+					    'field_59d2674f973fa' => date('h:i a', $time_start1),
+					    'field_5a0aecd9b6bb4' => date('h:i a', $time_end1),
+					    'field_59d2674f977de' => $studio,
+					    'field_59d2674f97bd8' => $id,
+					    'field_59d2674f97fbb' => $agediv,
+					    'field_59d2674f9839c' => $cat_name,
+					    'field_59d2674f9878a' => $genre_name,
+					    'field_59d2674f98ba4' => 'Normal',
+					);
 				}
 
 				$newvalue = array(
@@ -189,34 +166,20 @@ function ts_load_schedules( $value, $post_id, $field ) {
 						'field_59d2674f77b98' => $timeday1,
 						'field_59d2674f77f7b' => $day1,
 					),
-					array(
-						'field_59d2674f77b98' => $timeday2,
-						'field_59d2674f77f7b' => $day2,
-					),
-					array(
-						'field_59d2674f77b98' => $timeday3,
-						'field_59d2674f77f7b' => $day3,
-					),
 				);
 			}
 		}
 		else {
 			$newvalue = $value;
-			$count = 0;
+			/*$count = 0;
 			foreach ($value as $a => $b) {
-				$start = strtotime($b['field_59d2674f77b98']);
-				$lineup = $b['field_59d2674f77f7b'];
 				foreach ($lineup as $c => $d) {
 					if($d['field_59d2674f98ba4']=='Normal') {
 						$count++;
 						$newvalue[$a]['field_59d2674f77f7b'][$c]['field_59d2674f9703c'] = $count;
 					}	
-					$end = strtotime($d['field_5a0aecd9b6bb4']);
-					$newvalue[$a]['field_59d2674f77f7b'][$c]['field_59d2674f973fa'] = date('g:i a', $start);
-					$newvalue[$a]['field_59d2674f77f7b'][$c]['field_5a0aecd9b6bb4'] = date('g:i a', $end);
-					$start = $end;
 				}
-			}
+			}*/			
 		}
 		$value = $newvalue;
 	}
