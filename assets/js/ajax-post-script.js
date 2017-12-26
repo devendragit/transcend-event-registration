@@ -504,6 +504,19 @@ jQuery(document).ready(function($) {
 		form.submitForm(callbackResultStatus);
 	});
 
+	$('#critiques-page').on('click', '.btn-publishcritiques', function(e) {
+		e.preventDefault();
+		$(this).prepend('<small><i class="fa fa-spinner fa-pulse fa-fw"></i></small>');
+		var id = $(this).attr('data-id');
+		var token = ajax_post_object.tokens.default;
+		var formdata =  new FormData();
+		formdata.append('token', token);
+		formdata.append('action', 'publish_critiques');
+		formdata.append('id', id);
+		var form = new TSForm(formdata);
+		form.submitForm(callbackCritiqueStatus);
+	});
+
 	$('#critiques-page').on('click', '.btn-removeroutinecritique', function(e){
 		var button = $(this);
 		var id = button.attr('data-id');
@@ -544,7 +557,7 @@ jQuery(document).ready(function($) {
 			showArrowOnRadioAndCheckbox: true 
 		});
 		if(validated==true){
-			$(this).find('input[type="submit"]').val('Saving...').prop('disabled', true);
+			$(this).find('input[type="submit"]').val('Saving Changes...').prop('disabled', true);
 			var formdata =  new FormData(this);
 			formdata.append('token', ajax_post_object.tokens.save_item);
 			formdata.append('action', 'save_special_awards');
@@ -560,7 +573,7 @@ jQuery(document).ready(function($) {
 			showArrowOnRadioAndCheckbox: true 
 		});
 		if(validated==true){
-			$(this).find('input[type="submit"]').val('Saving...').prop('disabled', true);
+			$(this).find('input[type="submit"]').val('Saving Changes...').prop('disabled', true);
 			var formdata =  new FormData(this);
 			formdata.append('token', ajax_post_object.tokens.save_item);
 			formdata.append('action', 'save_scholarships');
@@ -582,9 +595,9 @@ jQuery(document).ready(function($) {
 		form.submitForm(callback);	
 	});
 
-	$('#form-submit-scores').on('click', '.btn-submitscore', function(e){
+	$('#routine-scores').on('click', '.btn-submitscore', function(e){
 		e.preventDefault();
-		$(this).html('<i class="fa fa-spinner fa-pulse fa-fw"></i> Submitting..').prop('disabled', true);
+		$(this).html('<i class="fa fa-spinner fa-pulse fa-fw"></i>').prop('disabled', true);
 		var id = $(this).attr('data-id');
 		var judge1 = $('#routine-'+id+' .score-judge1').val();
 		var judge2 = $('#routine-'+id+' .score-judge2').val();
@@ -602,6 +615,17 @@ jQuery(document).ready(function($) {
 	});
 
 });
+
+function selectParticipant(id, tempid) {
+	var token = ajax_post_object.tokens.default;
+	var formdata =  new FormData();
+	formdata.append('token', token);
+	formdata.append('action', 'load_participant_info');
+	formdata.append('id', id);
+	formdata.append('tempid', tempid);
+	var form = new TSForm(formdata);
+	form.submitForm(callbackChangeScholar);	
+}
 
 function addVideoCritique(attachment_id, routine_id) {
 	var token = ajax_post_object.tokens.default;

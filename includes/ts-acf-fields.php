@@ -625,7 +625,7 @@ if( function_exists('acf_add_local_field_group') ) {
 				'allow_null' => 0,
 				'multiple' => 0,
 				'return_format' => 'id',
-				'ui' => 1,
+				'ui' => 0,
 			),
 			array (
 				'key' => 'field_59ce7b0e2bdcd',
@@ -655,7 +655,7 @@ if( function_exists('acf_add_local_field_group') ) {
 						'required' => 0,
 						'conditional_logic' => 0,
 						'wrapper' => array (
-							'width' => '15',
+							'width' => '16',
 							'class' => '',
 							'id' => '',
 						),
@@ -667,7 +667,7 @@ if( function_exists('acf_add_local_field_group') ) {
 					),
                     array (
                         'key' => 'field_34ce7b4a2bdce',
-                        'label' => 'Change Header',
+                        'label' => 'Headers',
                         'name' => 'column_1',
                         'type' => 'text',
                         'instructions' => '',
@@ -686,7 +686,7 @@ if( function_exists('acf_add_local_field_group') ) {
                     ),
                     array (
                         'key' => 'field_74ce7b4a2bdce',
-                        'label' => 'Change Header',
+                        'label' => '',
                         'name' => 'column_2',
                         'type' => 'text',
                         'instructions' => '',
@@ -705,7 +705,7 @@ if( function_exists('acf_add_local_field_group') ) {
                     ),
                     array (
                         'key' => 'field_44ce7b4a2bdce',
-                        'label' => 'Change Header',
+                        'label' => '',
                         'name' => 'column_3',
                         'type' => 'text',
                         'instructions' => '',
@@ -724,7 +724,7 @@ if( function_exists('acf_add_local_field_group') ) {
                     ),
                     array (
                         'key' => 'field_54ce7b4a2bdce',
-                        'label' => 'Change Header',
+                        'label' => '',
                         'name' => 'column_4',
                         'type' => 'text',
                         'instructions' => '',
@@ -743,7 +743,7 @@ if( function_exists('acf_add_local_field_group') ) {
                     ),
                     array (
                         'key' => 'field_64ce7b4a2bdce',
-                        'label' => 'Change Header',
+                        'label' => '',
                         'name' => 'column_5',
                         'type' => 'text',
                         'instructions' => '',

@@ -446,11 +446,13 @@ jQuery(document).ready(function($) {
 		var last_id = last.attr('data-id');
 		var tempid = parseInt(last_id)+1;
 		var clone = last.clone();
+		var select = clone.find('select').val('').attr('data-id', tempid);
 
 		clone.attr('id', 'item-'+tempid);
 		clone.attr('data-id', tempid);
-		clone.find('select').val('').attr('data-id', tempid);
-		clone.find('input').val('');
+		clone.find('.participant-number input').attr({'name':'', 'value':''});
+		clone.find('.participant-name select').val('').combobox().next().next('.custom-combobox').remove();
+		clone.find('.participant-scholarship input').attr({'name':'', 'value':''});
 		clone.find('.age-division').html('');
 		clone.find('.studio-name').html('');
 		clone.appendTo('.scholarship-container');
@@ -483,18 +485,8 @@ jQuery(document).ready(function($) {
 		});
 
 		custom_uploader.on('select', function(){
-
 			var selections = custom_uploader.state().get('selection');
-
-			/*var critiques = selections.map( function (a) {
-                var item = {};
-                item[a.id] = a.filename; 
-                return a.filename;
-            });
-            addVideoCritiques(critiques, tour_id);*/
-			//addVideoCritiques(selections.toJSON(), tour_id);
 			addVideoCritiques(JSON.stringify(selections), tour_id);
-			//console.log(attachment);
 		});
 
 		custom_uploader.open();
@@ -590,7 +582,6 @@ jQuery(document).ready(function($) {
 			updateRoutineNumbers();
 			updateRoutineTimes();
 		});
-
 	}
 
 	$('.btn-downloadschedule').on('click', function(e) {
@@ -598,12 +589,486 @@ jQuery(document).ready(function($) {
 		$('#downloadschedule').printThis();
 	});
 
+	$('.btn-printscholarships').on('click', function(e) {
+		e.preventDefault();
+		$('#scholarships-preview').printThis();
+	});
+
 	$('.btn-previewworkshopschedule').on('click', function(e) {
 		e.preventDefault();
 		$('#popup-workshopsched-preview').modal('show');
 	});
 
+    $.widget( "custom.combobox", {
+      _create: function() {
+        this.wrapper = $( "<span>" )
+          .addClass( "custom-combobox" )
+          .insertAfter( this.element );
+ 
+        this.element.hide();
+        this._createAutocomplete();
+        this._createShowAllButton();
+      },
+ 
+      _createAutocomplete: function() {
+        var selected = this.element.children( ":selected" ),
+          value = selected.val() ? selected.text() : "";
+ 
+        this.input = $( "<input>" )
+          .appendTo( this.wrapper )
+          .val( value )
+          .attr( "title", "" )
+          .addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+          .autocomplete({
+            delay: 0,
+            minLength: 0,
+            source: $.proxy( this, "_source" )
+          })
+          .tooltip({
+            classes: {
+              "ui-tooltip": "ui-state-highlight"
+            }
+          });
+ 
+        this._on( this.input, {
+          autocompleteselect: function( event, ui ) {
+            ui.item.option.selected = true;
+            this._trigger( "select", event, {
+              item: ui.item.option
+            });
+
+          },
+ 
+          autocompletechange: "_removeIfInvalid"
+        });
+      },
+ 
+      _createShowAllButton: function() {
+        var input = this.input,
+          wasOpen = false;
+ 
+        $( "<a>" )
+          .attr( "tabIndex", -1 )
+          .attr( "title", "" )
+          .tooltip()
+          .appendTo( this.wrapper )
+          .button({
+            icons: {
+              primary: "ui-icon-triangle-1-s"
+            },
+            text: false
+          })
+          .removeClass( "ui-corner-all" )
+          .addClass( "custom-combobox-toggle ui-corner-right" )
+          .on( "mousedown", function() {
+            wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+          })
+          .on( "click", function() {
+            input.trigger( "focus" );
+ 
+            // Close if already visible
+            if ( wasOpen ) {
+              return;
+            }
+ 
+            // Pass empty string as value to search for, displaying all results
+            input.autocomplete( "search", "" );
+          });
+      },
+ 
+      _source: function( request, response ) {
+        var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+        response( this.element.children( "option" ).map(function() {
+          var text = $( this ).text();
+          if ( this.value && ( !request.term || matcher.test(text) ) )
+            return {
+              label: text,
+              value: text,
+              option: this
+            };
+        }) );
+      },
+ 
+      _removeIfInvalid: function( event, ui ) {
+ 
+        // Selected an item, nothing to do
+        if ( ui.item ) {
+          return;
+        }
+ 
+        // Search for a match (case-insensitive)
+        var value = this.input.val(),
+          valueLowerCase = value.toLowerCase(),
+          valid = false;
+        this.element.children( "option" ).each(function() {
+          if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+            this.selected = valid = true;
+            return false;
+          }
+        });
+ 
+        // Found a match, nothing to do
+        if ( valid ) {
+          return;
+        }
+ 
+        // Remove invalid value
+        this.input
+          .val( "" )
+          .attr( "title", value + " didn't match any item" )
+          .tooltip( "open" );
+        this.element.val( "" );
+        this._delay(function() {
+          this.input.tooltip( "close" ).attr( "title", "" );
+        }, 2500 );
+        this.input.autocomplete( "instance" ).term = "";
+      },
+ 
+      _destroy: function() {
+        this.wrapper.remove();
+        this.element.show();
+      }
+    });
+
+    $('.scholarship-wrapper select').combobox({
+  		select: function( event, ui ) {
+			id = ui.item.value;
+			tempid = $(this).attr('data-id');
+			selectParticipant(id, tempid);
+		}  	
+    });
+
+	$('.buttons-pdf').on('click', function(e) {
+		setTimeout(function(){ $(this).removeClass('processing'); }, 1400);
+	});
+	
+	/*$('.scholarship-wrapper select').autocomplete({
+		change: function( event, ui ) {
+			console.log(ui.item.option);
+		}
+	});   */ 
+
+	/*$('.scholarship-wrapper select').on( 'autocompleteselect', function( event, ui ) {
+		console.log(ui.item.option);
+	});*/
+
+	/*$('.custom-combobox-input').on('change', function(){
+		alert($(this.val));
+	});*/
+
+	/*var table_el 	= $('#adjudicated-awards');
+	var table_id 	= table_el.attr('id');
+	var dom 		= table_el.attr('data-dom') !=null ? table_el.attr('data-dom') : 'frt<"table-footer clearfix"p>';
+	var orderby 	= table_el.attr('data-orderby') !=null ? table_el.attr('data-orderby') : null;
+	var sort 		= table_el.attr('data-sort') !=null ? table_el.attr('data-sort').toString() : 'desc';
+	var length 		= table_el.attr('data-length') !=null ? table_el.attr('data-length') : 25;
+	var filter 		= table_el.attr('data-filter') !=null ? true : false;
+	var reorder 	= table_el.attr('data-reorder') !=null ? true : false;
+	var colfilter 	= table_el.attr('data-colfilter') !=null ? table_el.attr('data-colfilter') : null;
+	var exportcol 	= table_el.attr('data-exportcol') !=null ? table_el.attr('data-exportcol') : null;
+	var exporttitle = table_el.attr('data-exporttitle') !=null ? table_el.attr('data-exporttitle') : '';
+	var multiorder 	= table_el.attr('data-multiorder') !=null ? table_el.attr('data-multiorder') : null;
+	var trimtrigger = table_el.attr('data-trimtrigger') !=null ? table_el.attr('data-trimtrigger') : null;
+	var trimtarget 	= table_el.attr('data-trimtarget') !=null ? table_el.attr('data-trimtarget') : null;
+	var titleswitch = table_el.attr('data-titleswitch') !=null ? table_el.attr('data-titleswitch') : null;
+
+	var options = {
+		//aaSorting : [],
+		//bLengthChange : true,
+		//bFilter : false,
+		//bInfo : true,
+		iDisplayLength : 50,
+		//aLengthMenu : [[10, 25, 50, -1], [10, 25, 50, 'All']],
+		dom : 'fBrt<"table-footer clearfix"p>',
+	};
+
+	if(exportcol!=null) {
+		buttons = {
+			buttons : [
+				{
+					extend: 'print',
+					title: exporttitle,
+					exportOptions: {
+						columns: [exportcol],
+					},
+					action: function (e, dt, node, config) {
+						config.title = table_el.attr('data-exporttitle');
+						$.fn.dataTable.ext.buttons.print.action.call(this, e, dt, node, config);
+					},
+					customize: function(win) {
+						$(win.document.body).find('table').css({
+							'font-size' : '9pt',
+						});
+						$(win.document.body).find('h1').css({
+							'text-align' : 'center',
+							'font-size' : '18pt',
+							'font-weight' : 'bold',
+						});
+					},
+				},
+				{
+					extend: 'pdf',
+					title: exporttitle,
+					exportOptions: {
+						columns: [exportcol]
+					},
+					customize: function(doc) {
+						doc.content[1].table.widths =
+							Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+						doc.styles.tableHeader.alignment = 'left';
+					},
+					action: function (e, dt, node, config) {
+						config.title = table_el.attr('data-exporttitle');
+						$.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, node, config);
+					},
+				}
+			],
+		};
+
+		$.extend(options, buttons);
+	}
+
+	var table = table_el.DataTable(options);
+
+    $('#min, #max').keyup(function() {
+        table.draw();
+    });
+
+	$.fn.dataTable.ext.search.push(
+	    function( settings, data, dataIndex ) {
+	        var min = parseInt( $('#min').val(), 10 );
+	        var max = parseInt( $('#max').val(), 10 );
+	        var num = parseFloat( data[0] ) || 0;
+	        if ( ( isNaN( min ) && isNaN( max ) ) ||
+	             ( isNaN( min ) && num <= max ) ||
+	             ( min <= num   && isNaN( max ) ) ||
+	             ( min <= num   && num <= max ) )
+	        {
+	            return true;
+	        }
+	        return false;
+	    }
+	);*/
+
+	/*$.fn.dataTableExt.afnFiltering.push(
+		function( oSettings, aData, iDataIndex ) {
+			var iColumn = 0;
+			var iMin = document.getElementById('min').value * 1;
+			var iMax = document.getElementById('max').value * 1;
+
+			var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
+			if ( iMin === "" && iMax === "" )
+			{
+				return true;
+			}
+			else if ( iMin === "" && iVersion < iMax )
+			{
+				return true;
+			}
+			else if ( iMin < iVersion && "" === iMax )
+			{
+				return true;
+			}
+			else if ( iMin < iVersion && iVersion < iMax )
+			{
+				return true;
+			}
+			return false;
+		}
+	);*/
+	
 });
+
+
+	/*jQuery.fn.DataTable.ext.search.push(
+	    function( settings, data, dataIndex ) {
+	    	console.log(data);
+	        var min = parseInt( jQuery('#min').val(), 10 );
+	        var max = parseInt( $('#max').val(), 10 );
+	        var num = parseFloat( data[0] ) || 0;
+	        alert(1)
+	 
+	        if ( ( isNaN( min ) && isNaN( max ) ) ||
+	             ( isNaN( min ) && num <= max ) ||
+	             ( min <= num   && isNaN( max ) ) ||
+	             ( min <= num   && num <= max ) )
+	        {
+	            return true;
+	        }
+	        return false;
+	    }
+	);*/
+
+var init_dataTable = function() {
+	var tables = jQuery('.ts-data-table');
+	if(tables.length > 0) {
+		tables.each(function() {
+			var table_el    = jQuery(this);
+			var table_id 	= table_el.attr('id');
+			var dom 		= table_el.attr('data-dom') !=null ? table_el.attr('data-dom') : 'frt<"table-footer clearfix"p>';
+			var orderby 	= table_el.attr('data-orderby') !=null ? table_el.attr('data-orderby') : null;
+			var sort 		= table_el.attr('data-sort') !=null ? table_el.attr('data-sort').toString() : 'desc';
+			var length 		= table_el.attr('data-length') !=null ? table_el.attr('data-length') : 25;
+			var filter 		= table_el.attr('data-filter') !=null || table_el.attr('data-range') !=null ? true : false;
+			var reorder 	= table_el.attr('data-reorder') !=null ? true : false;
+			var colfilter 	= table_el.attr('data-colfilter') !=null ? table_el.attr('data-colfilter') : null;
+			var exportcol 	= table_el.attr('data-exportcol') !=null ? table_el.attr('data-exportcol') : null;
+			var exporttitle = table_el.attr('data-exporttitle') !=null ? table_el.attr('data-exporttitle') : '';
+			var multiorder 	= table_el.attr('data-multiorder') !=null ? table_el.attr('data-multiorder') : null;
+			var trimtrigger = table_el.attr('data-trimtrigger') !=null ? table_el.attr('data-trimtrigger') : null;
+			var trimtarget 	= table_el.attr('data-trimtarget') !=null ? table_el.attr('data-trimtarget') : null;
+			var titleswitch = table_el.attr('data-titleswitch') !=null ? table_el.attr('data-titleswitch') : null;
+
+			var options = {
+				aaSorting : [],
+				bLengthChange : true,
+				bFilter : filter,
+				bInfo : true,
+				iDisplayLength : parseInt(length),
+				aLengthMenu : [[10, 25, 50, -1], [10, 25, 50, 'All']],
+				dom : dom,
+				language: {
+					sSearch : '',
+					sSearchPlaceholder : 'Search',
+					lengthMenu: '_MENU_ Records per page',
+				},
+				rowReorder: reorder,
+			};
+
+
+			if(orderby!=null){
+				order = {
+					order : [[orderby, sort]]
+				};
+				jQuery.extend(options, order);
+			}
+			else if(multiorder!=null){
+				order = {
+					order : JSON.parse(multiorder)
+				};
+				jQuery.extend(options, order);
+			}
+
+			if(exportcol!=null) {
+				buttons = {
+					buttons : [
+						{
+							extend: 'print',
+							title: exporttitle,
+							exportOptions: {
+								columns: [exportcol],
+							},
+							action: function (e, dt, node, config) {
+								config.title = table_el.attr('data-exporttitle');
+								jQuery.fn.dataTable.ext.buttons.print.action.call(this, e, dt, node, config);
+							},
+							customize: function(win) {
+								jQuery(win.document.body).find('table').css({
+									'font-size' : '9pt',
+								});
+								jQuery(win.document.body).find('h1').css({
+									'text-align' : 'center',
+									'font-size' : '18pt',
+									'font-weight' : 'bold',
+								});
+							},
+						},
+						{
+							extend: 'pdf',
+							title: exporttitle,
+							exportOptions: {
+								columns: [exportcol]
+							},
+							customize: function(doc) {
+								doc.content[1].table.widths =
+									Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+								doc.styles.tableHeader.alignment = 'left';
+							},
+							action: function (e, dt, node, config) {
+								config.title = table_el.attr('data-exporttitle');
+								jQuery.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, node, config);
+							},
+						}
+					],
+				};
+
+				jQuery.extend(options, buttons);
+			}
+
+			var table = table_el.DataTable(options);
+
+			table_el.parent().prepend('<div id="'+table_id+'_column-filter" class="dataTables_column-filter"></div>');
+
+			if(colfilter!=null) {
+				jQuery.each(JSON.parse(colfilter), function( index, value ) {
+					var column = table.column(value);
+					if(jQuery(column.footer()).hasClass('hidden')==false) {
+						var select = jQuery('<select id="filter-'+value+'"><option value="">'+jQuery(column.footer()).text()+'</option></select>')
+							.appendTo(jQuery('#'+table_id+'_column-filter'))
+							.on('change', function() {
+								var val = jQuery.fn.dataTable.util.escapeRegex(
+									jQuery(this).val()
+								);
+								column.search( val ? '^'+val+'$' : '', true, false ).draw();
+								if(trimtrigger!=null && trimtarget!=null) {
+									if(index==trimtrigger){
+										trim_filter(trimtarget, table, table_el, val);
+									}
+								}
+								if(index==titleswitch) {
+									var titleswitch_val = jQuery(this).find('option:selected').val();
+									jQuery('#'+table_id).attr('data-exporttitle', titleswitch_val+' Registrations');
+									if(table_id=='entries-list') {
+										if(titleswitch_val=='Studio') {
+											table.order([[2, 'asc']]).draw();
+										}
+										else if(titleswitch_val=='Individual') {
+											table.order([[3, 'asc']]).draw();
+										}
+										else {
+											table.order([[orderby, sort]]).draw();
+										}
+									}
+								}
+							});
+						if(jQuery(column.footer()).attr('data-sort')=='true'){
+							column.data().unique().sort().each( function ( d, j ) {
+								d = d.replace(/(<([^>]+)>)/ig,"");
+								select.append( '<option value="'+d+'">'+d+'</option>' )
+							});
+						}
+						else {
+							column.data().unique().each( function ( d, j ) {
+								d = d.replace(/(<([^>]+)>)/ig,"");
+								select.append( '<option value="'+d+'">'+d+'</option>' )
+							});
+						}
+					}
+				});
+			}
+
+		    jQuery('#min, #max').keyup(function() {
+		        table.draw();
+		    });
+			jQuery.fn.dataTable.ext.search.push(
+			    function( settings, data, dataIndex ) {
+			        var min = parseInt( jQuery('#min').val(), 10 );
+			        var max = parseInt( jQuery('#max').val(), 10 );
+			        var num = parseFloat( data[0] ) || 0;
+			        if ( ( isNaN( min ) && isNaN( max ) ) ||
+			             ( isNaN( min ) && num <= max ) ||
+			             ( min <= num   && isNaN( max ) ) ||
+			             ( min <= num   && num <= max ) )
+			        {
+			            return true;
+			        }
+			        return false; 
+			    }
+			);		
+		});
+	}
+}
+				
 
 var updateRoutineTimes = function() {
 	var rows = jQuery('.acf-field-59d2674f77f7b .acf-table tbody').find('tr');
@@ -664,12 +1129,14 @@ function callback(data) {
 
 function callbackSaveScholarships(data) {
 	if(data.success==true) {
+		location.reload();
 		jQuery('#form-scholarships input[type="submit"]').val('Save Changes').prop('disabled',false);
 	}
 }
 
 function callbackSaveSpecidalAwards(data) {
 	if(data.success==true) {
+		location.reload();
 		jQuery('#form-special-awards input[type="submit"]').val('Save Changes').prop('disabled',false);
 	}
 }
@@ -678,13 +1145,15 @@ function callbackSaveRoutineScores(data) {
 	if(data.success==true) {
 		var id = data.id;
 		var total_score = data.total_score;
+		var adjudicated = data.adjudicated;
 		jQuery('#routine-'+id+' .total-score').html(total_score);
+		jQuery('#routine-'+id+' .adjudicated-award').html(adjudicated);
 		jQuery('#routine-'+id+' button').html('Submit').prop('disabled',false);
 	}
 }
 
 function callbackChangeRoutine(data) {
-	if(data.success==true) {
+	//if(data.success==true) {
 		var routine_id = data.routine_id;
 		var name = data.name;
 		var studio = data.studio;
@@ -692,7 +1161,7 @@ function callbackChangeRoutine(data) {
 		jQuery('#'+row+' .routine-id').val(routine_id);
 		jQuery('#'+row+' .routine-name').html(name);
 		jQuery('#'+row+' .routine-studio').html(studio);
-	}
+	//}
 }
 
 function callbackChangeScholar(data) {
@@ -762,6 +1231,14 @@ function callbackResultStatus(data) {
 		var stat = data.status;
 		var btntext = stat=='publish' ? 'Unpublish Results' : 'Publish Results';
 		jQuery('.btn-publishresults').text(btntext);
+	}
+}
+
+function callbackCritiqueStatus(data) {
+	if(data.success==true) {
+		var stat = data.status;
+		var btntext = stat=='publish' ? 'Unpublish Critiques' : 'Publish Critiques';
+		jQuery('.btn-publishcritiques').text(btntext);
 	}
 }
 
@@ -1097,174 +1574,6 @@ function callbackMarkAsPaid(data) {
 	}
 }
 
-var init_dataTable = function() {
-	var tables = jQuery('.ts-data-table');
-	if(tables.length > 0) {
-		tables.each(function() {
-			var table_el    = jQuery(this);
-			var table_id 	= table_el.attr('id');
-			var dom 		= table_el.attr('data-dom') !=null ? table_el.attr('data-dom') : 'frt<"table-footer clearfix"p>';
-			var orderby 	= table_el.attr('data-orderby') !=null ? table_el.attr('data-orderby') : null;
-			var sort 		= table_el.attr('data-sort') !=null ? table_el.attr('data-sort').toString() : 'desc';
-			var length 		= table_el.attr('data-length') !=null ? table_el.attr('data-length') : 25;
-			var filter 		= table_el.attr('data-filter') !=null ? true : false;
-			var reorder 	= table_el.attr('data-reorder') !=null ? true : false;
-			var colfilter 	= table_el.attr('data-colfilter') !=null ? table_el.attr('data-colfilter') : null;
-			var exportcol 	= table_el.attr('data-exportcol') !=null ? table_el.attr('data-exportcol') : null;
-			var exporttitle = table_el.attr('data-exporttitle') !=null ? table_el.attr('data-exporttitle') : '';
-			var multiorder 	= table_el.attr('data-multiorder') !=null ? table_el.attr('data-multiorder') : null;
-			var trimtrigger = table_el.attr('data-trimtrigger') !=null ? table_el.attr('data-trimtrigger') : null;
-			var trimtarget 	= table_el.attr('data-trimtarget') !=null ? table_el.attr('data-trimtarget') : null;
-			var titleswitch = table_el.attr('data-titleswitch') !=null ? table_el.attr('data-titleswitch') : null;
-
-			var options = {
-				aaSorting : [],
-				bLengthChange : true,
-				bFilter : filter,
-				bInfo : true,
-				iDisplayLength : parseInt(length),
-				aLengthMenu : [[10, 25, 50, -1], [10, 25, 50, 'All']],
-				dom : dom,
-				language: {
-					sSearch : '',
-					sSearchPlaceholder : 'Search',
-					lengthMenu: '_MENU_ Records per page',
-				},
-				rowReorder: reorder,
-				/*render : function(data, type, row, meta) {
-				 if (type === 'sort') {
-				 var sel = jQuery("input:checked").val();
-				 return jQuery(sel, jQuery(data)).data('value');
-				 }
-				 return data;
-				 }*/
-			};
-
-
-			if(orderby!=null){
-				order = {
-					order : [[orderby, sort]]
-				};
-				jQuery.extend(options, order);
-			}
-			else if(multiorder!=null){
-				order = {
-					order : JSON.parse(multiorder)
-				};
-				jQuery.extend(options, order);
-			}
-
-			if(exportcol!=null) {
-				buttons = {
-					buttons : [
-						{
-							extend: 'print',
-							title: exporttitle,
-							exportOptions: {
-								columns: [exportcol],
-							},
-							action: function (e, dt, node, config) {
-								config.title = table_el.attr('data-exporttitle');
-								jQuery.fn.dataTable.ext.buttons.print.action.call(this, e, dt, node, config);
-							},
-							customize: function(win) {
-								jQuery(win.document.body).find('table').css({
-									'font-size' : '9pt',
-								});
-								jQuery(win.document.body).find('h1').css({
-									'text-align' : 'center',
-									'font-size' : '18pt',
-									'font-weight' : 'bold',
-								});
-							},
-						},
-						{
-							extend: 'pdf',
-							title: exporttitle,
-							exportOptions: {
-								columns: [exportcol]
-							},
-							customize: function(doc) {
-								doc.content[1].table.widths =
-									Array(doc.content[1].table.body[0].length + 1).join('*').split('');
-								doc.styles.tableHeader.alignment = 'left';
-							},
-							action: function (e, dt, node, config) {
-								config.title = table_el.attr('data-exporttitle');
-								jQuery.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, node, config);
-							},
-						}
-					],
-				};
-
-				jQuery.extend(options, buttons);
-			}
-
-			//console.log(options);
-			var table = table_el.DataTable(options);
-
-			table_el.parent().prepend('<div id="'+table_id+'_column-filter" class="dataTables_column-filter"></div>');
-
-			if(colfilter!=null) {
-				jQuery.each(JSON.parse(colfilter), function( index, value ) {
-					var column = table.column(value);
-					if(jQuery(column.footer()).hasClass('hidden')==false) {
-						var select = jQuery('<select id="filter-'+value+'"><option value="">'+jQuery(column.footer()).text()+'</option></select>')
-							.appendTo(jQuery('#'+table_id+'_column-filter'))
-							.on('change', function() {
-								var val = jQuery.fn.dataTable.util.escapeRegex(
-									jQuery(this).val()
-								);
-								column.search( val ? '^'+val+'$' : '', true, false ).draw();
-								if(trimtrigger!=null && trimtarget!=null) {
-									if(index==trimtrigger){
-										trim_filter(trimtarget, table, table_el, val);
-									}
-								}
-								if(index==titleswitch) {
-									//table.buttons(0).title( 'Not available' );
-									var titleswitch_val = jQuery(this).find('option:selected').val();
-									jQuery('#'+table_id).attr('data-exporttitle', titleswitch_val+' Registrations');
-
-									/*var oldoptions = table.fn.Settings();
-									 var newoptions = jQuery.extend(oldoptions, {
-									 order : [[3, 'asc']],
-									 });
-									 table.fnDestroy();
-									 table_el.dataTable(newoptions);*/
-									//table.rows().invalidate();
-									if(table_id=='entries-list') {
-										if(titleswitch_val=='Studio') {
-											table.order([[2, 'asc']]).draw();
-										}
-										else if(titleswitch_val=='Individual') {
-											table.order([[3, 'asc']]).draw();
-										}
-										else {
-											table.order([[orderby, sort]]).draw();
-										}
-									}
-								}
-							});
-						if(jQuery(column.footer()).attr('data-sort')=='true'){
-							column.data().unique().sort().each( function ( d, j ) {
-								d = d.replace(/(<([^>]+)>)/ig,"");
-								select.append( '<option value="'+d+'">'+d+'</option>' )
-							});
-						}
-						else {
-							column.data().unique().each( function ( d, j ) {
-								d = d.replace(/(<([^>]+)>)/ig,"");
-								select.append( '<option value="'+d+'">'+d+'</option>' )
-							});
-						}
-					}
-				});
-			}
-		});
-	}
-}
-
 var trim_filter = function(value, table, table_el, select_val) {
 	//jQuery.each(JSON.parse(colfilter), function( index, value ) {
 		var column;
@@ -1283,34 +1592,6 @@ var trim_filter = function(value, table, table_el, select_val) {
 	//});
 }
 
-/*var init_datePicker = function() {
- if(jQuery('.ts-date-picker').length > 0) {
- jQuery('.ts-date-picker').each(function() {
- var maxdate = jQuery(this).attr('data-maxdate') !=null ? jQuery(this).attr('data-maxdate') : new Date();
- var dateformat = jQuery(this).attr('data-dateformat') !=null ? jQuery(this).attr('data-dateformat') : 'mm/dd/yy';
- jQuery(this).datepicker({
- dateFormat : dateformat,
- maxDate: maxdate,
- changeMonth: true,
- changeYear: true,
- showButtonPanel: true,
- yearRange: "-100:+0",
- });
- });
- }
- }
-
- var init_dateTimePicker = function() {
- if(jQuery('.ts-datetime-picker').length > 0) {
- jQuery('.ts-datetime-picker').each(function() {
- var timeformat = jQuery(this).attr('data-timeformat') !=null ? jQuery(this).attr('data-timeformat') : 'hh:mm tt z';
- jQuery(this).datetimepicker({
- timeFormat : timeformat
- });
- });
- }
- }*/
-
 Number.prototype.formatMoney = function(c, d, t){
 	var n = this,
 		c = isNaN(c = Math.abs(c)) ? 2 : c,
@@ -1325,22 +1606,6 @@ Number.prototype.formatMoney = function(c, d, t){
 function moveIndex(arr, from, to) {
 	arr.splice(to, 0, arr.splice(from, 1)[0]);
 }
-
-/*Array.prototype.move = function (from, to) {
-	this.splice(to, 0, this.splice(from, 1)[0]);
-};
-*/
-//var ar = [1,2,3,4,5];
-//ar.move(0,3);
-//moveIndex(ar, 0, 3);
-//alert(ar);
-
-/*Object.defineProperty(Array.prototype, 'move', {
-    enumerable: false,
-    value: function (from, to) {
-		this.splice(to, 0, this.splice(from, 1)[0]);
-    }
-});*/
 
 var getParameterByName = function(name) {
 	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");

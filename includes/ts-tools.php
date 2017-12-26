@@ -1333,3 +1333,27 @@ function ts_display_user_details($user_id) {
 	return $output;
 }
 
+function ts_routine_specialty_award($routine_id, $tour_id) {
+
+	$special_awards = get_post_meta($tour_id, 'special_awards', true);
+
+	$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) ? $special_awards['twelve_below']['choreography']['routine_id'] : '';
+	$standnom12below_id 	= isset($special_awards['twelve_below']['standout_nominee']['routine_id']) ? $special_awards['twelve_below']['standout_nominee']['routine_id'] : '';
+	$standwin12below_id 	= isset($special_awards['twelve_below']['standout_winner']['routine_id']) ? $special_awards['twelve_below']['standout_winner']['routine_id'] : '';
+	$choreo13above_id 		= isset($special_awards['thirteen_above']['choreography']['routine_id']) ? $special_awards['thirteen_above']['choreography']['routine_id'] : '';
+	$standnom13above_id 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_id']) ? $special_awards['thirteen_above']['standout_nominee']['routine_id'] : '';
+	$standwin13above_id 	= isset($special_awards['thirteen_above']['standout_winner']['routine_id']) ? $special_awards['thirteen_above']['standout_winner']['routine_id'] : '';
+
+	$award = '';
+	if($routine_id==$choreo12below_id || $routine_id==$choreo13above_id) {
+		$award = 'Choreography Award';
+	}
+	else if($routine_id==$standnom12below_id || $routine_id==$standnom13above_id) {
+		$award = 'Judges Standout Nominee';
+	}
+	else if($routine_id==$standwin12below_id || $routine_id==$standwin13above_id) {
+		$award = 'Judges Standout Winner';
+	}
+
+	return $award;
+}

@@ -317,11 +317,11 @@ function ts_my_results_preview() {
 
 	$tour_id = ts_get_param('tour');
 	$user_id = get_current_user_id();
+	$critiques_status = get_post_meta($tour_id, 'critiques_status', true);
 	?>
 	<div id="results-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-my-results', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper results-wrapper">
-			<p><?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-my-results', $tour_id); ?></p>
 			<?php
 			if($tour_id) { ?>
 				<h3>Routine Results:</h3>
@@ -330,6 +330,7 @@ function ts_my_results_preview() {
 						<tr>
 							<th style="text-align: center; width: 60px;">#</th>
 							<th>Routine Name</th>
+							<th style="text-align: center;">Age Division</th>
 							<th style="text-align: center;">Score</th>
 							<th style="text-align: center;">Adjudicated Awards</th>
 							<th style="text-align: center;">Category High Scores</th>
@@ -351,18 +352,26 @@ function ts_my_results_preview() {
 							$id 			= $r->ID;
 							$name 			= get_the_title($id);
 							$number 		= get_post_meta($id, 'routine_number', true);
+							$agediv 		= get_post_meta($id, 'agediv', true);
 							$score  		= get_post_meta($id, 'total_score', true);
 							$adjudicated  	= ts_adjudicated_award($score);
 							$category_hs   	= ts_routine_cat_hs($id, $tour_id);
 							$overall_hs   	= ts_routine_overall_hs($id, $tour_id);
-							$critique_id 	= get_post_meta($id, 'critique', true);
-							$critique_file  = basename(get_attached_file($critique_id));
-							$critique_url 	= wp_get_attachment_url($critique_id);
-							$special_award 	= get_post_meta($id, 'special_award', true);
+							$special_award 	= ts_routine_specialty_award($id, $tour_id);
+							if($critiques_status=='publish'){
+								$critique_id 	= get_post_meta($id, 'critique', true);
+								$critique_file  = basename(get_attached_file($critique_id));
+								$critique_url 	= wp_get_attachment_url($critique_id);
+							}
+							else {
+								$critique_file  = '';
+								$critique_url 	= '';
+							}
 							?>
 							<tr id="routine-<?php echo $id; ?>">	
 								<td style="text-align: center;"><?php echo $number; ?></td>
 								<td><?php echo $name; ?></td>
+								<td style="text-align: center;"><?php echo $agediv; ?></td>
 								<td style="text-align: center;"><?php echo $score; ?></td>
 								<td style="text-align: center;"><?php echo $adjudicated; ?></td>
 								<td style="text-align: center;"><?php echo $category_hs; ?></td>
@@ -375,14 +384,6 @@ function ts_my_results_preview() {
 					</tbody>
 				</table>
 				<?php
-				$special_awards = get_post_meta($tour_id, 'special_awards', true);
-				$studio_innovator = isset($special_awards['studio_innovator']) ? $special_awards['studio_innovator'] : '';
-				if($studio_innovator==get_field('studio', 'user_'. $user_id)) {
-					?>
-					<h3>Studio Innovator: <strong>Won</strong></h3>
-					<?php
-				} 
-
 				$scholarships = get_post_meta($tour_id, 'scholarships', true);
 				if(! empty($scholarships)) {
 					$args = array(
@@ -401,9 +402,9 @@ function ts_my_results_preview() {
 						<table class="ts-data-table" data-length="-1" data-dom="frt<'table-footer clearfix'p>">
 							<thead>
 								<tr>
+									<th style="text-align: center;">#</th>
 									<th>Name</th>
 									<th style="text-align: center;">Age Division</th>
-									<th style="text-align: center;">Scholarship Number</th>
 									<th style="text-align: center;">Scholarship</th>
 								</tr>
 							</thead>
@@ -413,13 +414,13 @@ function ts_my_results_preview() {
 									$id = $s->ID;
 									$name = get_the_title($id);
 									$agediv = ts_participant_agediv($id);
-									$number = get_post_meta($id, 'number', true);
-									$scholarship = get_post_meta($id, 'scholarship', true);
+									$number = $scholarships[$id]['number'];
+									$scholarship = $scholarships[$id]['title'];
 									?>
 									<tr id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
+										<td style="text-align: center;"><?php echo $number; ?></td>
 										<td><?php echo $name; ?></td>
 										<td style="text-align: center;"><?php echo $agediv; ?></td>
-										<td style="text-align: center;"><?php echo $number; ?></td>
 										<td style="text-align: center;"><?php echo $scholarship; ?></td>
 									</tr>
 									<?php
@@ -430,6 +431,12 @@ function ts_my_results_preview() {
 					</div>	
 				<?php
 				}
+				$studio_innovator = get_post_meta($tour_id, 'studio_innovator_id', true);
+				if($studio_innovator==$user_id) {
+					?>
+					<h3>Studio Innovator: <strong>Won</strong></h3>
+					<?php
+				} 
 			} ?>	
 		</div>
 	</div>
@@ -437,9 +444,16 @@ function ts_my_results_preview() {
 }
 
 function ts_results_preview() {
+	$tour_id = ts_get_param('tour');
+	if(is_admin()) {
+		$base_url = admin_url('admin.php?page=ts-results');
+	}
+	else {
+		$base_url = get_permalink() .'?page=results';
+	}
 	?>
 	<div id="results-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?>  <?php ts_select_tour_city($base_url, $tour_id); ?></h1>
 		<div class="ts-admin-wrapper results-wrapper">
 			<?php ts_display_results_frontend(); ?>
 		</div>
