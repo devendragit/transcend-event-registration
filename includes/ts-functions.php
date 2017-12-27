@@ -1733,8 +1733,8 @@ function ts_display_competition_schedules($schedules, $routines_array=array()) {
 			<h3 class="t-center">'. $schedule->post_title .'</h3>';
 
 			while(has_sub_field('competition_event_schedules', $schedule_id)):
-				
-				ts_compsched_header($first_day);
+				$display_day_header = date('l', strtotime(get_sub_field('day', $schedule_id)));
+				ts_compsched_header($display_day_header);
 
 					while(has_sub_field('lineup')):
 						$highlight = in_array(get_sub_field('routine'), $routines_array) ? 'highlighted-row' : '';
@@ -2018,7 +2018,7 @@ function ts_generate_tour_music_zip( $schedules, $tour_id ) {
 			for( $i=0 ;$i<count($schedules); $i++ ){
 				if(is_array($schedules[$i]['lineup'])) {
 					for( $y=0 ;$y<count($schedules[$i]['lineup']); $y++ ) {
-						if( 'Judges Break' != $schedules[$i]['lineup'][$y]['action'] || 'Awards' != $schedules[$i]['lineup'][$y]['action'] ) {
+						if( 'Normal' === $schedules[$i]['lineup'][$y]['action'] ) {
 							$routine_id = $schedules[$i]['lineup'][$y]['routine'];
 							$music_id = (int)get_post_meta($routine_id,'music',true);
 							if($music_id) {

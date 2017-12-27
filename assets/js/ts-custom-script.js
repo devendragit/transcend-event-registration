@@ -741,7 +741,18 @@ jQuery(document).ready(function($) {
 	$('.buttons-pdf').on('click', function(e) {
 		setTimeout(function(){ $(this).removeClass('processing'); }, 1400);
 	});
-	
+
+    /*$('.btn-downloadpdfschedule').on('click', function(e) {
+        html2canvas(document.getElementById('popup-competitionsched-preview')).then(function(canvas) {
+            var img = canvas.toDataURL("image/png");
+            console.log(img);
+            window.open(img);
+            var doc = new jsPDF();
+            doc.addImage(img,'JPEG',10,10);
+            doc.save('competitionsched.pdf');
+        });
+    });*/
+
 	/*$('.scholarship-wrapper select').autocomplete({
 		change: function( event, ui ) {
 			console.log(ui.item.option);

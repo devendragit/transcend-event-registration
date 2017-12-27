@@ -1322,6 +1322,7 @@ function ts_post_competition_schedule() {
 						<button class="btn btn-red btn-resetschedule" data-id="<?php echo $schedule_id; ?>" data-return="<?php echo admin_url('admin.php?page=ts-edit-competition-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>">Reset</button>&nbsp;&nbsp;
 						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>&nbsp;&nbsp;
 						<a href="javascript:void(0)" class="btn btn-green btn-downloadschedule">Print</a>
+						<!--<a href="javascript:void(0)" class="btn btn-green btn-downloadpdfschedule">Download</a>-->
 					</div>
 				</div>
 				<?php
