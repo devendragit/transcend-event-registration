@@ -738,8 +738,11 @@ jQuery(document).ready(function($) {
 		}  	
     });
 
-	$('.buttons-pdf').on('click', function(e) {
-		setTimeout(function(){ $(this).removeClass('processing'); }, 1400);
+	$('body').on('click', '.buttons-pdf', function(){
+		console.log('budd555y');
+		setTimeout(function(){
+			$('.buttons-pdf').removeClass('processing');
+		}, 3400);
 	});
 
     /*$('.btn-downloadpdfschedule').on('click', function(e) {

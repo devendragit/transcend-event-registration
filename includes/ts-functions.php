@@ -2202,12 +2202,11 @@ function ts_display_results($tour_id) {
 		<h3>Category High Scores:</h3>
 		<div class="category-container ts-tabs">
 			<ul>
-				<li><a href="#tabs-1">Solo</a></li>
-				<li><a href="#tabs-2">Duo/Trio</a></li>
-				<li><a href="#tabs-3">Small Group</a></li>
-				<li><a href="#tabs-4">Large Group</a></li>
-				<li><a href="#tabs-5">Line</a></li>
-				<li><a href="#tabs-6">Production</a></li>
+				<li><a href="#tabs-1">Mini</a></li>
+				<li><a href="#tabs-2">Junior</a></li>
+				<li><a href="#tabs-3">Teen</a></li>
+				<li><a href="#tabs-4">Senior</a></li>
+				<li><a href="#tabs-5">Pro</a></li>
 			</ul>
 			<div class="row" id="tabs-1">
 				<?php
@@ -2220,39 +2219,48 @@ function ts_display_results($tour_id) {
 					</div>
 					<?php
 				}
-				$ts_hiscore_solo_junior = ts_hiscore_solo_junior($tour_id);
-				if(! empty($ts_hiscore_solo_junior)){
+				$hiscore_duotrio_mini = ts_hiscore_duotrio_mini($tour_id);
+				if(! empty($hiscore_duotrio_mini)){
 					?>
 					<div class="col-md-6">
-						<h4>Solo - Junior</h4>
-						<?php ts_display_awards_table($ts_hiscore_solo_junior, 'High Scores - Junior Solo'); ?>
+						<h4>Duo/Trio - Mini</h4>
+						<?php ts_display_awards_table($hiscore_duotrio_mini, 'High Scores - Mini Duo/Trio'); ?>
 					</div>
 					<?php
 				}
-				$ts_hiscore_solo_teen = ts_hiscore_solo_teen($tour_id);
-				if(! empty($ts_hiscore_solo_teen)){
+				$hiscore_smallgroup_mini = ts_hiscore_smallgroup_mini($tour_id);
+				if(! empty($hiscore_smallgroup_mini)){
 					?>
 					<div class="col-md-6">
-						<h4>Solo - Teen</h4>
-						<?php ts_display_awards_table($ts_hiscore_solo_teen, 'High Scores - Teen Solo'); ?>
+						<h4>Small Group - Mini</h4>
+						<?php ts_display_awards_table($hiscore_smallgroup_mini, 'High Scores - Mini Small Group'); ?>
 					</div>
 					<?php
 				}
-				$ts_hiscore_solo_senior = ts_hiscore_solo_senior($tour_id);
-				if(! empty($ts_hiscore_solo_senior)){
+				$hiscore_largegroup_mini = ts_hiscore_largegroup_mini($tour_id);
+				if(! empty($hiscore_largegroup_mini)){
 					?>
 					<div class="col-md-6">
-						<h4>Solo - Senior</h4>
-						<?php ts_display_awards_table($ts_hiscore_solo_senior, 'High Scores - Senior Solo'); ?>
+						<h4>Large Group - Mini</h4>
+						<?php ts_display_awards_table($hiscore_largegroup_mini, 'High Scores - Mini Large Group'); ?>
 					</div>
 					<?php
 				}
-				$ts_hiscore_solo_pro = ts_hiscore_solo_pro($tour_id);
-				if(! empty($ts_hiscore_solo_pro)){
+				$hiscore_line_mini = ts_hiscore_line_mini($tour_id);
+				if(! empty($hiscore_line_mini)){
 					?>
 					<div class="col-md-6">
-						<h4>Solo - Pro</h4>
-						<?php ts_display_awards_table($ts_hiscore_solo_pro, 'High Scores - Pro Solo'); ?>
+						<h4>Line - Mini</h4>
+						<?php ts_display_awards_table($hiscore_line_mini, 'High Scores - Mini Line'); ?>
+					</div>
+					<?php
+				}
+				$hiscore_production_mini = ts_hiscore_production_mini($tour_id);
+				if(! empty($hiscore_production_mini)){
+					?>
+					<div class="col-md-6">
+						<h4>Production - Mini</h4>
+						<?php ts_display_awards_table($hiscore_production_mini, 'High Scores - Mini Production'); ?>
 					</div>
 					<?php
 				}
@@ -2260,12 +2268,12 @@ function ts_display_results($tour_id) {
 			</div>
 			<div class="row" id="tabs-2">
 				<?php
-				$hiscore_duotrio_mini = ts_hiscore_duotrio_mini($tour_id);
-				if(! empty($hiscore_duotrio_mini)){
+				$ts_hiscore_solo_junior = ts_hiscore_solo_junior($tour_id);
+				if(! empty($ts_hiscore_solo_junior)){
 					?>
 					<div class="col-md-6">
-						<h4>Duo/Trio - Mini</h4>
-						<?php ts_display_awards_table($hiscore_duotrio_mini, 'High Scores - Mini Duo/Trio'); ?>
+						<h4>Solo - Junior</h4>
+						<?php ts_display_awards_table($ts_hiscore_solo_junior, 'High Scores - Junior Solo'); ?>
 					</div>
 					<?php
 				}
@@ -2278,92 +2286,12 @@ function ts_display_results($tour_id) {
 					</div>
 					<?php
 				}
-				$ts_hiscore_duotrio_teen = ts_hiscore_duotrio_teen($tour_id);
-				if(! empty($ts_hiscore_duotrio_teen)){
-					?>
-					<div class="col-md-6">
-						<h4>Duo/Trio - Teen</h4>
-						<?php ts_display_awards_table($ts_hiscore_duotrio_teen, 'High Scores - Teen Duo/Trio'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_duotrio_senior = ts_hiscore_duotrio_senior($tour_id);
-				if(! empty($ts_hiscore_duotrio_senior)){
-					?>
-					<div class="col-md-6">
-						<h4>Duo/Trio - Senior</h4>
-						<?php ts_display_awards_table($ts_hiscore_duotrio_senior, 'High Scores - Senior Duo/Trio'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_duotrio_pro = ts_hiscore_duotrio_pro($tour_id);
-				if(! empty($ts_hiscore_duotrio_pro)){
-					?>
-					<div class="col-md-6">
-						<h4>Duo/Trio - Pro</h4>
-						<?php ts_display_awards_table($ts_hiscore_duotrio_pro, 'High Scores - Pro Duo/Trio'); ?>
-					</div>
-					<?php
-				}
-				?>
-			</div>
-			<div class="row" id="tabs-3">
-				<?php
-				$hiscore_smallgroup_mini = ts_hiscore_smallgroup_mini($tour_id);
-				if(! empty($hiscore_smallgroup_mini)){
-					?>
-					<div class="col-md-6">
-						<h4>Small Group - Mini</h4>
-						<?php ts_display_awards_table($hiscore_smallgroup_mini, 'High Scores - Mini Small Group'); ?>
-					</div>
-					<?php
-				}
 				$ts_hiscore_smallgroup_junior = ts_hiscore_smallgroup_junior($tour_id);
 				if(! empty($ts_hiscore_smallgroup_junior)){
 					?>
 					<div class="col-md-6">
 						<h4>Small Group - Junior</h4>
 						<?php ts_display_awards_table($ts_hiscore_smallgroup_junior, 'High Scores - Junior Small Group'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_smallgroup_teen = ts_hiscore_smallgroup_teen($tour_id);
-				if(! empty($ts_hiscore_smallgroup_teen)){
-					?>
-					<div class="col-md-6">
-						<h4>Small Group - Teen</h4>
-						<?php ts_display_awards_table($ts_hiscore_smallgroup_teen, 'High Scores - Teen Small Group'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_smallgroup_senior = ts_hiscore_smallgroup_senior($tour_id);
-				if(! empty($ts_hiscore_smallgroup_senior)){
-					?>
-					<div class="col-md-6">
-						<h4>Small Group - Senior</h4>
-						<?php ts_display_awards_table($ts_hiscore_smallgroup_senior, 'High Scores - Senior Small Group'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_smallgroup_pro = ts_hiscore_smallgroup_pro($tour_id);
-				if(! empty($ts_hiscore_smallgroup_pro)){
-					?>
-					<div class="col-md-6">
-						<h4>Small Group - Pro</h4>
-						<?php ts_display_awards_table($ts_hiscore_smallgroup_pro, 'High Scores - Pro Small Group'); ?>
-					</div>
-					<?php
-				}
-				?>
-			</div>
-			<div class="row" id="tabs-4">
-				<?php
-				$hiscore_largegroup_mini = ts_hiscore_largegroup_mini($tour_id);
-				if(! empty($hiscore_largegroup_mini)){
-					?>
-					<div class="col-md-6">
-						<h4>Large Group - Mini</h4>
-						<?php ts_display_awards_table($hiscore_largegroup_mini, 'High Scores - Mini Large Group'); ?>
 					</div>
 					<?php
 				}
@@ -2376,92 +2304,12 @@ function ts_display_results($tour_id) {
 					</div>
 					<?php
 				}
-				$ts_hiscore_largegroup_teen = ts_hiscore_largegroup_teen($tour_id);
-				if(! empty($ts_hiscore_largegroup_teen)){
-					?>
-					<div class="col-md-6">
-						<h4>Large Group - Teen</h4>
-						<?php ts_display_awards_table($ts_hiscore_largegroup_teen, 'High Scores - Teen Large Group'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_largegroup_senior = ts_hiscore_largegroup_senior($tour_id);
-				if(! empty($ts_hiscore_largegroup_senior)){
-					?>
-					<div class="col-md-6">
-						<h4>Large Group - Senior</h4>
-						<?php ts_display_awards_table($ts_hiscore_largegroup_senior, 'High Scores - Senior Large Group'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_largegroup_pro = ts_hiscore_largegroup_pro($tour_id);
-				if(! empty($ts_hiscore_largegroup_pro)){
-					?>
-					<div class="col-md-6">
-						<h4>Large Group - Pro</h4>
-						<?php ts_display_awards_table($ts_hiscore_largegroup_pro, 'High Scores - Pro Large Group'); ?>
-					</div>
-					<?php
-				}
-				?>
-			</div>
-			<div class="row" id="tabs-5">
-				<?php
-				$hiscore_line_mini = ts_hiscore_line_mini($tour_id);
-				if(! empty($hiscore_line_mini)){
-					?>
-					<div class="col-md-6">
-						<h4>Line - Mini</h4>
-						<?php ts_display_awards_table($hiscore_line_mini, 'High Scores - Mini Line'); ?>
-					</div>
-					<?php
-				}
 				$ts_hiscore_line_junior = ts_hiscore_line_junior($tour_id);
 				if(! empty($ts_hiscore_line_junior)){
 					?>
 					<div class="col-md-6">
 						<h4>Line - Junior</h4>
 						<?php ts_display_awards_table($ts_hiscore_line_junior, 'High Scores - Junior Line'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_line_teen = ts_hiscore_line_teen($tour_id);
-				if(! empty($ts_hiscore_line_teen)){
-					?>
-					<div class="col-md-6">
-						<h4>Line - Teen</h4>
-						<?php ts_display_awards_table($ts_hiscore_line_teen, 'High Scores - Teen Line'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_line_senior = ts_hiscore_line_senior($tour_id);
-				if(! empty($ts_hiscore_line_senior)){
-					?>
-					<div class="col-md-6">
-						<h4>Line - Senior</h4>
-						<?php ts_display_awards_table($ts_hiscore_line_senior, 'High Scores - Senior Line'); ?>
-					</div>
-					<?php
-				}
-				$ts_hiscore_line_pro = ts_hiscore_line_pro($tour_id);
-				if(! empty($ts_hiscore_line_pro)){
-					?>
-					<div class="col-md-6">
-						<h4>Line - Pro</h4>
-						<?php ts_display_awards_table($ts_hiscore_line_pro, 'High Scores - Pro Line'); ?>
-					</div>
-					<?php
-				}
-				?>
-			</div>
-			<div class="row" id="tabs-6">
-				<?php
-				$hiscore_production_mini = ts_hiscore_production_mini($tour_id);
-				if(! empty($hiscore_production_mini)){
-					?>
-					<div class="col-md-6">
-						<h4>Production - Mini</h4>
-						<?php ts_display_awards_table($hiscore_production_mini, 'High Scores - Mini Production'); ?>
 					</div>
 					<?php
 				}
@@ -2474,6 +2322,55 @@ function ts_display_results($tour_id) {
 					</div>
 					<?php
 				}
+				?>
+			</div>
+			<div class="row" id="tabs-3">
+				<?php
+				$ts_hiscore_solo_teen = ts_hiscore_solo_teen($tour_id);
+				if(! empty($ts_hiscore_solo_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_solo_teen, 'High Scores - Teen Solo'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_duotrio_teen = ts_hiscore_duotrio_teen($tour_id);
+				if(! empty($ts_hiscore_duotrio_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_duotrio_teen, 'High Scores - Teen Duo/Trio'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_smallgroup_teen = ts_hiscore_smallgroup_teen($tour_id);
+				if(! empty($ts_hiscore_smallgroup_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_smallgroup_teen, 'High Scores - Teen Small Group'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_largegroup_teen = ts_hiscore_largegroup_teen($tour_id);
+				if(! empty($ts_hiscore_largegroup_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_largegroup_teen, 'High Scores - Teen Large Group'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_line_teen = ts_hiscore_line_teen($tour_id);
+				if(! empty($ts_hiscore_line_teen)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Teen</h4>
+						<?php ts_display_awards_table($ts_hiscore_line_teen, 'High Scores - Teen Line'); ?>
+					</div>
+					<?php
+				}
 				$ts_hiscore_production_teen = ts_hiscore_production_teen($tour_id);
 				if(! empty($ts_hiscore_production_teen)){
 					?>
@@ -2483,12 +2380,110 @@ function ts_display_results($tour_id) {
 					</div>
 					<?php
 				}
+				?>
+			</div>
+			<div class="row" id="tabs-4">
+				<?php
+				$ts_hiscore_solo_senior = ts_hiscore_solo_senior($tour_id);
+				if(! empty($ts_hiscore_solo_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_solo_senior, 'High Scores - Senior Solo'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_duotrio_senior = ts_hiscore_duotrio_senior($tour_id);
+				if(! empty($ts_hiscore_duotrio_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_duotrio_senior, 'High Scores - Senior Duo/Trio'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_smallgroup_senior = ts_hiscore_smallgroup_senior($tour_id);
+				if(! empty($ts_hiscore_smallgroup_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_smallgroup_senior, 'High Scores - Senior Small Group'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_largegroup_senior = ts_hiscore_largegroup_senior($tour_id);
+				if(! empty($ts_hiscore_largegroup_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_largegroup_senior, 'High Scores - Senior Large Group'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_line_senior = ts_hiscore_line_senior($tour_id);
+				if(! empty($ts_hiscore_line_senior)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Senior</h4>
+						<?php ts_display_awards_table($ts_hiscore_line_senior, 'High Scores - Senior Line'); ?>
+					</div>
+					<?php
+				}
 				$ts_hiscore_production_senior = ts_hiscore_production_senior($tour_id);
 				if(! empty($ts_hiscore_production_senior)){
 					?>
 					<div class="col-md-6">
 						<h4>Production - Senior</h4>
 						<?php ts_display_awards_table($ts_hiscore_production_senior, 'High Scores - Senior Production'); ?>
+					</div>
+					<?php
+				}
+				?>
+			</div>
+			<div class="row" id="tabs-5">
+				<?php
+				$ts_hiscore_solo_pro = ts_hiscore_solo_pro($tour_id);
+				if(! empty($ts_hiscore_solo_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Solo - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_solo_pro, 'High Scores - Pro Solo'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_duotrio_pro = ts_hiscore_duotrio_pro($tour_id);
+				if(! empty($ts_hiscore_duotrio_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Duo/Trio - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_duotrio_pro, 'High Scores - Pro Duo/Trio'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_smallgroup_pro = ts_hiscore_smallgroup_pro($tour_id);
+				if(! empty($ts_hiscore_smallgroup_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Small Group - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_smallgroup_pro, 'High Scores - Pro Small Group'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_largegroup_pro = ts_hiscore_largegroup_pro($tour_id);
+				if(! empty($ts_hiscore_largegroup_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Large Group - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_largegroup_pro, 'High Scores - Pro Large Group'); ?>
+					</div>
+					<?php
+				}
+				$ts_hiscore_line_pro = ts_hiscore_line_pro($tour_id);
+				if(! empty($ts_hiscore_line_pro)){
+					?>
+					<div class="col-md-6">
+						<h4>Line - Pro</h4>
+						<?php ts_display_awards_table($ts_hiscore_line_pro, 'High Scores - Pro Line'); ?>
 					</div>
 					<?php
 				}
@@ -2678,51 +2673,85 @@ function ts_display_awards_table($routines, $title="") {
 
 function ts_scholarships_preview($scholarships, $studio_innovator) {
 	?>
-	<div id="scholarships-preview">
+	<div id="scholarships-preview" class="modal-body">
 		<?php
 		if($scholarships) {
 			?>
-			<h3>Scholarships:</h3>
-			<div class="scholarships-container">
-				<table class="ts-data-table" data-length="-1" data-exporttitle="Sunday Scholarships" data-exportcol="0,1,2,3,4" data-dom="rt<'table-footer clearfix'>">
-					<?php
-					if(! empty($scholarships)) {
-						?>
-						<thead>
-						<tr>
-							<th style="text-align: center;">#</th>
-							<th>Name</th>
-							<th>Age Division</th>
-							<th>Studio</th>
-							<th>Scholarship</th>
-						</tr>
-						</thead>
-						<tbody>
+			<div class="Results scholarships-container">
+				<h2 class="t-center">Scholarships</h2>
+				<div class="SchedTable">
+					<div class="TableCont">
 						<?php
-						foreach ($scholarships as $key=>$val) {
-							$id = $key;
-							if(empty($val)) continue;
+						if(! empty($scholarships)) {
 							?>
-							<tr id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
-								<td style="text-align: center;"><?php echo $val['number']; ?></td>
-								<td><?php echo get_the_title($id); ?></td>
-								<td><?php echo ts_participant_agediv($id); ?></td>
-								<td><?php echo ts_post_studio($id); ?></td>
-								<td><?php echo $val['title']; ?></td>
-							</tr>
+							<div class="TableHeading">
+								<div class="clearfix RowHeading">
+									<div>
+										<span>Name</span>
+									</div>
+									<div>
+										<span>Age Division</span>
+									</div>
+									<div>
+										<span>Studio</span>
+									</div>
+									<div>
+										<span>Scholarship</span>
+									</div>
+								</div>
+							</div>
+							<div class="TableBody t-center">
+							<?php
+							foreach ($scholarships as $key=>$val) {
+								$id = $key;
+								if(empty($val)) continue;
+								?>
+								<div class="clearfix">
+									<div>
+										<span><?php echo get_the_title($id); ?></span>
+									</div>
+									<div>
+										<span><?php echo ts_participant_agediv($id); ?></span>
+									</div>
+									<div>
+										<span><?php echo ts_post_studio($id); ?></span>
+									</div>
+									<div>
+										<span><?php echo $val['title']; ?></span>
+									</div>
+								</div>
+								<?php
+							}
+							?>
+							</div>
 							<?php
 						}
 						?>
-						</tbody>
-						<?php
-					}
-					?>
-				</table>
+					</div>
+				</div>
+				<h2 class="t-center">Studio Innovator</h2>
+				<div class="SchedTable OneCol">
+					<div class="TableCont">
+						<div class="TableHeading">
+							<div class="clearfix RowHeading">
+								<div class="col-xs-12">
+									<span>Studio Innovator</span>
+								</div>
+							</div>
+						</div>
+						<div class="TableBody t-center">
+							<div class="clearfix">
+								<div class="col-xs-12">
+									<span><?php echo $studio_innovator; ?></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<?php
 		}
 		?>
-		<h3>Studio Innovator: <strong><?php echo $studio_innovator; ?></strong></h3>
 	</div>	
 	<?php
 }
@@ -3125,21 +3154,21 @@ function ts_display_results_frontend() {
 					<tbody>
 						<tr>
 							<td>Choreography Award:</div>
-							<td style="text-align: center;"><?php echo $choreo12below_num; ?></div>
-							<td style="text-align: center;"><?php echo get_the_title($choreo12below_id);?></div>
-							<td style="text-align: center;"><?php echo ts_post_studio($choreo12below_id);?></div>
+							<td style="text-align: center;"><?php echo $choreo12below_num; ?></td>
+							<td style="text-align: center;"><?php echo get_the_title($choreo12below_id);?></td>
+							<td style="text-align: center;"><?php echo ts_post_studio($choreo12below_id);?></td>
 						</tr>
 						<tr>
-							<td>Judges Standout Nominee:</div>
-							<td style="text-align: center;"><?php echo $standnom12below_num; ?></div>
-							<td style="text-align: center;"><?php echo get_the_title($standnom12below_id);?></div>
-							<td style="text-align: center;"><?php echo ts_post_studio($standnom12below_id);?></div>
+							<td>Judges Standout Nominee:</td>
+							<td style="text-align: center;"><?php echo $standnom12below_num; ?></td>
+							<td style="text-align: center;"><?php echo get_the_title($standnom12below_id);?></td>
+							<td style="text-align: center;"><?php echo ts_post_studio($standnom12below_id);?></td>
 						</tr>
 						<tr>
-							<td>Judges Standout Winner:</div>
-							<td style="text-align: center;"><?php echo $standwin12below_num; ?></div>
-							<td style="text-align: center;"><?php echo get_the_title($standwin12below_id);?></div>
-							<td style="text-align: center;"><?php echo ts_post_studio($standwin12below_id);?></div>
+							<td>Judges Standout Winner:</td>
+							<td style="text-align: center;"><?php echo $standwin12below_num; ?></td>
+							<td style="text-align: center;"><?php echo get_the_title($standwin12below_id);?></td>
+							<td style="text-align: center;"><?php echo ts_post_studio($standwin12below_id);?></td>
 						</tr>
 					</tbody>
 				</table>
@@ -3155,22 +3184,22 @@ function ts_display_results_frontend() {
 					</thead>
 					<tbody>
 						<tr>
-							<td>Choreography Award:</div>
-							<td style="text-align: center;"><?php echo $choreo13above_num; ?></div>
-							<td style="text-align: center;"><?php echo get_the_title($choreo13above_id);?></div>
-							<td style="text-align: center;"><?php echo ts_post_studio($choreo13above_id);?></div>
+							<td>Choreography Award:</td>
+							<td style="text-align: center;"><?php echo $choreo13above_num; ?></td>
+							<td style="text-align: center;"><?php echo get_the_title($choreo13above_id);?></td>
+							<td style="text-align: center;"><?php echo ts_post_studio($choreo13above_id);?></td>
 						</tr>
 						<tr>
-							<td>Judges Standout Nominee:</div>
-							<td style="text-align: center;"><?php echo $standnom13above_num; ?></div>
-							<td style="text-align: center;"><?php echo get_the_title($standnom13above_id);?></div>
-							<td style="text-align: center;"><?php echo ts_post_studio($standnom13above_id);?></div>
+							<td>Judges Standout Nominee:</td>
+							<td style="text-align: center;"><?php echo $standnom13above_num; ?></td>
+							<td style="text-align: center;"><?php echo get_the_title($standnom13above_id);?></td>
+							<td style="text-align: center;"><?php echo ts_post_studio($standnom13above_id);?></td>
 						</tr>
 						<tr>
-							<td>Judges Standout Winner:</div>
-							<td style="text-align: center;"><?php echo $standwin13above_num; ?></div>
-							<td style="text-align: center;"><?php echo get_the_title($standwin13above_id);?></div>
-							<td style="text-align: center;"><?php echo ts_post_studio($standwin13above_id);?></div>
+							<td>Judges Standout Winner:</td>
+							<td style="text-align: center;"><?php echo $standwin13above_num; ?></td>
+							<td style="text-align: center;"><?php echo get_the_title($standwin13above_id);?></td>
+							<td style="text-align: center;"><?php echo ts_post_studio($standwin13above_id);?></td>
 						</tr>
 					</tbody>
 				</table>

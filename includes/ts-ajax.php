@@ -2799,7 +2799,7 @@ function ajax_load_routine_info() {
 
         $tour_routines = ts_tour_routines_ids($tour_id);
 
-        if(is_array($tour_routines) && ! empty($tour_routines) && $routine_number && ts_post_exists_by_id($routine_number)) {
+        if(is_array($tour_routines) && ! empty($tour_routines) && $routine_number) {
 			$args = array(
 				'post__in' => $tour_routines,
 				'posts_per_page' => 1,

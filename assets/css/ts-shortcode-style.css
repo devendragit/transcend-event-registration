@@ -34,7 +34,7 @@
     font-family: 'Omnes-Semibold';
     font-size: 14px;
     color: #000;
-    background-image: url(img/TableBg.png);
+    background-image: url(../images/TableBg.png);
     background-size: cover;
     background-repeat: repeat-y;
     background-position: center center;
@@ -231,4 +231,53 @@
 .highlight-red span {
     padding: 10px;
     display: block;
+}
+
+.Results .TableBody > .clearfix > div {
+    width: 25% !important;
+}
+
+.Results .TableHeading {
+    font-size: 16px;
+    padding: 10px;
+    text-align: center;
+}
+
+.Results .RowHeading > div {
+    float: left;
+    width: 25%;
+}
+
+.Results .SchedTable {
+    margin: 0;
+    font-size: 14px;
+}
+
+.Results .SchedTable .RowHeading {
+    background: none;
+}
+
+.Results h2 {
+    font-size: 1.75rem;
+    margin: 10px 0 20px;
+}
+.Results h2 ~ h2 {
+    margin: 55px 0 20px;
+}
+
+.Results .TableBody > .clearfix > div {
+    border-right: 0 !important;
+}
+
+.Results .ThreeCol .TableBody > .clearfix > div {
+    width: 33.33333333% !important;
+}
+
+.Results .ThreeCol .RowHeading > div {
+    width: 33.33333333%;
+}
+
+.overall-container .row {
+    display: flex;
+    flex-wrap: wrap;
 }
