@@ -634,8 +634,8 @@ function ts_workshopentries_page() {
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-workshop-entries', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<?php if($tour_id) { ?>	
-			<table style="width: 100%;" id="entries-list" class="ts-data-table" data-length="25"  data-filter="true" data-colfilter="[5,2]" data-exporttitle="Workshop Registrations" data-exportcol="1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
+			<?php if($tour_id) { ?>
+			<table style="width: 100%;" id="entries-list" class="ts-data-table" data-length="25"  data-filter="true" data-colfilter="[5,2]" data-exporttitle="Workshop Registrations" data-exportcol="0,1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
 					<th>#</th>
@@ -652,6 +652,8 @@ function ts_workshopentries_page() {
 					'meta_key' => 'tour_city',
 					'meta_value' => $tour_id,
 					'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
+					'orderby'=> 'title',
+					'order' => 'ASC'
 				);
 				$entries = ts_get_posts('ts_entry', -1, $args);
 				if($entries) {
@@ -672,14 +674,13 @@ function ts_workshopentries_page() {
 						if(! empty($participants)) {
 							$participants_ids  = array_keys($participants);
 							$participantsArray = array_merge($participants_ids, $participantsArray);
-						}	
+						}
 					}
 					if(! empty($participantsArray) ){
 						$participantsArray = ts_trim_duplicate($participantsArray);
 						$args = array(
 							'meta_key' => 'age_cat_order',
-							'orderby' => 'meta_value_num',
-							'order' => 'ASC',								
+							'orderby'=> 'title', 'order' => 'ASC',
 							'include' => $participantsArray,
 						);
 						$roster_posts = ts_get_posts(array('ts_studio_roster', 'ts_sibling'), -1, $args);
@@ -703,13 +704,13 @@ function ts_workshopentries_page() {
 								</tr>
 								<?php
 							}
-						}	
+						}
 					}
 				}
 				else{
 					echo '<tr><td colspan="6" align="center">No Workshop Participants Found</td></tr>';
 				}
-				?>	
+				?>
 				</tbody>
 				<tfoot>
 				<tr>
@@ -735,7 +736,7 @@ function ts_competitionentries_page() {
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-competition-entries', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
 			<?php if($tour_id) { ?>	
-			<table id="entries-list" class="ts-data-table" data-length="25" data-filter="true" data-colfilter="[5,3,4]" data-exporttitle="Competition Registrations" data-exportcol="1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
+			<table id="entries-list" class="ts-data-table" data-length="25" data-filter="true" data-colfilter="[5,3,4]" data-exporttitle="Competition Registrations" data-exportcol="0,1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
 				<thead>
 				<tr>
 					<th>#</th>
@@ -805,14 +806,14 @@ function ts_competitionentries_page() {
 							$cat_name 	= $categories[$cat]['title'];
 							$dancers 	= get_post_meta($rpid, 'dancers', true);
 							$dancers_array  = is_array($dancers) ? $dancers : explode(",", $dancers);
-							$dancers_string = '';
+							$dancers_string = array();
 							$ids = $dancers_array;
 							$count_d = count($ids);
 							$age_total = 0;
 							if(! empty($ids)){
 								foreach ($ids as $d) {
 									if(ts_post_exists_by_id($d)){
-										$dancers_string.= get_the_title($d) .', ';
+										$dancers_string[]= get_the_title($d);
 										$birth_date = get_post_meta($d, 'birth_date', true);
 										$age = ts_get_the_age($birth_date);
 										$age_total = $age_total + $age;
@@ -827,6 +828,7 @@ function ts_competitionentries_page() {
 							$musictitle = $musicid ? get_the_title($musicid) : false;
 							$agediv = get_term_by('name', $agediv_name, 'ts_agediv');
 							//$num = get_term_meta($agediv->term_id, 'div_order', true);
+							$dancers_string = implode(',', $dancers_string);
 							?>
 							<tr id="item-<?php echo $entry_id; ?>">
 								<td><?php echo $count; ?></td>
@@ -1325,7 +1327,6 @@ function ts_post_competition_schedule() {
 					<div class="col-md-12 t-right">
 						<button class="btn btn-red btn-resetschedule" data-id="<?php echo $schedule_id; ?>" data-return="<?php echo admin_url('admin.php?page=ts-edit-competition-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>">Reset</button>&nbsp;&nbsp;
 						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>&nbsp;&nbsp;
-						<!-- <a href="javascript:void(0)" class="btn btn-green btn-downloadschedule">Print</a> -->
 					</div>
 				</div>
 				<?php
@@ -1618,6 +1619,7 @@ function ts_scholarships_page() {
 							?>
 							<div class="row table-head">
 								<div class="col-sm-1 t-center"><strong>#</strong></div>
+
 								<div class="col-sm-2"><strong>Name</strong></div>
 								<div class="col-sm-2"><strong>Age Division</strong></div>
 								<div class="col-sm-2"><strong>Studio</strong></div>
@@ -1639,14 +1641,14 @@ function ts_scholarships_page() {
 												<option value="">Select Name</option>
 												<?php
 												foreach ($participantsArray as $key=>$value) {
-													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';
+													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';                    
 												}
 												?>
 											</select>
 										</div>
 										<div class="col-sm-2 age-division"><?php echo ts_participant_agediv($id); ?></div>
 										<div class="col-sm-2 studio-name"><?php echo ts_post_studio($id); ?></div>
-										<div class="col-sm-3 participant-scholarship">
+                    <div class="col-sm-3 participant-scholarship">
 											<input type="text" name="scholarships[<?php echo $id; ?>][title]" value="<?php echo $val['title']; ?>">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1666,7 +1668,7 @@ function ts_scholarships_page() {
 								<div class="col-sm-2"><strong>Name</strong></div>
 								<div class="col-sm-2"><strong>Age Division</strong></div>
 								<div class="col-sm-2"><strong>Studio</strong></div>
-								<div class="col-sm-3"><strong>Scholarship</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>                
 								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
 							</div>
 							<div class="scholarship-container table-body">
@@ -1683,14 +1685,14 @@ function ts_scholarships_page() {
 												<option value="">Select Name</option>
 												<?php
 												foreach ($participantsArray as $key=>$value) {
-													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';
+													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';                    
 												}
 												?>
 											</select>
 										</div>
 										<div class="col-sm-2 age-division"></div>
 										<div class="col-sm-2 studio-name"></div>
-										<div class="col-sm-3 participant-scholarship">
+                    <div class="col-sm-3 participant-scholarship">
 											<input type="text" class="scholarship-item" name="scholarships[][title]" value="">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1726,7 +1728,7 @@ function ts_scholarships_page() {
 						    }
 						}							
 						?>
-					</select>					
+					</select>	          
 					<div class="form-footer-btns">
 						<input type="hidden" name="tour_city" value="<?php echo $tour_id; ?>">
 						<input class="btn btn-green" type="submit" value="Save Changes" />
@@ -1736,7 +1738,7 @@ function ts_scholarships_page() {
 			</form>
 			<div style="display: none;">
 				<?php ts_scholarships_preview($scholarships, $studio_innovator); ?>
-			</div>	
+			</div>	      
 		</div>
 	</div>
 	<?php	

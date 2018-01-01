@@ -64,7 +64,7 @@ add_action('ts_autodelete_credit','ts_autodelete_credit_cron_job', 10 ,1 );
 add_action('publish_results', 'ts_tour_results_notification', 10, 1);
 add_action('ts_cron_jobs', 'ts_auto_delete_music_cron', 10, 1);
 //add_action('competition_schedule_updated', 'ts_competition_schedule_updated', 10, 1);
-//add_action('competition_schedule_updated', 'ts_save_routine_number', 10, 1);
+add_action('competition_schedule_updated', 'ts_save_routine_number', 10, 1);
 //add_action('competition_score_updated', 'ts_competition_score_updated', 10, 1);
 //add_action('save_routine_scores', 'ts_save_routine_total_score', 10, 1);
 
@@ -162,6 +162,8 @@ function ts_register_ts_scripts() {
         wp_register_script('jquery-moment', TS_URI .'assets/js/moment.min.js', array('jquery'), '', true);
         wp_register_script('bootstrap', TS_URI .'assets/js/bootstrap.min.js', array('jquery'), '', true);
         wp_register_script('printThis', TS_URI .'assets/js/printThis.js', array('jquery'), '', true);
+		wp_register_script('html2canvas', TS_URI .'assets/js/html2canvas.min.js', array('jquery'), '', false);
+		wp_register_script('jspdf', TS_URI .'assets/js/jspdf.min.js', array('jquery'), '', false);
         wp_register_script('ts-custom-script', TS_URI .'assets/js/ts-custom-script.js', array('jquery', 'jquery-ui-core'), '', false);
         wp_register_script('ts-shortcode-script', TS_URI .'assets/js/ts-shortcode-script.js', array('jquery', 'jquery-ui-core'), '', false);
     }
@@ -202,6 +204,8 @@ function ts_enqueue_admin_scripts() {
             wp_enqueue_script('vfs-fonts');
             wp_enqueue_script('bootstrap');
             wp_enqueue_script('printThis');
+			//wp_enqueue_script('html2canvas');
+			//wp_enqueue_script('jspdf');
             wp_enqueue_script('ts-custom-script');
         }
         wp_enqueue_style('ts-admin-style');

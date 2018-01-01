@@ -316,7 +316,7 @@ function ts_my_results_preview() {
 	}
 	?>
 	<div id="results-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-my-results', $tour_id, false, $include); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-my-results', $tour_id, false, $include); ?></h1>  
 		<div class="ts-admin-wrapper results-wrapper">
 			<?php
 			if($tour_id) { ?>
@@ -444,7 +444,7 @@ function ts_results_preview() {
 	$include = ts_user_tour();
 	if(! $tour_id) {
 		$tour_id = $include[0];
-	}
+	}  
 	if(is_admin()) {
 		$base_url = admin_url('admin.php?page=ts-results');
 	}
@@ -453,7 +453,7 @@ function ts_results_preview() {
 	}
 	?>
 	<div id="results-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?>  <?php ts_select_tour_city($base_url, $tour_id, false, $include); ?></h1>
+    <h1 class="admin-page-title"><?php echo get_admin_page_title(); ?>  <?php ts_select_tour_city($base_url, $tour_id, false, $include); ?></h1>
 		<div class="ts-admin-wrapper results-wrapper">
 			<?php ts_display_results_frontend($tour_id); ?>
 		</div>

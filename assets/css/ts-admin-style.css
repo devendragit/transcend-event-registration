@@ -29,7 +29,8 @@ body.custom-user #wpadminbar * {
 .custom-user .user-googleplus-wrap,
 .custom-user .user-twitter-wrap,
 .custom-user .user-facebook-wrap,
-.custom-user #toplevel_page_ts-entry-pay-invoice{
+.custom-user #toplevel_page_ts-entry-pay-invoice
+#entries-list_column-filter select option:last-child{
     display: none;
 }
 #profile-page h2 {
