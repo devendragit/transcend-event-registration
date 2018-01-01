@@ -38,7 +38,7 @@ function ts_my_entries_page() {
 				<button type="submit" class="btn btn-green btn-new-registration">Register</button>
 			</form>
 		</div>
-		<h2 class="admin-sub-title">Current Registrations</h2>
+		<h2 class="admin-sub-title">My Registrations</h2>
 		<div class="ts-admin-wrapper entries-wrapper">
 			<table id="entries-list" class="ts-data-table" data-length="10" data-sort="asc">
 				<thead>
@@ -46,6 +46,7 @@ function ts_my_entries_page() {
 						<th class="hidden">#</th>
 						<th>City</th>
 						<th style="text-align:center;">Status</th>
+						<th style="text-align:center; width: 70px;">Schedules</th>
 						<th style="text-align:center; width: 60px;">Results</th>
 						<th style="text-align:center; width: 150px;">Actions</th>
 					</tr>
@@ -79,7 +80,18 @@ function ts_my_entries_page() {
 								<td style="text-align:center;"><?php echo $status->label; ?></td>
 								<td style="text-align: center;">
 									<?php 
-									if($results_status=='publish') { ?>
+									if($results_status=='publish' && $status->label=='Complete') { ?>
+										<a class="btn btn-green" href="<?php echo admin_url('admin.php?page=ts-my-schedules&tour='. $tour_city); ?>"><small>View</small></a>
+									<?php 
+									}
+									else { ?>
+										<span class="btn btn-gray"><small>View</small></span>
+									<?php 
+									} ?>
+								</td>
+								<td style="text-align: center;">
+									<?php 
+									if($results_status=='publish' && $status->label=='Complete') { ?>
 										<a class="btn btn-green" href="<?php echo admin_url('admin.php?page=ts-my-results&tour='. $tour_city); ?>"><small>View</small></a>
 									<?php 
 									}
@@ -177,86 +189,66 @@ function ts_post_entry_page() {
 }
 
 function ts_mysched_preview() {
+	$user_id = get_current_user_id();
+	$tour_id = ts_get_param('tour');
+	$include = ts_user_tour();
+	if(! $tour_id) {
+		$tour_id = $include[0];
+	}	
 	?>
 	<div id="schedules-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-my-results', $tour_id, false, $include); ?></h1>
 		<div class="ts-admin-wrapper schedules-wrapper">
 			<?php 
-	        $args = array(
-	            'post_status' => array('paid', 'paidcheck'),
-	            'meta_key' => 'tour_date',
-	            'meta_type' => 'DATE',
-	            'orderby' => 'meta_value',
-	            'order' => 'ASC',
-	        );
-	        $my_entries = ts_get_user_posts('ts_entry', -1, false, $args);
-	        if($my_entries) {
-	            $city_array = array();
-	            $routines_array = array();
-	            foreach ($my_entries as $entry) {
-	                setup_postdata($entry);
-	                $entry_id = $entry->ID;
-	                $workshop = get_post_meta($entry_id, 'workshop', true);
-	                $tour_city = absint($workshop['tour_city']);
-	                if(! in_array($tour_city, $city_array)) {
-	                	$city_array[] = $tour_city;
-	            	}
-	                $competition = get_post_meta($entry_id, 'competition', true);
-	                $routines = $competition['routines'];
-	                if(! empty($routines)) {
-		                $routine_ids = array_keys($routines);
-		                $routines_array = array_merge($routine_ids, $routines_array); 
-	                }
-	            } 
+            $routines_array = ts_tour_routines_ids($tour_id, $user_id);
 
-				$args = array(
-					'meta_query' => array(
-						array(
-							'key'     => 'event_city',
-							'value'   => $city_array,
-							'compare' => 'IN',
-						),
+			$args = array(
+				'meta_query' => array(
+					array(
+						'key'     => 'event_city',
+						'value'   => $tour_id,
+						'compare' => '=',
 					),
-					'tax_query' => array(
-						array(
-							'taxonomy' => 'ts_schedules_type',
-							'field'    => 'slug',
-							'terms'    => 'workshop',
-						),
+				),
+				'tax_query' => array(
+					array(
+						'taxonomy' => 'ts_schedules_type',
+						'field'    => 'slug',
+						'terms'    => 'workshop',
 					),
-				);
+				),
+			);
 
-	        	$workshop_schedules = ts_get_posts('ts_event', -1, $args);
+        	$workshop_schedules = ts_get_posts('ts_event', -1, $args);
 
-	        	if(! empty($workshop_schedules))
-	        		echo '<h1 class="t-center mysched-heading">Workshop</h1>';
+        	if(! empty($workshop_schedules))
+        		echo '<h1 class="t-center mysched-heading">Workshop</h1>';
 
-	        	ts_display_workshop_schedules($workshop_schedules);
+        	ts_display_workshop_schedules($workshop_schedules);
 
-				$args = array(
-					'meta_query' => array(
-						array(
-							'key'     => 'event_city',
-							'value'   => $city_array,
-							'compare' => 'IN',
-						),
+			$args = array(
+				'meta_query' => array(
+					array(
+						'key'     => 'event_city',
+						'value'   => $tour_id,
+						'compare' => '=',
 					),
-					'tax_query' => array(
-						array(
-							'taxonomy' => 'ts_schedules_type',
-							'field'    => 'slug',
-							'terms'    => 'competition',
-						),
+				),
+				'tax_query' => array(
+					array(
+						'taxonomy' => 'ts_schedules_type',
+						'field'    => 'slug',
+						'terms'    => 'competition',
 					),
-				);
+				),
+			);
 
-	        	$competition_schedules = ts_get_posts('ts_event', -1, $args);
+        	$competition_schedules = ts_get_posts('ts_event', -1, $args);
 
-	        	if(! empty($competition_schedules))
-	        		echo '<h1 class="t-center mysched-heading">Competition</h1>';
+        	if(! empty($competition_schedules))
+        		echo '<h1 class="t-center mysched-heading">Competition</h1>';
 
-	        	ts_display_competition_schedules($competition_schedules, $routines_array);
-	        }
+        	ts_display_user_competition_schedules($competition_schedules, $routines_array);
 	        ?>
 		</div>
 	</div>	
@@ -318,9 +310,13 @@ function ts_my_results_preview() {
 	$tour_id = ts_get_param('tour');
 	$user_id = get_current_user_id();
 	$critiques_status = get_post_meta($tour_id, 'critiques_status', true);
+	$include = ts_user_tour();
+	if(! $tour_id) {
+		$tour_id = $include[0];
+	}
 	?>
 	<div id="results-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-my-results', $tour_id); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-my-results', $tour_id, false, $include); ?></h1>  
 		<div class="ts-admin-wrapper results-wrapper">
 			<?php
 			if($tour_id) { ?>
@@ -445,6 +441,10 @@ function ts_my_results_preview() {
 
 function ts_results_preview() {
 	$tour_id = ts_get_param('tour');
+	$include = ts_user_tour();
+	if(! $tour_id) {
+		$tour_id = $include[0];
+	}  
 	if(is_admin()) {
 		$base_url = admin_url('admin.php?page=ts-results');
 	}
@@ -453,9 +453,9 @@ function ts_results_preview() {
 	}
 	?>
 	<div id="results-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?>  <?php ts_select_tour_city($base_url, $tour_id); ?></h1>
+    <h1 class="admin-page-title"><?php echo get_admin_page_title(); ?>  <?php ts_select_tour_city($base_url, $tour_id, false, $include); ?></h1>
 		<div class="ts-admin-wrapper results-wrapper">
-			<?php ts_display_results_frontend(); ?>
+			<?php ts_display_results_frontend($tour_id); ?>
 		</div>
 	</div>
 	<?php	

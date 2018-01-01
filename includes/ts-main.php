@@ -74,13 +74,13 @@ add_action('competition_schedule_updated', 'ts_save_routine_number', 10, 1);
 //add_action('init', 'ts_create_terms', 11);
 //add_action('init', 'ts_create_tour_posts');
 //add_action('init', 'ts_update_entry');
-add_action('init', 'ts_update_agedivs');
-add_action('init', 'ts_update_agediv_fees');
-add_action('init', 'ts_update_agediv_order');
-add_action('init', 'ts_update_roster_agedivs');
-add_action('init', 'ts_update_roster_order');
-add_action('init', 'ts_update_tour_posts');
-add_action('init', 'ts_update_entries');
+//add_action('init', 'ts_update_agedivs');
+//add_action('init', 'ts_update_agediv_fees');
+//add_action('init', 'ts_update_agediv_order');
+//add_action('init', 'ts_update_roster_agedivs');
+//add_action('init', 'ts_update_roster_order');
+//add_action('init', 'ts_update_tour_posts');
+//add_action('init', 'ts_update_entries');
 add_action('init', 'ts_update_routines');
 
 /* Remove */

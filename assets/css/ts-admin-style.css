@@ -214,7 +214,25 @@ table.dataTable tfoot td select {
 .score_settings [data-name="score"]{
     display: none !important;
 }
-
+.schedule_settings .acf-field-59ce7b4a2bdce {
+    width: 16.4% !important;
+}
+.schedule_settings .acf-field-34ce7b4a2bdcf,
+.schedule_settings .acf-field-74ce7b4a2bdcg,
+.schedule_settings .acf-field-44ce7b4a2bdch,
+.schedule_settings .acf-field-54ce7b4a2bdci,
+.schedule_settings .acf-field-64ce7b4a2bdcj {
+    width: 13.3% !important;
+}
+#schedules-page .CompetitionSched .dataTables_filter {
+    display: none;
+}
+.SampleSched .SchedTable {
+    margin-right: 0;
+}
+.modal-dialog .CompetitionSched.SchedTable:first-child {
+    margin-top: 0;
+}
 .display-individual-day-awards {
     text-align: center;
 }
@@ -277,12 +295,10 @@ table.dataTable thead td {
     font-weight: normal;
     outline:none;
 }
-
 .display-individual-day-awards .ui-widget.ui-widget-content {
     border: 0px;
     background: #fff !important;
 }
-
 .display-individual-day-awards ul.TabList {
     padding: 0 0 0 0px !important;
     border-bottom: 1px solid #babbbe;
@@ -292,7 +308,6 @@ table.dataTable thead td {
     border-right: 0px;
     border-left: 0px;
 }
-
 .display-individual-day-awards ul.TabList li a {
     display: block;
     font-size: 14px;
@@ -306,7 +321,6 @@ table.dataTable thead td {
     outline:none;
     box-shadow: none;
 }
-
 .display-individual-day-awards .ui-state-default,
 .display-individual-day-awards .ui-widget-content .ui-state-default,
 .display-individual-day-awards .ui-widget-header .ui-state-default,
@@ -316,42 +330,34 @@ html .display-individual-day-awards .ui-button.ui-state-disabled:active {
     border: none;
     background: #fff;
 }
-
 .display-individual-day-awards ul.TabList li:hover a,
 .display-individual-day-awards ul.TabList li.ui-state-active a {
     color: #000;
     border-bottom: 1px solid #fff;
 }
-
 .display-individual-day-awards .ui-tabs .ui-tabs-panel {
     padding: 0px;
 }
-
 .display-individual-day-awards .Results h3 {
     font-size: 20px;
     margin: 40px 0 0px;
     text-align: left;
     font-family: 'Omnes-Semibold';
 }
-
 .Results .RowHeading > div {
     float: left;
     width: 20%;
 }
-
 .display-individual-day-awards + .display-individual-day-awards {
     margin-top: 60px;
 }
-
 .Results .TableBody > .clearfix > div {
     border-right: 0 !important;
     width: 20% !important;
 }
-
 .Results .ThreeCol .TableBody > .clearfix > div {
     width: 33.33333333% !important;
 }
-
 .Results .ThreeCol .RowHeading > div {
     width: 33.33333333%;
 }
@@ -572,20 +578,27 @@ tr.acf-field[data-name="email"] {
     margin: 0;
     padding: 5px 10px;
 }
-
+.buttons-pdf.processing {
+    color: #000 !important;
+}
+.buttons-pdf.processing:after {
+    display: none !important;
+}
 /* =Responsive Structure
 ----------------------------------------------- */
-
 @-ms-viewport {
     width: device-width;
 }
-
 @viewport {
     width: device-width;
 }
+@media screen and (min-width: 1170px) {
+    .modal-dialog {
+        width: 1170px;
+    }
 
+}
 @media screen and (max-width: 1280px) {
-
     .dataTables_column-filter {
         float: none;
         margin-bottom: 10px;

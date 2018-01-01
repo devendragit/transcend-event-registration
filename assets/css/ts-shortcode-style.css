@@ -40,6 +40,7 @@
     background-position: center center;
     border-radius: 16px;
     border: 3px solid #cecece;
+    overflow: hidden;
 }
 .TableHeading {
     font-size: 14px;
@@ -50,14 +51,23 @@
     font-family: 'Omnes-Semibold';
     border-radius: 14px 14px 0 0;
 }
-.CompetitionSched .SchedTable {
+.CompetitionSched.SchedTable {
     font-family: 'Omnes-Medium';
 }
-
+.CompetitionSched .dataTables_wrapper {
+    margin: 0;
+}
+.CompetitionSched .dataTables_wrapper .dt-buttons {
+    margin-top: -48px;
+    margin-right: 10px;
+}
+.CompetitionSched .dataTables_filter {
+    margin-top: -48px;
+    margin-right: 138px;
+}
 .TableBody > .clearfix {
     border-bottom: 1px solid #d2d1d1;
 }
-
 .TableBody > .clearfix:last-child {
     border-bottom: 0;
 }
@@ -68,11 +78,12 @@
     padding: 6px 6px;
     float: left;
 }
-
 .SampleSched .SchedTable {
     font-size: 14px;
     text-align: center;
     margin-right: 30px;
+    margin-top: 15px;
+    margin-bottom: 30px;    
     overflow: hidden;
 }
 .modal-dialog .SampleSched .SchedTable {
@@ -217,10 +228,6 @@
 
 .CompetitionSched .HeaderLinks .pull-right {
     margin-top: -20px;
-}
-.SampleSched .SchedTable {
-    margin-top: 15px;
-    margin-bottom: 30px;    
 }
 .SchedTable .highlighted-row {
     background-color: #fff6ba;

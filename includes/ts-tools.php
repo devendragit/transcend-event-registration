@@ -382,7 +382,7 @@ function ts_is_tour_close($tour_id) {
 	return ($date_from && ts_get_days_before_date($date_from) <= 0) || $status==2 ? true : false;
 }
 
-function ts_tour_routines_ids($tour_id) {
+function ts_tour_routines_ids($tour_id, $user_id=false) {
 
 	$args = array(
 		'post_status' => array('paid', 'paidcheck'),
@@ -394,6 +394,10 @@ function ts_tour_routines_ids($tour_id) {
 			),
 		),
 	);
+
+	if($user_id) {
+		$args['author'] = $user_id;
+	}
 
 	$entries = ts_get_posts('ts_entry', -1, $args);
 
@@ -510,6 +514,7 @@ function ts_participant_agediv($participant_id) {
 }
 
 function ts_participant_number($participant_id) {
+	
 	return get_post_meta($participant_id, 'participant_number', true);
 }
 
@@ -537,6 +542,7 @@ function ts_get_routine_by_num($routine_number, $tour_id) {
 		return false;
 	}
 }
+
 function ts_import_studios(){
 
 	$file = TS_LIBRARIES .'studios.csv'; 
@@ -959,6 +965,9 @@ function ts_update_routines() {
             setup_postdata($routine);
             $id = $routine->ID;
             $agediv = get_post_meta($id, 'agediv', true);
+            if($agediv=='Munchkin'){
+	            update_post_meta($id, 'agediv', 'Mini');
+            }
             $term = get_term_by('name', $agediv, 'ts_agediv');
             $agediv_order = get_term_meta($term->term_id, 'div_order', true);
             update_post_meta($id, 'agediv_order', $agediv_order);

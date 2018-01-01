@@ -900,7 +900,7 @@ function ts_tours_page() {
 	<div id="tours-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addtour" href="javascript:void(0);">Add New</a></h1>
 		<div class="ts-admin-wrapper tours-wrapper">
-			<table id="tours-list" class="ts-data-table" data-length="10" data-sort="asc" data-orderby="2">
+			<table id="tours-list" class="ts-data-table" data-length="10">
 				<thead>
 				<tr>
 					<th style="text-align:left;">Title</th>
@@ -915,7 +915,13 @@ function ts_tours_page() {
 				</thead>
 				<tbody>
 				<?php
-				$tours = ts_get_posts('ts_tour');
+				$args = array(
+					'meta_key' => 'date_from',
+					'meta_type' => 'DATE',
+					'orderby' => 'meta_value',
+					'order' => 'ASC',
+				);
+				$tours = ts_get_posts('ts_tour', -1, $args);
 				if($tours) {
 					foreach ($tours as $tour) {
 						setup_postdata($tour);
@@ -966,7 +972,7 @@ function ts_tours_page() {
 								<a title="delete" href="javascript:void(0);"
 								   class="btn btn-red btn-delete"
 								   data-id="<?php echo $tour_id; ?>"
-								   data-type="post"
+								   data-type="tour"
 								><small>Delete</small></a>
 							</td>
 						</tr>
@@ -1321,8 +1327,6 @@ function ts_post_competition_schedule() {
 					<div class="col-md-12 t-right">
 						<button class="btn btn-red btn-resetschedule" data-id="<?php echo $schedule_id; ?>" data-return="<?php echo admin_url('admin.php?page=ts-edit-competition-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>">Reset</button>&nbsp;&nbsp;
 						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>&nbsp;&nbsp;
-						<a href="javascript:void(0)" class="btn btn-green btn-downloadschedule">Print</a>
-						<!--<a href="javascript:void(0)" class="btn btn-green btn-downloadpdfschedule">Download</a>-->
 					</div>
 				</div>
 				<?php
@@ -1351,8 +1355,7 @@ function ts_post_competition_schedule() {
 						</div>
 						<div id="downloadschedule" class="modal-body">
 							<?php 
-							$schedule = get_post($schedule_id);
-							ts_display_competition_schedules(array($schedule)); 
+							ts_display_competition_schedules2(array($schedule)); 
 							?>
 						</div>
 					</div>
@@ -1616,10 +1619,11 @@ function ts_scholarships_page() {
 							?>
 							<div class="row table-head">
 								<div class="col-sm-1 t-center"><strong>#</strong></div>
-								<div class="col-sm-3"><strong>Name</strong></div>
+
+								<div class="col-sm-2"><strong>Name</strong></div>
 								<div class="col-sm-2"><strong>Age Division</strong></div>
 								<div class="col-sm-2"><strong>Studio</strong></div>
-								<div class="col-sm-2"><strong>Scholarship</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>
 								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
 							</div>
 							<div class="scholarship-container table-body">
@@ -1632,21 +1636,19 @@ function ts_scholarships_page() {
 										<div class="col-sm-1 participant-number">
 											<input type="text" class="scholarship-num t-center" name="scholarships[<?php echo $id; ?>][number]" value="<?php echo $val['number']; ?>">
 										</div>
-										<div class="col-sm-3 participant-name">
+										<div class="col-sm-2 participant-name">
 											<select class="scholarship" data-id="<?php echo $id; ?>">
 												<option value="">Select Name</option>
 												<?php
-												$counter = 1;
 												foreach ($participantsArray as $key=>$value) {
-													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $counter .' - '.$value .'</option>';
-													$counter++;
+													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';                    
 												}
 												?>
 											</select>
 										</div>
 										<div class="col-sm-2 age-division"><?php echo ts_participant_agediv($id); ?></div>
 										<div class="col-sm-2 studio-name"><?php echo ts_post_studio($id); ?></div>
-										<div class="col-sm-2 participant-scholarship">
+                    <div class="col-sm-3 participant-scholarship">
 											<input type="text" name="scholarships[<?php echo $id; ?>][title]" value="<?php echo $val['title']; ?>">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1663,10 +1665,10 @@ function ts_scholarships_page() {
 							?>
 							<div class="row table-head">
 								<div class="col-sm-1 t-center"><strong>#</strong></div>
-								<div class="col-sm-3"><strong>Name</strong></div>
+								<div class="col-sm-2"><strong>Name</strong></div>
 								<div class="col-sm-2"><strong>Age Division</strong></div>
 								<div class="col-sm-2"><strong>Studio</strong></div>
-								<div class="col-sm-2"><strong>Scholarship</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>                
 								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
 							</div>
 							<div class="scholarship-container table-body">
@@ -1678,21 +1680,19 @@ function ts_scholarships_page() {
 										<div class="col-sm-1 participant-number">
 											<input type="text" class="scholarship-num t-center" name="scholarships[][number]" value="">
 										</div>
-										<div class="col-sm-3 participant-name">
+										<div class="col-sm-2 participant-name">
 											<select class="scholarship" data-id="<?php echo $id; ?>">
 												<option value="">Select Name</option>
 												<?php
-												$counter = 1;
 												foreach ($participantsArray as $key=>$value) {
-													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $counter .' - '. $value .'</option>';
-													$counter++;
+													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';                    
 												}
 												?>
 											</select>
 										</div>
 										<div class="col-sm-2 age-division"></div>
 										<div class="col-sm-2 studio-name"></div>
-										<div class="col-sm-2 participant-scholarship">
+                    <div class="col-sm-3 participant-scholarship">
 											<input type="text" class="scholarship-item" name="scholarships[][title]" value="">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1710,10 +1710,25 @@ function ts_scholarships_page() {
 					</div>
 					<?php
 					$studio_innovator_id = get_post_meta($tour_id, 'studio_innovator_id', true);
-					$studio_innovator = $studio_innovator_id ? get_field('studio', 'user_' . $studio_innovator_id) : '';
 					?>
 					<br /><br />
-					<h3>Studio Innovator:<input type="text" name="studio_innovator" value="<?php echo $studio_innovator; ?>"></h3>
+					<h3>Studio Innovator:</h3>
+					<select name="studio_innovator" id="studio_innovator">
+						<option value="">Select Studio</option>
+						<?php
+						$args = array(
+							'role' => 'studio',
+						 ); 
+						$users = get_users($args);
+						if($users) {
+						     foreach ($users as $key => $user) {
+						     	$user_id = $user->ID;
+						        $studio = get_field('studio', 'user_'. $user_id);
+								echo '<option value="'. $user_id .'" '. ( $user_id==$studio_innovator_id ? 'selected' : '' ) .'>'. $studio .'</option>';
+						    }
+						}							
+						?>
+					</select>	          
 					<div class="form-footer-btns">
 						<input type="hidden" name="tour_city" value="<?php echo $tour_id; ?>">
 						<input class="btn btn-green" type="submit" value="Save Changes" />
@@ -1721,17 +1736,9 @@ function ts_scholarships_page() {
 				<?php 
 				} ?>
 			</form>
-			<div id="popup-scholarships-preview" class="modal fade" role="dialog">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal">&times;</button>
-							<h4 class="modal-title">Scholarships</h4>
-						</div>
-						<?php ts_scholarships_preview($scholarships, $studio_innovator); ?>
-					</div>
-				</div>
-			</div>
+			<div style="display: none;">
+				<?php ts_scholarships_preview($scholarships, $studio_innovator); ?>
+			</div>	      
 		</div>
 	</div>
 	<?php	
