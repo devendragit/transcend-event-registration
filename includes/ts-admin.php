@@ -898,7 +898,7 @@ function ts_tours_page() {
 	<div id="tours-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?><a class="btn btn-blue btn-addtour" href="javascript:void(0);">Add New</a></h1>
 		<div class="ts-admin-wrapper tours-wrapper">
-			<table id="tours-list" class="ts-data-table" data-length="10" data-sort="asc" data-orderby="2">
+			<table id="tours-list" class="ts-data-table" data-length="10">
 				<thead>
 				<tr>
 					<th style="text-align:left;">Title</th>
@@ -913,7 +913,13 @@ function ts_tours_page() {
 				</thead>
 				<tbody>
 				<?php
-				$tours = ts_get_posts('ts_tour');
+				$args = array(
+					'meta_key' => 'date_from',
+					'meta_type' => 'DATE',
+					'orderby' => 'meta_value',
+					'order' => 'ASC',
+				);
+				$tours = ts_get_posts('ts_tour', -1, $args);
 				if($tours) {
 					foreach ($tours as $tour) {
 						setup_postdata($tour);
@@ -964,7 +970,7 @@ function ts_tours_page() {
 								<a title="delete" href="javascript:void(0);"
 								   class="btn btn-red btn-delete"
 								   data-id="<?php echo $tour_id; ?>"
-								   data-type="post"
+								   data-type="tour"
 								><small>Delete</small></a>
 							</td>
 						</tr>
@@ -1317,138 +1323,11 @@ function ts_post_competition_schedule() {
 			<div class="ts-admin-wrapper schedule-wrapper">
 				<div class="row">
 					<div class="col-md-12 t-right">
-						<a href="javascript:void(0)" class="btn btn-green btn-downloadschedule">Download</a>
 						<button class="btn btn-red btn-resetschedule" data-id="<?php echo $schedule_id; ?>" data-return="<?php echo admin_url('admin.php?page=ts-edit-competition-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>">Reset</button>&nbsp;&nbsp;
-						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>
+						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>&nbsp;&nbsp;
+						<!-- <a href="javascript:void(0)" class="btn btn-green btn-downloadschedule">Print</a> -->
 					</div>
 				</div>
-				<?php
-				/*if($tour_id) {
-					$schedule_saved = get_post_meta($schedule_id, 'schedule_saved', true);
-					$tour_date = get_post_meta($tour_id, 'date_from', true);
-					$categories = ts_get_competition_categories();
-					$genres = ts_get_routine_genres();
-					if(! $schedule_saved){
-					    $args = array(
-					        'posts_per_page' => -1,
-					        'include' => ts_tour_routines_ids($tour_id),
-					        'orderby' => 'meta_value_num',
-							'meta_key' => 'agediv_order',
-					        'order' => 'ASC',
-					    );
-					    $routines = ts_get_posts('ts_routine',-1,$args);
-						if($routines){
-							$count_total = count($routines);
-							$count_perday = $count_total <= 5 ? absint($count_total/3)+1 : absint($count_total/3);
-							$count = 0;
-							$day1 = $day2 = $day3 = array();
-
-							$strtotime1 = strtotime($tour_date . '+17 hours');
-							$strtotime2 = strtotime($tour_date . '+1 days 17 hours');
-							$strtotime3 = strtotime($tour_date . '+2 days 17 hours');
-							$timeday1 = date('F j, Y g:i a', $strtotime1);
-							$timeday2 = date('F j, Y g:i a', $strtotime2);
-							$timeday3 = date('F j, Y g:i a', $strtotime3);
-
-							foreach ($routines as $r) {
-								$count++;
-								$id = $r->ID;
-								$studio = ts_post_studio($id);
-								$agediv = get_post_meta($id, 'agediv', true);
-								$cat = get_post_meta($id, 'cat', true);
-								$cat_name = $categories[$cat]['title'];
-								$genre = get_post_meta($id, 'genre', true);
-								$genre_name = $genres[$genre]['title'];
-								$time_limit = $categories[$cat]['time_limit'];
-
-								if($count <= $count_perday) {
-									$time_start1 = $strtotime1;
-									$time_end1 = $strtotime1+$time_limit;
-									$strtotime1 = $time_end1;
-									$day1[] = array(
-									    'field_59d2674f9703c' => $count,
-									    'field_59d2674f973fa' => date('g:i a', $time_start1),
-									    'field_5a0aecd9b6bb4' => date('g:i a', $time_end1),
-									    'field_59d2674f977de' => $studio,
-									    'field_59d2674f97bd8' => $id,
-									    'field_59d2674f97fbb' => $agediv,
-									    'field_59d2674f9839c' => $cat_name,
-									    'field_59d2674f9878a' => $genre_name,
-									    'field_59d2674f98ba4' => 'Normal',
-									);
-								}
-								else if($count > $count_perday && $count <= $count_perday*2) {
-									$time_start2 = $strtotime2;
-									$time_end2 = $strtotime2+$time_limit;
-									$strtotime2 = $time_end2;
-									$day2[] = array(
-									    'field_59d2674f9703c' => $count,
-									    'field_59d2674f973fa' => date('g:i a', $time_start2),
-									    'field_5a0aecd9b6bb4' => date('g:i a', $time_end2),
-									    'field_59d2674f977de' => $studio,
-									    'field_59d2674f97bd8' => $id,
-									    'field_59d2674f97fbb' => $agediv,
-									    'field_59d2674f9839c' => $cat_name,
-									    'field_59d2674f9878a' => $genre_name,
-									    'field_59d2674f98ba4' => 'Normal',
-									);
-								}
-								else {
-									$time_start3 = $strtotime3;
-									$time_end3 = $strtotime3+$time_limit;
-									$strtotime3 = $time_end3;
-									$day3[] = array(
-									    'field_59d2674f9703c' => $count,
-									    'field_59d2674f973fa' => date('g:i a', $time_start3),
-									    'field_5a0aecd9b6bb4' => date('g:i a', $time_end3),
-									    'field_59d2674f977de' => $studio,
-									    'field_59d2674f97bd8' => $id,
-									    'field_59d2674f97fbb' => $agediv,
-									    'field_59d2674f9839c' => $cat_name,
-									    'field_59d2674f9878a' => $genre_name,
-									    'field_59d2674f98ba4' => 'Normal',
-									);
-								}
-							}
-
-							$newvalue = array(
-								array(
-									'field_59d2674f77b98' => $timeday1,
-									'field_59d2674f77f7b' => $day1,
-								),
-								array(
-									'field_59d2674f77b98' => $timeday2,
-									'field_59d2674f77f7b' => $day2,
-								),
-								array(
-									'field_59d2674f77b98' => $timeday3,
-									'field_59d2674f77f7b' => $day3,
-								),
-							);
-						}
-					}
-					else {
-						$newvalue = $value;
-						$count = 0;
-						foreach ($value as $a => $b) {
-							$start = strtotime($b['field_59d2674f77b98']);
-							$lineup = $b['field_59d2674f77f7b'];
-							foreach ($lineup as $c => $d) {
-								if($d['field_59d2674f98ba4']=='Normal') {
-									$count++;
-									$newvalue[$a]['field_59d2674f77f7b'][$c]['field_59d2674f9703c'] = $count;
-								}	
-								$end = strtotime($d['field_5a0aecd9b6bb4']);
-								$newvalue[$a]['field_59d2674f77f7b'][$c]['field_59d2674f973fa'] = date('g:i a', $start);
-								$newvalue[$a]['field_59d2674f77f7b'][$c]['field_5a0aecd9b6bb4'] = date('g:i a', $end);
-								$start = $end;
-							}
-						}
-					}
-					$value = $newvalue;
-				}*/
-				?>
-
 				<?php
 				$options = array(
 					'post_id'  => $schedule_id,
@@ -1475,8 +1354,7 @@ function ts_post_competition_schedule() {
 						</div>
 						<div id="downloadschedule" class="modal-body">
 							<?php 
-							$schedule = get_post($schedule_id);
-							ts_display_competition_schedules(array($schedule)); 
+							ts_display_competition_schedules2(array($schedule)); 
 							?>
 						</div>
 					</div>
@@ -1522,84 +1400,73 @@ function ts_scores_page() {
 	$tour_id = ts_get_param('tour');
 	?>
 	<div id="scores-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-competition-scores', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper scores-wrapper">
-			<div class="row">
-				<div class="col-md-6">
-					<?php 
-					ts_select_tour_city(admin_url('admin.php') .'?page=ts-competition-scores', $tour_id);
-					?>
-				</div>
-				<div class="col-md-6 t-right">
-				</div>
-			</div>
 			<?php 
 			if($tour_id) {
 				?>
 				<div id="routine-scores">
-					<form method="post" action="" id="form-submit-scores" name="form-submit-scores" >
-						<table id="routines-list" class="ts-data-table" data-sort="asc" data-orderby="0" data-length="-1">
-							<thead>
-							<tr>
-								<th style="text-align:center;">#</th>
-								<th style="text-align:center;">Studio</th>
-								<th style="text-align:center;">Routine</th>
-								<th style="text-align:center;">Category</th>
-								<th style="text-align:center;">Genre</th>
-								<th style="text-align:center; width:80px;">Judge 1</th>
-								<th style="text-align:center; width:80px;">Judge 2</th>
-								<th style="text-align:center; width:80px;">Judge 3</th>
-								<th style="text-align:center;">Total</th>
-								<th style="text-align:center;">Adjudicated Award</th>
-								<th style="text-align:center;">Action</th>
-							</tr>
-							</thead>
-							<tbody>
-							<?php
-							$schedule_id = ts_get_scheduleid_by_tourid($tour_id);
-							$schedules = get_field('competition_event_schedules', $schedule_id);
-							if($schedules) {
-								foreach ($schedules as $s) {
-									$lineup = $s['lineup'];
-									if(! empty($lineup)){
-										foreach ($lineup as $l) {
-											if($l['action']=='Normal') {
-												$routine_id 	= $l['routine'];
-												$routine_num 	= $l['number'];
-												$studio 		= $l['studio'];
-												$category 		= $l['category'];
-												$genre 			= $l['genre'];
-												$routine_name 	= get_the_title($routine_id);
-												$judges_scores 	= get_post_meta($routine_id, 'judges_scores', true);
-												$total_score 	= get_post_meta($routine_id, 'total_score', true);
-												$adjudicated 	= ts_adjudicated_award($total_score);
-												$routine_num 	= get_post_meta($routine_id, 'routine_number', true);
-												?>
-												<tr id="routine-<?php echo $routine_id; ?>">
-													<td style="text-align:center;"><?php echo $routine_num; ?></td>
-													<td style="text-align:center;"><?php echo $studio; ?></td>
-													<td style="text-align:center;"><?php echo $routine_name; ?></td>
-													<td style="text-align:center;"><?php echo $category; ?></td>
-													<td style="text-align:center;"><?php echo $genre; ?></td>
-													<td style="text-align:center;"><input class="score-judge1" type="text" name="scores[<?php echo $routine_id?>][judge1]" value="<?php echo $judges_scores[0]; ?>"></td>
-													<td style="text-align:center;"><input class="score-judge2" type="text" name="scores[<?php echo $routine_id?>][judge2]" value="<?php echo $judges_scores[1]; ?>"></td>
-													<td style="text-align:center;"><input class="score-judge3" type="text" name="scores[<?php echo $routine_id?>][judge3]" value="<?php echo $judges_scores[2]; ?>"></td>
-													<td style="text-align:center;" class="total-score"><?php echo $total_score; ?></td>
-													<td style="text-align:center;" class="adjudicated-award"><?php echo $adjudicated; ?></td>
-													<td style="text-align:center;"><button class="btn-submitscore" data-id="<?php echo $routine_id; ?>">Submit</button></td>
-												</tr>
-												<?php
-											}
+					<table id="routines-list" class="ts-data-table" data-sort="asc" data-orderby="0" data-length="-1">
+						<thead>
+						<tr>
+							<th style="text-align:center;">#</th>
+							<th style="text-align:center;">Studio</th>
+							<th style="text-align:center;">Routine</th>
+							<th style="text-align:center;">Category</th>
+							<th style="text-align:center;">Genre</th>
+							<th style="text-align:center; width:80px;">Judge 1</th>
+							<th style="text-align:center; width:80px;">Judge 2</th>
+							<th style="text-align:center; width:80px;">Judge 3</th>
+							<th style="text-align:center;">Total</th>
+							<th style="text-align:center;">Adjudicated Award</th>
+							<th style="text-align:center;">Action</th>
+						</tr>
+						</thead>
+						<tbody>
+						<?php
+						$schedule_id = ts_get_scheduleid_by_tourid($tour_id);
+						$schedules = get_field('competition_event_schedules', $schedule_id);
+						if($schedules) {
+							foreach ($schedules as $s) {
+								$lineup = $s['lineup'];
+								if(! empty($lineup)){
+									foreach ($lineup as $l) {
+										if($l['action']=='Normal') {
+											$routine_id 	= $l['routine'];
+											$routine_num 	= $l['number'];
+											$studio 		= $l['studio'];
+											$category 		= $l['category'];
+											$genre 			= $l['genre'];
+											$routine_name 	= get_the_title($routine_id);
+											$judges_scores 	= get_post_meta($routine_id, 'judges_scores', true);
+											$total_score 	= get_post_meta($routine_id, 'total_score', true);
+											$adjudicated 	= ts_adjudicated_award($total_score);
+											$routine_num 	= get_post_meta($routine_id, 'routine_number', true);
+											?>
+											<tr id="routine-<?php echo $routine_id; ?>">
+												<td style="text-align:center;"><?php echo $routine_num; ?></td>
+												<td style="text-align:center;"><?php echo $studio; ?></td>
+												<td style="text-align:center;"><?php echo $routine_name; ?></td>
+												<td style="text-align:center;"><?php echo $category; ?></td>
+												<td style="text-align:center;"><?php echo $genre; ?></td>
+												<td style="text-align:center;"><input class="score-judge1" type="text" name="scores[<?php echo $routine_id?>][judge1]" value="<?php echo $judges_scores[0]; ?>"></td>
+												<td style="text-align:center;"><input class="score-judge2" type="text" name="scores[<?php echo $routine_id?>][judge2]" value="<?php echo $judges_scores[1]; ?>"></td>
+												<td style="text-align:center;"><input class="score-judge3" type="text" name="scores[<?php echo $routine_id?>][judge3]" value="<?php echo $judges_scores[2]; ?>"></td>
+												<td style="text-align:center;" class="total-score"><?php echo $total_score; ?></td>
+												<td style="text-align:center;" class="adjudicated-award"><?php echo $adjudicated; ?></td>
+												<td style="text-align:center;"><button class="btn-submitscore" data-id="<?php echo $routine_id; ?>">Submit</button></td>
+											</tr>
+											<?php
 										}
 									}
 								}
-							}else{
-								echo '<tr><td colspan="10" align="center">Schedule not found or not publish yet.</td></tr>';
 							}
-							?>
-							</tbody>
-						</table>	
-					</form>				
+						}else{
+							echo '<tr><td colspan="10" align="center">Schedule not found or not publish yet.</td></tr>';
+						}
+						?>
+						</tbody>
+					</table>	
 				</div>	
 			<?php
 			} ?>
@@ -1609,33 +1476,27 @@ function ts_scores_page() {
 }
 
 function ts_special_awards_page() {
-	if(isset($_GET['tour']) && $_GET['tour']!='') {
-		$tour_id = $_GET['tour'];
-	}
+	$tour_id = ts_get_param('tour');
 	?>
 	<div id="awards-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-specialty-awards', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper awards-wrapper">
 			<form name="form-special-awards" id="form-special-awards" class="validate" method="post" action="">
-				<p><?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-specialty-awards', $tour_id); ?></p>
 				<?php 
 				if($tour_id) { 
-					$special_awards 		= get_post_meta($tour_id, 'special_awards', true); 
-
-					$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) 			? $special_awards['twelve_below']['choreography']['routine_id'] : '';
+					$special_awards 		= get_post_meta($tour_id, 'special_awards', true);
+					$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) ? $special_awards['twelve_below']['choreography']['routine_id'] : '';
 					$choreo12below_num 		= get_post_meta($choreo12below_id, 'routine_number', true);
-					$standnom12below_id 	= isset($special_awards['twelve_below']['standout_nominee']['routine_id']) 		? $special_awards['twelve_below']['standout_nominee']['routine_id'] : '';
+					$standnom12below_id 	= isset($special_awards['twelve_below']['standout_nominee']['routine_id']) ? $special_awards['twelve_below']['standout_nominee']['routine_id'] : '';
 					$standnom12below_num 	= get_post_meta($standnom12below_id, 'routine_number', true);
-					$standwin12below_id 	= isset($special_awards['twelve_below']['standout_winner']['routine_id']) 		? $special_awards['twelve_below']['standout_winner']['routine_id'] : '';
+					$standwin12below_id 	= isset($special_awards['twelve_below']['standout_winner']['routine_id']) ? $special_awards['twelve_below']['standout_winner']['routine_id'] : '';
 					$standwin12below_num 	= get_post_meta($standwin12below_id, 'routine_number', true);
-					$choreo13above_id 		= isset($special_awards['thirteen_above']['choreography']['routine_id']) 		 ? $special_awards['thirteen_above']['choreography']['routine_id'] : '';
+					$choreo13above_id 		= isset($special_awards['thirteen_above']['choreography']['routine_id']) ? $special_awards['thirteen_above']['choreography']['routine_id'] : '';
 					$choreo13above_num 		= get_post_meta($choreo13above_id, 'routine_number', true);
-					$standnom13above_id 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_id']) 	 ? $special_awards['thirteen_above']['standout_nominee']['routine_id'] : '';
+					$standnom13above_id 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_id']) ? $special_awards['thirteen_above']['standout_nominee']['routine_id'] : '';
 					$standnom13above_num 	= get_post_meta($standnom13above_id, 'routine_number', true);
-					$standwin13above_id 	= isset($special_awards['thirteen_above']['standout_winner']['routine_id']) 	 ? $special_awards['thirteen_above']['standout_winner']['routine_id'] : '';
+					$standwin13above_id 	= isset($special_awards['thirteen_above']['standout_winner']['routine_id']) ? $special_awards['thirteen_above']['standout_winner']['routine_id'] : '';
 					$standwin13above_num 	= get_post_meta($standwin13above_id, 'routine_number', true);
-
-					$studio_innovator 		= isset($special_awards['studio_innovator']) ? get_field('studio', 'user_' . $special_awards['studio_innovator']) : '';
 					?>
 					<h3>For all 12 and under:</h3>
 					<div class="table-container">
@@ -1713,9 +1574,8 @@ function ts_special_awards_page() {
 							</div>
 						</div>	
 					</div>
-					<br /><br />
-					<h3>Studio Innovator:<input type="text" name="special_awards[studio_innovator]" value="<?php echo $studio_innovator; ?>"></h3>
 					<div class="form-footer-btns">
+						<input type="hidden" name="tour_city" value="<?php echo $tour_id; ?>">
 						<input class="btn btn-green" type="submit" value="Save Changes" />
 					</div>
 				<?php 
@@ -1727,57 +1587,66 @@ function ts_special_awards_page() {
 }
 
 function ts_scholarships_page() {
-	if(isset($_GET['tour']) && $_GET['tour']!='') {
-		$tour_id = $_GET['tour'];
-	}
+
+	wp_enqueue_script('jquery-ui-autocomplete');
+	$tour_id = ts_get_param('tour');
 	?>
 	<div id="scholarships-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-scholarships', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper scholarships-wrapper">
+			<div class="row">
+				<div class="col-md-12 t-right">
+					<a href="javascript:void(0)" class="btn btn-green btn-printscholarships">Print</a>
+				</div>
+			</div>
 			<form name="form-scholarships" id="form-scholarships" class="validate" method="post" action="">
-				<p><?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-scholarships', $tour_id); ?></p>
 				<?php 
 				if($tour_id) { 
-					$scholarships 		= get_post_meta($tour_id, 'scholarships', true);
+					$scholarships = get_post_meta($tour_id, 'scholarships', true);
 					?>
 					<h3>Scholarships:</h3>
 					<div class="table-container scholarship-wrapper">
 						<?php
 						$scholarships = get_post_meta($tour_id, 'scholarships', true);
 						$participants = ts_tour_participants($tour_id);
+						$participantsArray = array();
+						foreach ($participants as $p) {
+							$participantsArray[$p] =  get_the_title($p);
+						}
+						asort($participantsArray);
 						if(! empty($scholarships)) {
 							?>
 							<div class="row table-head">
+								<div class="col-sm-1 t-center"><strong>#</strong></div>
 								<div class="col-sm-2"><strong>Name</strong></div>
 								<div class="col-sm-2"><strong>Age Division</strong></div>
 								<div class="col-sm-2"><strong>Studio</strong></div>
-								<div class="col-sm-2"><strong>Scholarship Number</strong></div>
-								<div class="col-sm-2"><strong>Scholarship</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>
 								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
 							</div>
 							<div class="scholarship-container table-body">
 								<?php
 								foreach ($scholarships as $key=>$val) {
 									$id = $key;
-									if(empty($val)) continue;
+									if($val['number']=='' && $val['title']=='') continue;
 									?>
 									<div class="row" id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
-										<div class="col-sm-2">
+										<div class="col-sm-1 participant-number">
+											<input type="text" class="scholarship-num t-center" name="scholarships[<?php echo $id; ?>][number]" value="<?php echo $val['number']; ?>">
+										</div>
+										<div class="col-sm-2 participant-name">
 											<select class="scholarship" data-id="<?php echo $id; ?>">
-												<option value="">None</option>
+												<option value="">Select Name</option>
 												<?php
-												foreach ($participants as $p) {
-													echo '<option value="'. $p .'" '. ( $id==$p ? 'selected' : '' ) .'>'. get_the_title($p) .'</option>';
+												foreach ($participantsArray as $key=>$value) {
+													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';
 												}
 												?>
 											</select>
 										</div>
 										<div class="col-sm-2 age-division"><?php echo ts_participant_agediv($id); ?></div>
 										<div class="col-sm-2 studio-name"><?php echo ts_post_studio($id); ?></div>
-										<div class="col-sm-2 participant-number">
-											<input type="text" name="scholarships[<?php echo $id; ?>][number]" value="<?php echo $val['number']; ?>">
-										</div>
-										<div class="col-sm-2 participant-scholarship">
+										<div class="col-sm-3 participant-scholarship">
 											<input type="text" name="scholarships[<?php echo $id; ?>][title]" value="<?php echo $val['title']; ?>">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1793,11 +1662,11 @@ function ts_scholarships_page() {
 						else{
 							?>
 							<div class="row table-head">
+								<div class="col-sm-1 t-center"><strong>#</strong></div>
 								<div class="col-sm-2"><strong>Name</strong></div>
 								<div class="col-sm-2"><strong>Age Division</strong></div>
 								<div class="col-sm-2"><strong>Studio</strong></div>
-								<div class="col-sm-2"><strong>Scholarship Number</strong></div>
-								<div class="col-sm-2"><strong>Scholarship</strong></div>
+								<div class="col-sm-3"><strong>Scholarship</strong></div>
 								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
 							</div>
 							<div class="scholarship-container table-body">
@@ -1806,22 +1675,22 @@ function ts_scholarships_page() {
 									$id = $i;
 									?>
 									<div class="row" id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
-										<div class="col-sm-2">
-											<select class="scholarship" data-id="<?php echo $id; ?>" >
+										<div class="col-sm-1 participant-number">
+											<input type="text" class="scholarship-num t-center" name="scholarships[][number]" value="">
+										</div>
+										<div class="col-sm-2 participant-name">
+											<select class="scholarship" data-id="<?php echo $id; ?>">
 												<option value="">Select Name</option>
 												<?php
-												foreach ($participants as $p) {
-													echo '<option value="'. $p .'" '. ( $key==$p ? 'selected' : '' ) .'>'. get_the_title($p) .'</option>';
+												foreach ($participantsArray as $key=>$value) {
+													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';
 												}
 												?>
 											</select>
 										</div>
 										<div class="col-sm-2 age-division"></div>
 										<div class="col-sm-2 studio-name"></div>
-										<div class="col-sm-2 participant-scholarship">
-											<input type="text" class="scholarship-num" name="scholarships[][number]" value="">
-										</div>
-										<div class="col-sm-2 participant-scholarship">
+										<div class="col-sm-3 participant-scholarship">
 											<input type="text" class="scholarship-item" name="scholarships[][title]" value="">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1837,20 +1706,45 @@ function ts_scholarships_page() {
 						?>
 						<a href="javascript:void(0);" class="btn-addscholarship btn btn-gray"><small>Add Scholarship</small></a>
 					</div>
+					<?php
+					$studio_innovator_id = get_post_meta($tour_id, 'studio_innovator_id', true);
+					?>
+					<br /><br />
+					<h3>Studio Innovator:</h3>
+					<select name="studio_innovator" id="studio_innovator">
+						<option value="">Select Studio</option>
+						<?php
+						$args = array(
+							'role' => 'studio',
+						 ); 
+						$users = get_users($args);
+						if($users) {
+						     foreach ($users as $key => $user) {
+						     	$user_id = $user->ID;
+						        $studio = get_field('studio', 'user_'. $user_id);
+								echo '<option value="'. $user_id .'" '. ( $user_id==$studio_innovator_id ? 'selected' : '' ) .'>'. $studio .'</option>';
+						    }
+						}							
+						?>
+					</select>					
 					<div class="form-footer-btns">
+						<input type="hidden" name="tour_city" value="<?php echo $tour_id; ?>">
 						<input class="btn btn-green" type="submit" value="Save Changes" />
 					</div>
 				<?php 
 				} ?>
 			</form>
+			<div style="display: none;">
+				<?php ts_scholarships_preview($scholarships, $studio_innovator); ?>
+			</div>	
 		</div>
 	</div>
 	<?php	
 }
 
 function ts_results_page() {
-	$publish_button = '';
 	$tour_id = ts_get_param('tour');
+	$publish_button = '';
 	if($tour_id) {
 		$status = get_post_meta($tour_id, 'results_status', true);
 		$btn_label = ! $status || $status == 'draft' ? 'Publish Results' : 'Unpublish Results';
@@ -1868,16 +1762,26 @@ function ts_results_page() {
 
 function ts_critiques_page() {
 	$tour_id = ts_get_param('tour');
+	$publish_button = '';
+	if($tour_id) {
+		$status = get_post_meta($tour_id, 'critiques_status', true);
+		$btn_label = ! $status || $status == 'draft' ? 'Publish Critiques' : 'Unpublish Critiques';
+		$publish_button = '<button class="btn btn-blue btn-publishcritiques" data-id="'. $tour_id .'">'. $btn_label .'</button>';
+	}	
 	wp_enqueue_media();
 	?>
 	<div id="critiques-page" class="wrap">
-		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-critiques', $tour_id); ?></h1>
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-critiques', $tour_id); ?> <?php echo $publish_button; ?></h1>
 		<div class="ts-admin-wrapper critiques-wrapper">
 			<?php
 			$routines = ts_tour_routines_by_number($tour_id);
 			if(! empty($routines)) {
 				?>
-				<a href="javascript:void(0);" class="btn-uploadcritiques btn btn-green"><small>Upload Critiques</small></a>
+				<div class="row">
+					<div class="col-md-12 t-right">
+						<a href="javascript:void(0);" class="btn-uploadcritiques btn btn-green">Upload Critiques</a>
+					</div>				
+				</div>	
 				<div class="table-container table-pad table-critiques">
 					<div class="row table-head">
 						<div class="col-md-1 t-center">Routine #</div>

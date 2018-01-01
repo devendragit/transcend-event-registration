@@ -382,7 +382,7 @@ function ts_is_tour_close($tour_id) {
 	return ($date_from && ts_get_days_before_date($date_from) <= 0) || $status==2 ? true : false;
 }
 
-function ts_tour_routines_ids($tour_id) {
+function ts_tour_routines_ids($tour_id, $user_id=false) {
 
 	$args = array(
 		'post_status' => array('paid', 'paidcheck'),
@@ -394,6 +394,10 @@ function ts_tour_routines_ids($tour_id) {
 			),
 		),
 	);
+
+	if($user_id) {
+		$args['author'] = $user_id;
+	}
 
 	$entries = ts_get_posts('ts_entry', -1, $args);
 
@@ -510,6 +514,7 @@ function ts_participant_agediv($participant_id) {
 }
 
 function ts_participant_number($participant_id) {
+	
 	return get_post_meta($participant_id, 'participant_number', true);
 }
 
@@ -537,6 +542,7 @@ function ts_get_routine_by_num($routine_number, $tour_id) {
 		return false;
 	}
 }
+
 function ts_import_studios(){
 
 	$file = TS_LIBRARIES .'studios.csv'; 
@@ -959,6 +965,9 @@ function ts_update_routines() {
             setup_postdata($routine);
             $id = $routine->ID;
             $agediv = get_post_meta($id, 'agediv', true);
+            if($agediv=='Munchkin'){
+	            update_post_meta($id, 'agediv', 'Mini');
+            }
             $term = get_term_by('name', $agediv, 'ts_agediv');
             $agediv_order = get_term_meta($term->term_id, 'div_order', true);
             update_post_meta($id, 'agediv_order', $agediv_order);
@@ -1333,3 +1342,27 @@ function ts_display_user_details($user_id) {
 	return $output;
 }
 
+function ts_routine_specialty_award($routine_id, $tour_id) {
+
+	$special_awards = get_post_meta($tour_id, 'special_awards', true);
+
+	$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) ? $special_awards['twelve_below']['choreography']['routine_id'] : '';
+	$standnom12below_id 	= isset($special_awards['twelve_below']['standout_nominee']['routine_id']) ? $special_awards['twelve_below']['standout_nominee']['routine_id'] : '';
+	$standwin12below_id 	= isset($special_awards['twelve_below']['standout_winner']['routine_id']) ? $special_awards['twelve_below']['standout_winner']['routine_id'] : '';
+	$choreo13above_id 		= isset($special_awards['thirteen_above']['choreography']['routine_id']) ? $special_awards['thirteen_above']['choreography']['routine_id'] : '';
+	$standnom13above_id 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_id']) ? $special_awards['thirteen_above']['standout_nominee']['routine_id'] : '';
+	$standwin13above_id 	= isset($special_awards['thirteen_above']['standout_winner']['routine_id']) ? $special_awards['thirteen_above']['standout_winner']['routine_id'] : '';
+
+	$award = '';
+	if($routine_id==$choreo12below_id || $routine_id==$choreo13above_id) {
+		$award = 'Choreography Award';
+	}
+	else if($routine_id==$standnom12below_id || $routine_id==$standnom13above_id) {
+		$award = 'Judges Standout Nominee';
+	}
+	else if($routine_id==$standwin12below_id || $routine_id==$standwin13above_id) {
+		$award = 'Judges Standout Winner';
+	}
+
+	return $award;
+}

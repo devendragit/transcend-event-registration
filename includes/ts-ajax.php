@@ -1300,7 +1300,7 @@ function ajax_add_routine_dancers() {
 			$age_div_name = '';
 			$routine_cat_id = '';
 			$routine_cat_name = '';
-			$count = 0;
+			$count = count($dancers);
 			$fee = 0;
 
 			if(get_post_status($eid)=='paid' || get_post_status($eid)=='paidcheck') {
@@ -1314,9 +1314,6 @@ function ajax_add_routine_dancers() {
 					}
 					update_post_meta($id, 'dancers_count_edited', $count);
 				}
-			}
-			else {
-				$count = count($dancers);
 			}
 
 			$cat = ts_get_competition_categories();
@@ -1382,9 +1379,9 @@ function ajax_add_routine_dancers() {
 			}
 				
 			if($routine_id && !is_wp_error($routine_id)) {
-				if(get_post_status($eid)!='paid' && get_post_status($eid)!='paidcheck') {
+				//if(get_post_status($eid)!='paid' && get_post_status($eid)!='paidcheck' && ! get_post_meta($routine_id, 'dancers_count', true)) {
 					update_post_meta($routine_id, 'dancers_count', $count);
-				}
+				//}
 				update_post_meta($routine_id, 'dancers', $dancer_ids);
 				update_post_meta($routine_id, 'agediv', $age_div_name);
 				update_post_meta($routine_id, 'cat', $routine_cat_id);
@@ -2153,15 +2150,26 @@ function ajax_delete_item() {
 				$response['message'][] = __('Access Denied');
 			}
 		}
+		else if($type=='tour') {
+			if(current_user_can('edit_tour', $id)){
+				$tour = array(
+					'ID' => $id,
+					'post_status' => 'trash',
+				);
+				$delete = wp_update_post($tour);
+			}else{
+				$response['message'][] = __('Access Denied');
+			}
+		}
 		else if($type=='roster') {
 			if(current_user_can('delete_post', $id)){
 				$delete = wp_delete_post($id, true);
-				if($delete && ! is_wp_error($delete)) {
+				/*if($delete && ! is_wp_error($delete)) {
 					$entry_data = ts_get_session_entry_data($eid);
 					$temp_data = $entry_data;
-					$temp_data['workshop']['participants'][$id] = $participant;
+					unset($temp_data['workshop']['participants'][$id]);
 					ts_set_session_entry_data($temp_data, $eid);
-				}
+				}*/
 			}else{
 				$response['message'][] = __('Access Denied');
 			}
@@ -2502,34 +2510,6 @@ function ajax_save_special_awards() {
         );
 
         if($tour_city){
-			$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) ? $special_awards['twelve_below']['choreography']['routine_id'] : '';
-			$standnom12below_id 	= isset($special_awards['twelve_below']['standout_nominee']['routine_id']) ? $special_awards['twelve_below']['standout_nominee']['routine_id'] : '';
-			$standwin12below_id 	= isset($special_awards['twelve_below']['standout_winner']['routine_id']) ? $special_awards['twelve_below']['standout_winner']['routine_id'] : '';
-			$choreo13above_id 		= isset($special_awards['thirteen_above']['choreography']['routine_id']) ? $special_awards['thirteen_above']['choreography']['routine_id'] : '';
-			$standnom13above_id 	= isset($special_awards['thirteen_above']['standout_nominee']['routine_id']) ? $special_awards['thirteen_above']['standout_nominee']['routine_id'] : '';
-			$standwin13above_id 	= isset($special_awards['thirteen_above']['standout_winner']['routine_id']) ? $special_awards['thirteen_above']['standout_winner']['routine_id'] : '';
-			$studio_innovator 		= isset($special_awards['studio_innovator']) ? $special_awards['studio_innovator'] : '';
-
-	        update_post_meta($choreo12below_id, 'special_award', 'Choreography Award');
-	        update_post_meta($standnom12below_id, 'special_award', 'Judges Standout Nominee');
-	        update_post_meta($standwin12below_id, 'special_award', 'Judges Standout Winner');
-	        update_post_meta($choreo13above_id, 'special_award', 'Choreography Award');
-	        update_post_meta($standnom13above_id, 'special_award', 'Judges Standout Nominee');
-	        update_post_meta($standwin13above_id, 'special_award', 'Judges Standout Winner');
-
-	        if($studio_innovator!==''){
-				$args = array(
-					'role'         => 'studio',
-					'meta_key'     => 'studio',
-					'meta_value'   => $studio_innovator,
-					'meta_compare' => 'LIKE',
-					'number'       => 1,
-				 ); 
-				$users = get_users($args);
-				print_r($users);
-				$special_awards['studio_innovator'] = $users[0]->ID;
-			}
-
 	        update_post_meta($tour_city, 'special_awards', $special_awards);
 	        $has_error = false;
         }
@@ -2553,22 +2533,25 @@ function ajax_save_scholarships() {
 
         check_ajax_referer('ts-save-item', 'token');
 
-        $tour_city 		= $_POST['tour_city'];
-        $scholarships 	= $_POST['scholarships'];
+        $tour_city 			= $_POST['tour_city'];
+        $scholarships 		= $_POST['scholarships'];
+        $studio_innovator 	= $_POST['studio_innovator'];
 
-        $has_error 		= true;
+        $has_error = true;
 
         $response = array(
             'success' => false,
         );
 
         if($tour_city){
-	        update_post_meta($tour_city, 'scholarships', $scholarships);
-
+			$scholarshipsArray = array();
 	        foreach ($scholarships as $key => $value) {
-	        	update_post_meta($key, 'number', $value['number']);
-	        	update_post_meta($key, 'scholarship', $value['title']);
+	        	if($value['number']!='' && $value['title']!=''){
+		        	$scholarshipsArray[$key] = $value;
+	        	} 
 	        }
+	        update_post_meta($tour_city, 'scholarships', $scholarshipsArray);
+        	update_post_meta($tour_city, 'studio_innovator_id', absint($studio_innovator));
 	        $has_error = false;
         }
 
@@ -2640,6 +2623,43 @@ function ajax_publish_results() {
 			$newval = ! $status || $status=='draft' ? 'publish' : 'draft';
 	        update_post_meta($tour_id, 'results_status', $newval);
 	        do_action('publish_results', $tour_id);
+	        $has_error = false;
+		}
+
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['status'] = $newval;
+			$response['success'] = true;
+		}
+		echo json_encode($response);
+
+	endif;
+
+    die();	
+}
+
+function ajax_publish_critiques() {
+
+	if($_POST) :
+	
+		check_ajax_referer('ts-default', 'token');
+
+		$id				= $_POST['id'];
+		$tour_id 		= absint($id);
+		$has_error 		= true;
+
+		$response = array(
+			'success' => false, 
+			'id' => $tour_id, 
+		);
+
+		if($tour_id && current_user_can('edit_tour', $tour_id)){
+			$status = get_post_meta($tour_id, 'critiques_status', true);
+			$newval = ! $status || $status=='draft' ? 'publish' : 'draft';
+	        update_post_meta($tour_id, 'critiques_status', $newval);
+	        //do_action('publish_critiques', $tour_id);
 	        $has_error = false;
 		}
 
@@ -2768,11 +2788,14 @@ function ajax_load_routine_info() {
         $response = array(
             'success' => false,
             'row' => $row,
+            'routine_id' => '',
+            'name' => '',
+            'studio' => '',
         );
 
         $tour_routines = ts_tour_routines_ids($tour_id);
 
-        if(is_array($tour_routines) && ! empty($tour_routines)) {
+        if(is_array($tour_routines) && ! empty($tour_routines) && $routine_number && ts_post_exists_by_id($routine_number)) {
 			$args = array(
 				'post__in' => $tour_routines,
 				'posts_per_page' => 1,
@@ -2859,9 +2882,11 @@ function ajax_save_routine_scores() {
 
         if(ts_post_exists_by_id($id)){
         	$total_score = $judge1+$judge2+$judge3;
+			$adjudicated = ts_adjudicated_award($total_score);
 			update_post_meta($id, 'judges_scores', array($judge1,$judge2,$judge3));
 			update_post_meta($id, 'total_score', $total_score);
             $response['total_score'] = $total_score;
+            $response['adjudicated'] = $adjudicated;
 	        $has_error = false;
         }
 

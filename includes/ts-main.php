@@ -74,13 +74,13 @@ add_action('ts_cron_jobs', 'ts_auto_delete_music_cron', 10, 1);
 //add_action('init', 'ts_create_terms', 11);
 //add_action('init', 'ts_create_tour_posts');
 //add_action('init', 'ts_update_entry');
-add_action('init', 'ts_update_agedivs');
-add_action('init', 'ts_update_agediv_fees');
-add_action('init', 'ts_update_agediv_order');
-add_action('init', 'ts_update_roster_agedivs');
-add_action('init', 'ts_update_roster_order');
-add_action('init', 'ts_update_tour_posts');
-add_action('init', 'ts_update_entries');
+//add_action('init', 'ts_update_agedivs');
+//add_action('init', 'ts_update_agediv_fees');
+//add_action('init', 'ts_update_agediv_order');
+//add_action('init', 'ts_update_roster_agedivs');
+//add_action('init', 'ts_update_roster_order');
+//add_action('init', 'ts_update_tour_posts');
+//add_action('init', 'ts_update_entries');
 add_action('init', 'ts_update_routines');
 
 /* Remove */
@@ -369,6 +369,7 @@ function ajax_post_init() {
     add_action('wp_ajax_save_scholarships', 'ajax_save_scholarships');
     add_action('wp_ajax_load_participant_info', 'ajax_load_participant_info');
     add_action('wp_ajax_publish_results', 'ajax_publish_results');
+    add_action('wp_ajax_publish_critiques', 'ajax_publish_critiques');
     add_action('wp_ajax_add_critique', 'ajax_add_critique');
     add_action('wp_ajax_add_critiques', 'ajax_add_critiques');
     add_action('wp_ajax_remove_critique', 'ajax_remove_critique');
