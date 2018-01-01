@@ -1619,7 +1619,6 @@ function ts_scholarships_page() {
 							?>
 							<div class="row table-head">
 								<div class="col-sm-1 t-center"><strong>#</strong></div>
-
 								<div class="col-sm-2"><strong>Name</strong></div>
 								<div class="col-sm-2"><strong>Age Division</strong></div>
 								<div class="col-sm-2"><strong>Studio</strong></div>
@@ -1648,7 +1647,7 @@ function ts_scholarships_page() {
 										</div>
 										<div class="col-sm-2 age-division"><?php echo ts_participant_agediv($id); ?></div>
 										<div class="col-sm-2 studio-name"><?php echo ts_post_studio($id); ?></div>
-                    <div class="col-sm-3 participant-scholarship">
+                    					<div class="col-sm-3 participant-scholarship">
 											<input type="text" name="scholarships[<?php echo $id; ?>][title]" value="<?php echo $val['title']; ?>">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1692,7 +1691,7 @@ function ts_scholarships_page() {
 										</div>
 										<div class="col-sm-2 age-division"></div>
 										<div class="col-sm-2 studio-name"></div>
-                    <div class="col-sm-3 participant-scholarship">
+                    					<div class="col-sm-3 participant-scholarship">
 											<input type="text" class="scholarship-item" name="scholarships[][title]" value="">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1737,7 +1736,7 @@ function ts_scholarships_page() {
 				} ?>
 			</form>
 			<div style="display: none;">
-				<?php ts_scholarships_preview($scholarships, $studio_innovator); ?>
+				<?php ts_scholarships_preview($scholarships, $studio_innovator_id); ?>
 			</div>	      
 		</div>
 	</div>

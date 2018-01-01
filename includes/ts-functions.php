@@ -2583,7 +2583,8 @@ function ts_display_awards_table($routines, $title="") {
 	</table>
 	<?php
 }
-function ts_scholarships_preview($scholarships, $studio_innovator) {
+
+function ts_scholarships_preview($scholarships, $studio_innovator_id) {
 	?>
 	<div id="scholarships-preview">
 		<?php
@@ -2592,10 +2593,7 @@ function ts_scholarships_preview($scholarships, $studio_innovator) {
 			<h3>Scholarships:</h3>
 			<div class="scholarships-container">
 				<table class="ts-data-table" data-length="-1" data-exporttitle="Sunday Scholarships" data-exportcol="0,1,2,3,4" data-dom="rt<'table-footer clearfix'>">
-					<?php
-					if(! empty($scholarships)) {
-						?>
-						<thead>
+					<thead>
 						<tr>
 							<th style="text-align: center;">#</th>
 							<th>Name</th>
@@ -2603,50 +2601,35 @@ function ts_scholarships_preview($scholarships, $studio_innovator) {
 							<th>Studio</th>
 							<th>Scholarship</th>
 						</tr>
-						</thead>
-						<tbody>
+					</thead>
+					<tbody>
 						<?php
 						if(! empty($scholarships)) {
-							?>
-							<tr id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
-								<td style="text-align: center;"><?php echo $val['number']; ?></td>
-								<td><?php echo get_the_title($id); ?></td>
-								<td><?php echo ts_participant_agediv($id); ?></td>
-								<td><?php echo ts_post_studio($id); ?></td>
-								<td><?php echo $val['title']; ?></td>
-							</tr>              
-							<?php
+							foreach ($scholarships as $key => $val) {
+								$id = $key;
+								?>
+								<tr id="item-<?php echo $id; ?>" data-id="<?php echo $id; ?>">
+									<td style="text-align: center;"><?php echo $val['number']; ?></td>
+									<td><?php echo get_the_title($id); ?></td>
+									<td><?php echo ts_participant_agediv($id); ?></td>
+									<td><?php echo ts_post_studio($id); ?></td>
+									<td><?php echo $val['title']; ?></td>
+								</tr>              
+								<?php
+							}
 						}
 						?>
-					</div>
-				</div>
-				<h2 class="t-center">Studio Innovator</h2>
-				<div class="SchedTable OneCol">
-					<div class="TableCont">
-						<div class="TableHeading">
-							<div class="clearfix RowHeading">
-								<div class="col-xs-12">
-									<span>Studio Innovator</span>
-								</div>
-							</div>
-						</div>
-						<div class="TableBody t-center">
-							<div class="clearfix">
-								<div class="col-xs-12">
-									<span><?php echo $studio_innovator; ?></span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+					</tbody>
+				</table>	
 			</div>
 			<?php
 		}
 		?>
-		<h3>Studio Innovator: <strong><?php echo $studio_innovator; ?></strong></h3>
+		<h3>Studio Innovator: <strong><?php echo $studio_innovator_id ? get_field('studio', 'user_'. $studio_innovator_id) : ''; ?></strong></h3>
 	</div>	
 	<?php
 }
+
 function ts_display_results_frontend($tour_id) {
 	wp_enqueue_style('jquery-ui-css');
 	$status = get_post_meta($tour_id, 'results_status', true);
@@ -3194,6 +3177,7 @@ function ts_admin_footer_code() {
 	    <?php
 	}
 }
+
 function ts_waiver_popup() {
 	?>
 	<div id="popup-waiver" class="modal fade" role="dialog">
