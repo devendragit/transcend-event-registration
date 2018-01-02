@@ -8,7 +8,7 @@ function ts_pre_save_schedule( $schedule_id ){
 			$status = $_POST['acf']['field_59e474d5debed'];
 			$redirect_url = admin_url('admin.php?page=ts-edit-competition-schedule');
 			$term = 'Competition';
-		} 
+		}
 		else {
 			$city_id = $_POST['acf']['field_59ce6df7ae6eb'];
 			$status = $_POST['acf']['field_59e474d5debee'];
@@ -30,9 +30,9 @@ function ts_pre_save_schedule( $schedule_id ){
 			return $schedule_id;
 		}
 		$schedule_id = wp_insert_post($schedule);
-		
+
 		wp_set_object_terms( $schedule_id, $term, 'ts_schedules_type' );
-		
+
 		do_action('acf/save_post', $schedule_id);
 
 		wp_redirect(add_query_arg( array(
@@ -44,7 +44,7 @@ function ts_pre_save_schedule( $schedule_id ){
 }
 
 function ts_update_schedule($schedule_id) {
-	
+
 	$post_type = get_post_type($schedule_id);
 
 	if($post_type=='ts_event') {
@@ -62,7 +62,7 @@ function ts_update_schedule($schedule_id) {
 			update_post_meta($schedule_id, 'schedule_saved', true);
 			$tour_id = get_post_meta($schedule_id, 'event_city', true);
 			ts_generate_tour_music_zip( $schedules, $tour_id );
-		}	
+		}
 	}
 }
 
@@ -77,9 +77,9 @@ function ts_change_tour_order( $args ) {
 function ts_load_sched_status( $value, $post_id, $field ) {
 
 	$post_status = get_post_status($post_id);
-    $value = $post_status == 'publish' ? 1 : 0; 
+	$value = $post_status == 'publish' ? 1 : 0;
 
-    return $value;
+	return $value;
 }
 
 function ts_load_tour_city( $value, $post_id, $field ) {
@@ -88,7 +88,7 @@ function ts_load_tour_city( $value, $post_id, $field ) {
 	if (isset($tour_id) && $tour_id != '') {
 		$value = $tour_id;
 	}
-    return $value;
+	return $value;
 }
 
 function ts_load_schedules( $value, $post_id, $field ) {
@@ -102,28 +102,25 @@ function ts_load_schedules( $value, $post_id, $field ) {
 		$categories = ts_get_competition_categories();
 		$genres = ts_get_routine_genres();
 		if(! $schedule_saved){
-		    $args = array(
-		        'include' => ts_tour_routines_ids($tour_id),
-			    'meta_query' => array(
-			        'relation' => 'AND',
-			        'agedivorder' => array(
-			            'key' => 'agediv_order',
-			            'compare' => 'EXISTS',
-			        ),
-			        'catorder' => array(
-			            'key' => 'cat_order',
-			            'compare' => 'EXISTS',
-			        ), 
-			    ),
-			    'orderby' => array( 
-			        'agedivorder' => 'ASC',
-			        'catorder' => 'ASC',
-			    ),							
-		        /*'orderby' => 'meta_value_num',
-				'meta_key' => 'agediv_order',
-		        'order' => 'ASC',*/
-		    );
-		    $routines = ts_get_posts('ts_routine',-1,$args);
+			$args = array(
+				'include' => ts_tour_routines_ids($tour_id),
+				'meta_query' => array(
+					'relation' => 'AND',
+					'agedivorder' => array(
+						'key' => 'agediv_order',
+						'compare' => 'EXISTS',
+					),
+					'catorder' => array(
+						'key' => 'cat_order',
+						'compare' => 'EXISTS',
+					),
+				),
+				'orderby' => array(
+					'agedivorder' => 'ASC',
+					'catorder' => 'ASC',
+				),
+			);
+			$routines = ts_get_posts('ts_routine',-1,$args);
 			if($routines){
 				$count = 0;
 				$day1 = array();
@@ -149,21 +146,21 @@ function ts_load_schedules( $value, $post_id, $field ) {
 					$time_end1 = $strtotime1+$time_limit;
 					$strtotime1 = $time_end1;
 					$day1[] = array(
-					    'field_59d2674f9703c' => $count,
-					    'field_59d2674f973fa' => date('h:i a', $time_start1),
-					    'field_5a0aecd9b6bb4' => date('h:i a', $time_end1),
-					    'field_59d2674f977de' => $studio,
-					    'field_59d2674f97bd8' => $id,
-					    'field_59d2674f97fbb' => $agediv,
-					    'field_59d2674f9839c' => $cat_name,
-					    'field_59d2674f9878a' => $genre_name,
-					    'field_59d2674f98ba4' => 'Normal',
+						'field_59d2674f9703c' => $count,
+						'field_59d2674f973fa' => date('h:i a', $time_start1),
+						'field_5a0aecd9b6bb4' => date('h:i a', $time_end1),
+						'field_59d2674f977de' => $studio,
+						'field_59d2674f97bd8' => $id,
+						'field_59d2674f97fbb' => $agediv,
+						'field_59d2674f9839c' => $cat_name,
+						'field_59d2674f9878a' => $genre_name,
+						'field_59d2674f98ba4' => 'Normal',
 					);
 				}
 
 				$newvalue = array(
 					array(
-						'field_59d2674f77b98' => $timeday1,
+						//'field_59d2674f77b98' => $timeday1,
 						'field_59d2674f77f7b' => $day1,
 					),
 				);
@@ -171,42 +168,79 @@ function ts_load_schedules( $value, $post_id, $field ) {
 		}
 		else {
 			$newvalue = $value;
-			/*$count = 0;
-			foreach ($value as $a => $b) {
-				foreach ($lineup as $c => $d) {
-					if($d['field_59d2674f98ba4']=='Normal') {
-						$count++;
-						$newvalue[$a]['field_59d2674f77f7b'][$c]['field_59d2674f9703c'] = $count;
-					}	
+			$last = end($value[0]['field_59d2674f77f7b']);
+			$args = array(
+				'include' => ts_tour_routines_ids($tour_id),
+				'meta_query' => array(
+					array(
+						'key' => 'routine_number',
+						'compare' => 'NOT EXISTS',
+					),
+				),
+			);
+			$routines = ts_get_posts('ts_routine',-1,$args);
+			if($routines){
+				$count = $last['field_59d2674f9703c'];
+				$strtotime = strtotime($last['field_5a0aecd9b6bb4']);
+				foreach ($routines as $r) {
+					$count++;
+					$id = $r->ID;
+					$studio = ts_post_studio($id);
+					$author_role = ts_post_author_role($id);
+					if($studio=='' && $author_role=='individual') {
+						$studio = 'Independent';
+					}
+					$agediv = get_post_meta($id, 'agediv', true);
+					$cat = get_post_meta($id, 'cat', true);
+					$cat_name = $categories[$cat]['title'];
+					$genre = get_post_meta($id, 'genre', true);
+					$genre_name = $genres[$genre]['title'];
+					$time_limit = $categories[$cat]['time_limit'];
+
+					$time_start = $strtotime;
+					$time_end = $strtotime+$time_limit;
+					$strtotime = $time_end;
+					$day = array(
+						'field_59d2674f9703c' => $count,
+						'field_59d2674f973fa' => date('h:i a', $time_start),
+						'field_5a0aecd9b6bb4' => date('h:i a', $time_end),
+						'field_59d2674f977de' => $studio,
+						'field_59d2674f97bd8' => $id,
+						'field_59d2674f97fbb' => $agediv,
+						'field_59d2674f9839c' => $cat_name,
+						'field_59d2674f9878a' => $genre_name,
+						'field_59d2674f98ba4' => 'Normal',
+					);
+					$newvalue[0]['field_59d2674f77f7b'][] = $day;
 				}
-			}*/			
+			}
 		}
 		$value = $newvalue;
 	}
-    return $value;
+	return $value;
 }
 
 function ts_calculate_overall_score( $score_id ) {
-  if( empty($_POST['acf']) ) {
-      return;
-  }
+	if( empty($_POST['acf']) ) {
+		return;
+	}
 	if( have_rows('field_19d2674b099e9', $score_id) ) {
 		while( have_rows('field_19d2674b099e9', $score_id) ) {
-		  the_row();
-		  if( have_rows('field_19d2674f77f7b', $score_id) ) {
-		      while( have_rows('field_19d2674f77f7b', $score_id) ) {
-		          the_row();
-		          $total_score = 0;
-		          $judge_1_score = (int) get_sub_field('field_89e4b7c4a3479', $score_id);
-		          $judge_2_score = (int) get_sub_field('field_79e4b7c4a3479', $score_id);
-		          $judge_3_score = (int) get_sub_field('field_69e4b7c4a3479', $score_id);
-		          $total_score = $judge_1_score+$judge_2_score+$judge_3_score;
-		          update_sub_field('field_19e4b7c4a3479', $total_score);
-		          $routine_id = (int)get_sub_field('field_19d2674f97bd8', $score_id);
-		          update_post_meta($routine_id, 'judges_scores', array($judge_1_score,$judge_2_score,$judge_3_score));
-		          update_post_meta($routine_id, 'total_score', $total_score);
-		      }
-		  }
+			the_row();
+			if( have_rows('field_19d2674f77f7b', $score_id) ) {
+				while( have_rows('field_19d2674f77f7b', $score_id) ) {
+					the_row();
+					$total_score = 0;
+					$judge_1_score = (int) get_sub_field('field_89e4b7c4a3479', $score_id);
+					$judge_2_score = (int) get_sub_field('field_79e4b7c4a3479', $score_id);
+					$judge_3_score = (int) get_sub_field('field_69e4b7c4a3479', $score_id);
+					$total_score = $judge_1_score+$judge_2_score+$judge_3_score;
+					update_sub_field('field_19e4b7c4a3479', $total_score);
+					$routine_id = (int)get_sub_field('field_19d2674f97bd8', $score_id);
+					update_post_meta($routine_id, 'judges_scores', array($judge_1_score,$judge_2_score,$judge_3_score));
+					update_post_meta($routine_id, 'total_score', $total_score);
+				}
+			}
 		}
 	}
 }
@@ -251,4 +285,3 @@ function ts_competition_schedule_updated( $schedule_id ) {
 		ts_generate_tour_music_zip( $schedules, $tour_id );
 	}
 }
-
