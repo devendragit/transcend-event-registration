@@ -2,7 +2,7 @@
 function ajax_studio_registration() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$tab 		   = $_POST['tab'];
@@ -20,13 +20,13 @@ function ajax_studio_registration() {
 		$payment  	   = $_POST['payment'];
 		$discount_code = $_POST['discount_code'];
 		$save 		   = $_POST['save_for_later'];
-        $remaining        = absint($_POST['remaining']);
-        $remaining_amount = absint($_POST['remaining_amount']);
-        $amount_credited = absint($_POST['amount_credited']);
+		$remaining        = absint($_POST['remaining']);
+		$remaining_amount = absint($_POST['remaining_amount']);
+		$amount_credited = absint($_POST['amount_credited']);
 
 		$response = array(
 			'success' => false,
-			'redirect' => false, 
+			'redirect' => false,
 			'message' => array(),
 		);
 
@@ -68,10 +68,10 @@ function ajax_studio_registration() {
 				update_field('contact', $contact, 'user_'. $user_id);
 
 				$args2 = array(
-				    'ID'         => $user_id,
-				    'user_email' => $email
+					'ID'         => $user_id,
+					'user_email' => $email
 				);
-				wp_update_user( $args2 );				
+				wp_update_user( $args2 );
 			}
 		}
 		if($tab=='roster') {
@@ -86,15 +86,15 @@ function ajax_studio_registration() {
 					$fee = ts_get_workshop_fee($rc, 2, $eid);
 
 					$newParticipant = array(
-		            	'age_division' => $age_div[0]->term_id, 
-		                'discount' => '',
-		                'duration' => 1,
-		                'fee' => $fee
+						'age_division' => $age_div[0]->term_id,
+						'discount' => '',
+						'duration' => 1,
+						'fee' => $fee
 					);
 					$participantArray[$rc] = $newParticipant;
 				}
 			}
-			
+
 			if($rosteredit){
 				foreach ($rosteredit as $key=>$re) {
 					if(current_user_can('edit_studio_roster', $key)){
@@ -125,10 +125,10 @@ function ajax_studio_registration() {
 								$fee = ts_get_workshop_fee($newRoster, 2, $eid);
 
 								$newParticipant = array(
-					            	'age_division' => $age_div[0]->term_id, 
-					                'discount' => '',
-					                'duration' => 1,
-					                'fee' => $fee
+									'age_division' => $age_div[0]->term_id,
+									'discount' => '',
+									'duration' => 1,
+									'fee' => $fee
 								);
 								$participantArray[$newRoster] = $newParticipant;
 							}
@@ -168,15 +168,15 @@ function ajax_studio_registration() {
 								$fee = ts_get_workshop_fee($newRoster, 2, $eid);
 
 								$newParticipant = array(
-					            	'age_division' => $age_div[0]->term_id, 
-					                'discount' => '',
-					                'duration' => 1,
-					                'fee' => $fee
+									'age_division' => $age_div[0]->term_id,
+									'discount' => '',
+									'duration' => 1,
+									'fee' => $fee
 								);
 								$participantArray[$newRoster] = $newParticipant;
 							}
 						}
-					}	
+					}
 				}
 			}
 			$temp_data['workshop']['participants'] = $participantArray;
@@ -216,7 +216,7 @@ function ajax_studio_registration() {
 				if(! empty($participants)) {
 					foreach ($participants as $key => $value) {
 						$agediv = $value['age_division'];
-						
+
 						if($agediv==$Munchkin->term_id) {
 							$countMunchkin++;
 						}
@@ -302,27 +302,27 @@ function ajax_studio_registration() {
 							update_post_meta($newRoutine, 'music', $music);
 							update_post_meta($newRoutine, 'fee', $fee);
 
-				            $term = get_term_by('name', $agediv, 'ts_agediv');
-				            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+							$term = get_term_by('name', $agediv, 'ts_agediv');
+							$agediv_order = get_term_meta($term->term_id, 'div_order', true);
 							update_post_meta($newRoutine, 'agediv_order', $agediv_order);
 
 							$newRoutineInfo = array(
-								'name' => $name, 
-								'dancers' => $dancers, 
-								'agediv' => $agediv, 
-								'cat' => $cat, 
-								'genre' => $genre, 
-								'flows' => $flows, 
-								'props' => $props, 
-								'music' => $music, 
-								'fee' => $fee, 
+								'name' => $name,
+								'dancers' => $dancers,
+								'agediv' => $agediv,
+								'cat' => $cat,
+								'genre' => $genre,
+								'flows' => $flows,
+								'props' => $props,
+								'music' => $music,
+								'fee' => $fee,
 							);
 							$routineArray[$newRoutine] = $newRoutineInfo;
 						}
-					}	
+					}
 				}
 			}
-			
+
 			if($routinenew) {
 				foreach ($routinenew as $rn) {
 					if($rn['name'] !=''){
@@ -355,24 +355,24 @@ function ajax_studio_registration() {
 							update_post_meta($newRoutine, 'music', $music);
 							update_post_meta($newRoutine, 'fee', $fee);
 
-				            $term = get_term_by('name', $agediv, 'ts_agediv');
-				            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+							$term = get_term_by('name', $agediv, 'ts_agediv');
+							$agediv_order = get_term_meta($term->term_id, 'div_order', true);
 							update_post_meta($newRoutine, 'agediv_order', $agediv_order);
 
 							$newRoutineInfo = array(
-								'name' => $name, 
-								'dancers' => $dancers, 
-								'agediv' => $agediv, 
-								'cat' => $cat, 
-								'genre' => $genre, 
-								'flows' => $flows, 
-								'props' => $props, 
-								'music' => $music, 
-								'fee' => $fee, 
+								'name' => $name,
+								'dancers' => $dancers,
+								'agediv' => $agediv,
+								'cat' => $cat,
+								'genre' => $genre,
+								'flows' => $flows,
+								'props' => $props,
+								'music' => $music,
+								'fee' => $fee,
 							);
 							$routineArray[$newRoutine] = $newRoutineInfo;
 						}
-					}	
+					}
 				}
 			}
 
@@ -391,14 +391,14 @@ function ajax_studio_registration() {
 					do_action('registration_edited', $entry_id, $user_id, $remaining_amount);
 				}
 				if( $amount_credited > 0 ){
-				    update_post_meta($entry_id,'amount_credited',$amount_credited);
-                }
+					update_post_meta($entry_id,'amount_credited',$amount_credited);
+				}
 			}
 		}
 		if($tab=='payment') {
-			
+
 			do_action('registration_completed', $entry_id, $user_id, 'mail_in_check');
-            ts_change_post_status($entry_id, 'unpaidcheck');
+			ts_change_post_status($entry_id, 'unpaidcheck');
 			$completed = '&completed=1';
 		}
 		if($tab!='payment'){
@@ -422,7 +422,7 @@ function ajax_studio_registration() {
 				$entry['post_content'] = '';
 				$updated = wp_insert_post($entry, true);
 			}
-			
+
 			if($updated && !is_wp_error($updated)) {
 				if(! $entry_id) {
 					$updated = wp_update_post(array('ID' => $updated, 'post_title' => 'Entry #'. $updated), true);
@@ -438,24 +438,24 @@ function ajax_studio_registration() {
 				}
 
 				update_post_meta($updated, 'profile', $temp_data['profile']);
-				update_post_meta($updated, 'workshop', $temp_data['workshop']);		
+				update_post_meta($updated, 'workshop', $temp_data['workshop']);
 				update_post_meta($updated, 'competition', $temp_data['competition']);
 				update_post_meta($updated, 'grand_total', $grand_total);
 				update_post_meta($updated, 'comfirmed', $comfirmed);
-				update_post_meta($updated, 'save_for_later', $curr_step);				
+				update_post_meta($updated, 'save_for_later', $curr_step);
 
-	            if(isset($temp_data['workshop']['tour_city'])) {
-	            	$date_from 	= get_post_meta($temp_data['workshop']['tour_city'], 'date_from', true);
-                    $date_to =  get_post_meta($temp_data['workshop']['tour_city'], 'date_to', true);
-	            	update_post_meta($entry_id, 'tour_date', $date_from);
-                    update_post_meta($entry_id, 'tour_end_date', $date_to);
-					update_post_meta($updated, 'tour_city', $temp_data['workshop']['tour_city']);				
-	            }
+				if(isset($temp_data['workshop']['tour_city'])) {
+					$date_from 	= get_post_meta($temp_data['workshop']['tour_city'], 'date_from', true);
+					$date_to =  get_post_meta($temp_data['workshop']['tour_city'], 'date_to', true);
+					update_post_meta($entry_id, 'tour_date', $date_from);
+					update_post_meta($entry_id, 'tour_end_date', $date_to);
+					update_post_meta($updated, 'tour_city', $temp_data['workshop']['tour_city']);
+				}
 
 				$eid = $updated;
 				$entry_id = $updated;
-			}	
-		}	
+			}
+		}
 
 		ts_set_session_entry_data($temp_data, $eid, $user_id);
 
@@ -470,18 +470,18 @@ function ajax_studio_registration() {
 			$next_step = $save ? $curr_step : $next_step;
 			$response['redirect'] = $base_url .'&step='. $next_step . $completed;
 		}
-	
+
 		echo json_encode($response);
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_individual_registration() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$tab 		   = $_POST['tab'];
@@ -498,21 +498,21 @@ function ajax_individual_registration() {
 		$payment  	   = $_POST['payment'];
 		$discount_code = $_POST['discount_code'];
 		$save 		   = $_POST['save_for_later'];
-        $remaining        = absint($_POST['remaining']);
-        $remaining_amount = absint($_POST['remaining_amount']);
-        $amount_credited = absint($_POST['amount_credited']);
+		$remaining        = absint($_POST['remaining']);
+		$remaining_amount = absint($_POST['remaining_amount']);
+		$amount_credited = absint($_POST['amount_credited']);
 
 		$response = array(
 			'success' => false,
-			'redirect' => false, 
+			'redirect' => false,
 			'message' => array(),
 		);
 
 		$has_error = true;
 		$completed = '';
-        $comfirmed = false;
+		$comfirmed = false;
 
-        $user_id 	= get_current_user_id();
+		$user_id 	= get_current_user_id();
 		$entry_data = ts_get_session_entry_data($eid);
 		$temp_data 	= $entry_data;
 		$curr_step 	= ((int)$next_step)-1;
@@ -550,8 +550,8 @@ function ajax_individual_registration() {
 				update_field('email', $email, 'user_'. $user_id);
 
 				$args2 = array(
-				    'ID'         => $user_id,
-				    'user_email' => $email
+					'ID'         => $user_id,
+					'user_email' => $email
 				);
 				wp_update_user($args2);
 
@@ -600,10 +600,10 @@ function ajax_individual_registration() {
 					$agediv = ts_set_age_division($newProfile, $birth_date);
 
 					$participant = array(
-						'age_division' => $age_division, 
-						'discount' => $discount, 
-						'duration' => $duration, 
-						'fee' => $new_value, 
+						'age_division' => $age_division,
+						'discount' => $discount,
+						'duration' => $duration,
+						'fee' => $new_value,
 					);
 					$participantsArray[$newProfile] = $participant;
 					$response['agediv'] = $agediv;
@@ -654,25 +654,25 @@ function ajax_individual_registration() {
 							ts_set_age_division($newSibling, $birth_date);
 
 							$sibling = array(
-								'name' => $name, 
-								'birth_date' => $birth_date, 
-								'parent' => $parent, 
-								'studio' => $studio, 
-								'address' => $address, 
-								'cell' => $cell, 
-								'email' => $email, 
+								'name' => $name,
+								'birth_date' => $birth_date,
+								'parent' => $parent,
+								'studio' => $studio,
+								'address' => $address,
+								'cell' => $cell,
+								'email' => $email,
 							);
 							$siblingsArray[$newSibling] = $sibling;
 
 							$participant = array(
-								'age_division' => $age_division, 
-								'discount' => $discount, 
-								'duration' => $duration, 
-								'fee' => $new_value, 
+								'age_division' => $age_division,
+								'discount' => $discount,
+								'duration' => $duration,
+								'fee' => $new_value,
 							);
 							$participantsArray[$newSibling] = $participant;
 						}
-					}	
+					}
 				}
 			}
 
@@ -719,25 +719,25 @@ function ajax_individual_registration() {
 							ts_set_age_division($newSibling, $birth_date);
 
 							$sibling = array(
-								'name' => $name, 
-								'birth_date' => $birth_date, 
-								'parent' => $parent, 
-								'studio' => $studio, 
-								'address' => $address, 
-								'cell' => $cell, 
-								'email' => $email, 
+								'name' => $name,
+								'birth_date' => $birth_date,
+								'parent' => $parent,
+								'studio' => $studio,
+								'address' => $address,
+								'cell' => $cell,
+								'email' => $email,
 							);
 							$siblingsArray[$newSibling] = $sibling;
 
 							$participant = array(
-								'age_division' => $age_division, 
-								'discount' => $discount, 
-								'duration' => $duration, 
-								'fee' => $new_value, 
+								'age_division' => $age_division,
+								'discount' => $discount,
+								'duration' => $duration,
+								'fee' => $new_value,
 							);
 							$participantsArray[$newSibling] = $participant;
 						}
-					}	
+					}
 				}
 			}
 			$temp_data['workshop']['participants'] = $participantsArray;
@@ -750,7 +750,7 @@ function ajax_individual_registration() {
 				if((! isset($workshop['tour_city']) || $workshop['tour_city']=='') || ts_is_paid($entry_id) || (isset($workshop['tour_city']) && get_post_meta($workshop['tour_city'], 'status', true)==2) ) {
 					$workshop['tour_city'] = $temp_data['workshop']['tour_city'];
 				}
-				
+
 				$temp_data['workshop'] = $workshop;
 
 				$participants 		= ts_check_value($workshop, 'participants');
@@ -779,7 +779,7 @@ function ajax_individual_registration() {
 				if(! empty($participants)) {
 					foreach ($participants as $key => $value) {
 						$agediv = $value['age_division'];
-						
+
 						if($agediv==$Munchkin->term_id) {
 							$countMunchkin++;
 						}
@@ -865,27 +865,27 @@ function ajax_individual_registration() {
 							update_post_meta($newRoutine, 'music', $music);
 							update_post_meta($newRoutine, 'fee', $fee);
 
-				            $term = get_term_by('name', $agediv, 'ts_agediv');
-				            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+							$term = get_term_by('name', $agediv, 'ts_agediv');
+							$agediv_order = get_term_meta($term->term_id, 'div_order', true);
 							update_post_meta($newRoutine, 'agediv_order', $agediv_order);
 
 							$newRoutineInfo = array(
-								'name' => $name, 
-								'dancers' => $dancers, 
-								'agediv' => $agediv, 
-								'cat' => $cat, 
-								'genre' => $genre, 
-								'flows' => $flows, 
-								'props' => $props, 
-								'music' => $music, 
-								'fee' => $fee, 
+								'name' => $name,
+								'dancers' => $dancers,
+								'agediv' => $agediv,
+								'cat' => $cat,
+								'genre' => $genre,
+								'flows' => $flows,
+								'props' => $props,
+								'music' => $music,
+								'fee' => $fee,
 							);
 							$routineArray[$newRoutine] = $newRoutineInfo;
 						}
-					}	
+					}
 				}
 			}
-			
+
 			if($routinenew) {
 				foreach ($routinenew as $rn) {
 					if($rn['name'] !=''){
@@ -918,24 +918,24 @@ function ajax_individual_registration() {
 							update_post_meta($newRoutine, 'music', $music);
 							update_post_meta($newRoutine, 'fee', $fee);
 
-				            $term = get_term_by('name', $agediv, 'ts_agediv');
-				            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+							$term = get_term_by('name', $agediv, 'ts_agediv');
+							$agediv_order = get_term_meta($term->term_id, 'div_order', true);
 							update_post_meta($newRoutine, 'agediv_order', $agediv_order);
 
 							$newRoutineInfo = array(
-								'name' => $name, 
-								'dancers' => $dancers, 
-								'agediv' => $agediv, 
-								'cat' => $cat, 
-								'genre' => $genre, 
-								'flows' => $flows, 
-								'props' => $props, 
-								'music' => $music, 
-								'fee' => $fee, 
+								'name' => $name,
+								'dancers' => $dancers,
+								'agediv' => $agediv,
+								'cat' => $cat,
+								'genre' => $genre,
+								'flows' => $flows,
+								'props' => $props,
+								'music' => $music,
+								'fee' => $fee,
 							);
 							$routineArray[$newRoutine] = $newRoutineInfo;
 						}
-					}	
+					}
 				}
 			}
 
@@ -953,13 +953,13 @@ function ajax_individual_registration() {
 				if($paid_amount!=$grand_total) {
 					do_action('registration_edited', $entry_id, $user_id, $remaining_amount);
 				}
-                if( $amount_credited > 0 ){
-                    update_post_meta($entry_id,'amount_credited',$amount_credited);
-                }
+				if( $amount_credited > 0 ){
+					update_post_meta($entry_id,'amount_credited',$amount_credited);
+				}
 			}
 		}
 		if($tab=='payment') {
-			
+
 			do_action('registration_completed', $entry_id, $user_id, 'mail_in_check');
 			ts_change_post_status($entry_id, 'unpaidcheck');
 			$completed = '&completed=1';
@@ -985,7 +985,7 @@ function ajax_individual_registration() {
 				$entry['post_content'] = '';
 				$updated = wp_insert_post($entry, true);
 			}
-			
+
 			if($updated && !is_wp_error($updated)) {
 				if(! $entry_id) {
 					$updated = wp_update_post(array('ID' => $updated, 'post_title' => 'Entry #'. $updated), true);
@@ -1001,27 +1001,27 @@ function ajax_individual_registration() {
 				}
 
 				update_post_meta($updated, 'profile', $temp_data['profile']);
-				update_post_meta($updated, 'workshop', $temp_data['workshop']);		
+				update_post_meta($updated, 'workshop', $temp_data['workshop']);
 				update_post_meta($updated, 'competition', $temp_data['competition']);
 				update_post_meta($updated, 'grand_total', $grand_total);
 				update_post_meta($updated, 'comfirmed', $comfirmed);
 				update_post_meta($updated, 'save_for_later', $curr_step);
 
-	            if(isset($temp_data['workshop']['tour_city'])) {
-	            	$date_from 	= get_post_meta($temp_data['workshop']['tour_city'], 'date_from', true);
-                    $date_to =  get_post_meta($temp_data['workshop']['tour_city'], 'date_to', true);
-                    update_post_meta($entry_id, 'tour_date', $date_from);
-                    update_post_meta($entry_id, 'tour_end_date', $date_to);
-					update_post_meta($updated, 'tour_city', $temp_data['workshop']['tour_city']);				
-	            }
+				if(isset($temp_data['workshop']['tour_city'])) {
+					$date_from 	= get_post_meta($temp_data['workshop']['tour_city'], 'date_from', true);
+					$date_to =  get_post_meta($temp_data['workshop']['tour_city'], 'date_to', true);
+					update_post_meta($entry_id, 'tour_date', $date_from);
+					update_post_meta($entry_id, 'tour_end_date', $date_to);
+					update_post_meta($updated, 'tour_city', $temp_data['workshop']['tour_city']);
+				}
 
 				$eid = $updated;
 				$entry_id = $updated;
-			}	
-		}	
+			}
+		}
 
 		ts_set_session_entry_data($temp_data, $eid, $user_id);
-		
+
 		$has_error = false;
 
 		if($has_error === true) {
@@ -1033,24 +1033,24 @@ function ajax_individual_registration() {
 			$next_step = $save ? $curr_step : $next_step;
 			$response['redirect'] = $base_url .'&step='. $next_step . $completed;
 		}
-	
+
 		echo json_encode($response);
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_new_registration() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$id		= (int)$_POST['id'];
 		$eid 	= ts_set_eid();
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$temp_data = array();
@@ -1064,20 +1064,20 @@ function ajax_new_registration() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_edit_entry() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$eid	= (int)$_POST['eid'];
 		$url	= $_POST['url'];
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		if(current_user_can('edit_entry', $eid)) {
@@ -1093,13 +1093,13 @@ function ajax_edit_entry() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_save_roster() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$eid			= $_POST['eid'];
@@ -1112,13 +1112,13 @@ function ajax_save_roster() {
 		$selected		= $_POST['selected'];
 
 		$response = array(
-			'success' => false, 
-			'id' => $id, 
-			'first_name' => $first_name, 
-			'last_name' => $last_name, 
-			'birth_date' => $birth_date, 
-			'roster_type' => $roster_type, 
-			'type_name' => $type_name, 
+			'success' => false,
+			'id' => $id,
+			'first_name' => $first_name,
+			'last_name' => $last_name,
+			'birth_date' => $birth_date,
+			'roster_type' => $roster_type,
+			'type_name' => $type_name,
 		);
 
 		if(current_user_can('edit_studio_roster', $id)){
@@ -1146,10 +1146,10 @@ function ajax_save_roster() {
 					$fee = ts_get_workshop_fee($newRoster, 2, $eid);
 
 					$newParticipant = array(
-		            	'age_division' => $age_div[0]->term_id, 
-		                'discount' => '',
-		                'duration' => 1,
-		                'fee' => $fee
+						'age_division' => $age_div[0]->term_id,
+						'discount' => '',
+						'duration' => 1,
+						'fee' => $fee
 					);
 					$temp_data['workshop']['participants'][$id] = $newParticipant;
 				}
@@ -1166,13 +1166,13 @@ function ajax_save_roster() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_adjust_fee() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$eid			= $_POST['eid'];
@@ -1182,8 +1182,8 @@ function ajax_adjust_fee() {
 		$duration		= (int)$_POST['duration'];
 
 		$response = array(
-			'success' => false, 
-			'id' => $id, 
+			'success' => false,
+			'id' => $id,
 		);
 
 		$entry_data = ts_get_session_entry_data($eid);
@@ -1195,10 +1195,10 @@ function ajax_adjust_fee() {
 		$new_value = ts_get_discounted_workshop_fee($base_fee, $discount);
 
 		$participant = array(
-			'age_division' => $age_division, 
-			'discount' => $discount, 
-			'duration' => $duration, 
-			'fee' => $new_value, 
+			'age_division' => $age_division,
+			'discount' => $discount,
+			'duration' => $duration,
+			'fee' => $new_value,
 		);
 
 		$temp_data['workshop']['participants'][$id] = $participant;
@@ -1237,26 +1237,26 @@ function ajax_adjust_fee() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_set_tour_city() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$eid			= $_POST['eid'];
 		$tour_city		= (int)$_POST['tour_city'];
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$entry_data = ts_get_session_entry_data($eid);
 
 		$temp_data = $entry_data;
-				
+
 		if(! ts_is_paid($eid) && get_post_meta($tour_city, 'status', true) != 2 ) {
 			$temp_data['workshop']['tour_city'] = $tour_city;
 		}
@@ -1269,13 +1269,13 @@ function ajax_set_tour_city() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_add_routine_dancers() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$eid		= $_POST['eid'];
@@ -1286,7 +1286,7 @@ function ajax_add_routine_dancers() {
 		$id 		= (int)$id;
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 			'id' => $id,
 		);
 
@@ -1377,18 +1377,18 @@ function ajax_add_routine_dancers() {
 				);
 				$routine_id = wp_insert_post($routineArgs, true);
 			}
-				
+
 			if($routine_id && !is_wp_error($routine_id)) {
 				//if(get_post_status($eid)!='paid' && get_post_status($eid)!='paidcheck' && ! get_post_meta($routine_id, 'dancers_count', true)) {
-					update_post_meta($routine_id, 'dancers_count', $count);
+				update_post_meta($routine_id, 'dancers_count', $count);
 				//}
 				update_post_meta($routine_id, 'dancers', $dancer_ids);
 				update_post_meta($routine_id, 'agediv', $age_div_name);
 				update_post_meta($routine_id, 'cat', $routine_cat_id);
 				update_post_meta($routine_id, 'fee', $fee);
 
-	            $term = get_term_by('name', $age_div_name, 'ts_agediv');
-	            $agediv_order = get_term_meta($term->term_id, 'div_order', true);
+				$term = get_term_by('name', $age_div_name, 'ts_agediv');
+				$agediv_order = get_term_meta($term->term_id, 'div_order', true);
 				update_post_meta($routine_id, 'agediv_order', $agediv_order);
 
 				$routineArray[$routine_id]['dancers'] = $dancer_ids;
@@ -1419,26 +1419,26 @@ function ajax_add_routine_dancers() {
 			$response['total_fee_preview'] = number_format($total_fee, 2);
 			$response['routine_id'] = $routine_id;
 			$response['success'] = true;
-		}	
+		}
 
 		echo json_encode($response);
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_add_participants() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$participants = $_POST['participants'];
 		$eid = $_POST['eid'];
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$user_id = get_current_user_id();
@@ -1454,22 +1454,22 @@ function ajax_add_participants() {
 
 				$age_div = wp_get_object_terms($p, 'ts_agediv');
 
-                $first_name = get_post_meta($p, 'first_name', true);
-                $last_name = get_post_meta($p, 'last_name', true);
-                $name = $first_name .' '.$last_name;
-                $fee = ts_get_workshop_fee($p, 2, $eid);
+				$first_name = get_post_meta($p, 'first_name', true);
+				$last_name = get_post_meta($p, 'last_name', true);
+				$name = $first_name .' '.$last_name;
+				$fee = ts_get_workshop_fee($p, 2, $eid);
 
-                $new = array(
-                    'name' => $name,
-                	'age_division' => $age_div[0]->term_id, 
-                    'discount' => '',
-                    'duration' => 1,
-                    'fee' => $fee
-                ); 
+				$new = array(
+					'name' => $name,
+					'age_division' => $age_div[0]->term_id,
+					'discount' => '',
+					'duration' => 1,
+					'fee' => $fee
+				);
 
-                $participantsArray[$p] = $new;
-                $newParticipantsArray[$p] = $new;
-			}	
+				$participantsArray[$p] = $new;
+				$newParticipantsArray[$p] = $new;
+			}
 		}
 
 		$temp_data['workshop']['participants'] = $participantsArray;
@@ -1495,13 +1495,13 @@ function ajax_add_participants() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_add_observer() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$name = $_POST['name'];
@@ -1509,7 +1509,7 @@ function ajax_add_observer() {
 		$eid = $_POST['eid'];
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$user_id = get_current_user_id();
@@ -1518,13 +1518,13 @@ function ajax_add_observer() {
 		$observerArray = ts_check_value($entry_data, 'workshop', 'observers');
 
 		if(is_array($observerArray) && ! array_key_exists($id, $observerArray)) {
-	        $new = array(
-	        	'name' => $name, 
-	        	'age_division' => 'N/A', 
-	            'discount' => 'N/A',
-	            'duration' => 'N/A',
-	            'fee' => 35
-	        ); 
+			$new = array(
+				'name' => $name,
+				'age_division' => 'N/A',
+				'discount' => 'N/A',
+				'duration' => 'N/A',
+				'fee' => 35
+			);
 			$temp_data['workshop']['observers'][$id] = $new;
 
 			$total_fee 				= ts_get_total_workshop_fee($eid, $temp_data);
@@ -1545,19 +1545,19 @@ function ajax_add_observer() {
 			$response['eid'] = $eid;
 			$response['newpobserver'] = $new;
 			$response['success'] = true;
-    	}
+		}
 
 		echo json_encode($response);
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_add_munchkin_observer() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$name = $_POST['name'];
@@ -1565,7 +1565,7 @@ function ajax_add_munchkin_observer() {
 		$eid = $_POST['eid'];
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$user_id = get_current_user_id();
@@ -1574,13 +1574,13 @@ function ajax_add_munchkin_observer() {
 		$observerArray = ts_check_value($entry_data, 'workshop', 'munchkin_observers');
 
 		if(is_array($observerArray) && ! array_key_exists($id, $observerArray)) {
-	        $new = array(
-	        	'name' => $name, 
-	        	'age_division' => 'N/A', 
-	            'discount' => 'N/A',
-	            'duration' => 'N/A',
-	            'fee' => 15
-	        ); 
+			$new = array(
+				'name' => $name,
+				'age_division' => 'N/A',
+				'discount' => 'N/A',
+				'duration' => 'N/A',
+				'fee' => 15
+			);
 			$temp_data['workshop']['munchkin_observers'][$id] = $new;
 
 			$total_fee 				= ts_get_total_workshop_fee($eid, $temp_data);
@@ -1601,26 +1601,26 @@ function ajax_add_munchkin_observer() {
 			$response['eid'] = $eid;
 			$response['newpobserver'] = $new;
 			$response['success'] = true;
-    	}
+		}
 
 		echo json_encode($response);
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_apply_coupon() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$eid			= $_POST['eid'];
 		$coupon 		= $_POST['coupon'];
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$entry_data = ts_get_session_entry_data($eid);
@@ -1651,13 +1651,13 @@ function ajax_apply_coupon() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_save_voucher() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$id				= $_POST['voucher-id'];
@@ -1670,7 +1670,7 @@ function ajax_save_voucher() {
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$args = array(
@@ -1687,7 +1687,7 @@ function ajax_save_voucher() {
 			$args['post_content'] = '';
 			$voucher_id = wp_insert_post($args, true);
 		}
-			
+
 		if($voucher_id && !is_wp_error($voucher_id)) {
 			update_post_meta($voucher_id, 'discount', $discount);
 			update_post_meta($voucher_id, 'workshop', $workshop);
@@ -1710,19 +1710,19 @@ function ajax_save_voucher() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_save_tour() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-save-item', 'token');
 
 		$id				= $_POST['tour-id'];
 		$status 		= $_POST['tour-status'];
 		$workshop 		= $_POST['tour-workshop'];
-        $competition 	= $_POST['tour-competition'];
+		$competition 	= $_POST['tour-competition'];
 		$title 			= $_POST['tour-title'];
 		$city 			= $_POST['tour-city'];
 		$venue 			= $_POST['tour-venue'];
@@ -1734,7 +1734,7 @@ function ajax_save_tour() {
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$args = array(
@@ -1751,16 +1751,16 @@ function ajax_save_tour() {
 			$args['post_content'] = '';
 			$tour_id = wp_insert_post($args, true);
 		}
-			
+
 		if($tour_id && !is_wp_error($tour_id)) {
 
 			$workshop = isset($workshop) && isset($status) ? 1 : 2;
-            $competition = isset($competition) && isset($status) ? 1 : 2;
+			$competition = isset($competition) && isset($status) ? 1 : 2;
 			$status = isset($status) ? 1 : 2;
 
 			update_post_meta($tour_id, 'status', $status);
 			update_post_meta($tour_id, 'workshop', $workshop);
-            update_post_meta($tour_id, 'competition', $competition);
+			update_post_meta($tour_id, 'competition', $competition);
 			update_post_meta($tour_id, 'city', $city);
 			update_post_meta($tour_id, 'venue', $venue);
 			update_post_meta($tour_id, 'date_from', date_format(date_create($datefrom),'Y/m/d'));
@@ -1782,13 +1782,13 @@ function ajax_save_tour() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_close_tour() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$id				= $_POST['id'];
@@ -1796,8 +1796,8 @@ function ajax_close_tour() {
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
-			'id' => $tour_id, 
+			'success' => false,
+			'id' => $tour_id,
 		);
 
 		if($tour_id && current_user_can('edit_tour', $tour_id)){
@@ -1806,13 +1806,13 @@ function ajax_close_tour() {
 
 			if($status == 2) {
 				update_post_meta($tour_id, 'workshop', 1);
-                update_post_meta($tour_id, 'competition', 1);
+				update_post_meta($tour_id, 'competition', 1);
 				update_post_meta($tour_id, 'status', 1);
 				$newstat = 1;
 			}
 			else {
 				update_post_meta($tour_id, 'status', 2);
-                update_post_meta($tour_id, 'competition', 2);
+				update_post_meta($tour_id, 'competition', 2);
 				update_post_meta($tour_id, 'workshop', 2);
 				$newstat = 2;
 			}
@@ -1831,13 +1831,13 @@ function ajax_close_tour() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_sched_status() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$id				= $_POST['id'];
@@ -1845,8 +1845,8 @@ function ajax_sched_status() {
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
-			'id' => $sched_id, 
+			'success' => false,
+			'id' => $sched_id,
 		);
 
 		if($sched_id && current_user_can('edit_event', $sched_id)){
@@ -1854,12 +1854,12 @@ function ajax_sched_status() {
 			$status = get_post_status($sched_id);
 			$post_status = $status === 'publish' ? 'draft' : 'publish';
 
-		    $schedule = array(
-		    	'ID' => $sched_id,
-		        'post_status'  => $post_status,
-		        'post_type'  => 'ts_event',
-		    );  
-		    $updated = wp_update_post($schedule);
+			$schedule = array(
+				'ID' => $sched_id,
+				'post_status'  => $post_status,
+				'post_type'  => 'ts_event',
+			);
+			$updated = wp_update_post($schedule);
 
 			if($updated && !is_wp_error($updated)) {
 				$has_error = false;
@@ -1877,19 +1877,19 @@ function ajax_sched_status() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_remove_coupon() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$eid = $_POST['eid'];
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$entry_data = ts_get_session_entry_data($eid);
@@ -1906,7 +1906,7 @@ function ajax_remove_coupon() {
 			';
 
 			$grand_total = ts_grand_total($eid, $temp_data);
-			
+
 			$response['new_grand_total'] = $grand_total;
 			$response['button_html'] = $button_html;
 			$response['success'] = true;
@@ -1916,21 +1916,21 @@ function ajax_remove_coupon() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_remove_participant() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-delete-item', 'token');
 
 		$id = (int)$_POST['id'];
 		$eid = $_POST['eid'];
 
 		$response = array(
-			'success' => false, 
-			'id' => $id, 
+			'success' => false,
+			'id' => $id,
 		);
 
 		$user_id = get_current_user_id();
@@ -1942,7 +1942,7 @@ function ajax_remove_participant() {
 		if( is_array($roster) && ! empty($roster) ) {
 			$rosterArray = $roster;
 			if (($key = array_search($id, $rosterArray)) !== false) {
-			    unset($rosterArray[$key]);
+				unset($rosterArray[$key]);
 			}
 			$temp_data['roster'] = $rosterArray;
 		}
@@ -1979,21 +1979,21 @@ function ajax_remove_participant() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_remove_observer() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-delete-item', 'token');
 
 		$id = (int)$_POST['id'];
 		$eid = $_POST['eid'];
 
 		$response = array(
-			'success' => false, 
-			'id' => $id, 
+			'success' => false,
+			'id' => $id,
 		);
 
 		$user_id = get_current_user_id();
@@ -2030,21 +2030,21 @@ function ajax_remove_observer() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_remove_munchkin_observer() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-delete-item', 'token');
 
 		$id = (int)$_POST['id'];
 		$eid = $_POST['eid'];
 
 		$response = array(
-			'success' => false, 
-			'id' => $id, 
+			'success' => false,
+			'id' => $id,
 		);
 
 		$user_id = get_current_user_id();
@@ -2081,21 +2081,21 @@ function ajax_remove_munchkin_observer() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_delete_routine() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-delete-item', 'token');
 
 		$id = absint($_POST['id']);
 		$eid = $_POST['eid'];
 
 		$response = array(
-			'success' => false, 
-			'id' => $id, 
+			'success' => false,
+			'id' => $id,
 		);
 
 		if(current_user_can('delete_post', $id)){
@@ -2110,7 +2110,7 @@ function ajax_delete_routine() {
 				$temp_data['grand_total'] = ts_grand_total($eid, $temp_data);
 
 				ts_set_session_entry_data($temp_data, $eid);
-				
+
 				$response['new_total_fee'] = $total_fee;
 				$response['new_total_fee_preview'] = number_format($total_fee,2);
 				$response['success'] = true;
@@ -2123,22 +2123,22 @@ function ajax_delete_routine() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_delete_item() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-delete-item', 'token');
 
 		$id				= (int)$_POST['id'];
 		$type			= $_POST['type'];
 
 		$response = array(
-			'success' => false, 
-			'id' => $id, 
-			'type' => $type, 
+			'success' => false,
+			'id' => $id,
+			'type' => $type,
 		);
 
 		$delete = false;
@@ -2174,24 +2174,24 @@ function ajax_delete_item() {
 				$response['message'][] = __('Access Denied');
 			}
 		}
-        else if( $type == 'invoice') {
-            if(current_user_can('delete_post', $id)){
-                $entry_id = (int)get_post_meta($id,'entry_id',true);
-                $ts_entry_previous_status = get_post_meta( $entry_id, 'ts_entry_hidden_post_status', true);
+		else if( $type == 'invoice') {
+			if(current_user_can('delete_post', $id)){
+				$entry_id = (int)get_post_meta($id,'entry_id',true);
+				$ts_entry_previous_status = get_post_meta( $entry_id, 'ts_entry_hidden_post_status', true);
 
-                delete_post_meta($entry_id,'ts_entry_invoice_amount');
-                delete_post_meta($entry_id,'invoice_due');
-                delete_post_meta($entry_id,'invoice_id');
-                delete_post_meta($entry_id,'ts_entry_invoice_note');
-                delete_post_meta($entry_id,'ts_entry_hidden_post_status');
-                $delete = wp_delete_post($id, true);
+				delete_post_meta($entry_id,'ts_entry_invoice_amount');
+				delete_post_meta($entry_id,'invoice_due');
+				delete_post_meta($entry_id,'invoice_id');
+				delete_post_meta($entry_id,'ts_entry_invoice_note');
+				delete_post_meta($entry_id,'ts_entry_hidden_post_status');
+				$delete = wp_delete_post($id, true);
 
-                ts_change_post_status($entry_id, $ts_entry_previous_status );
+				ts_change_post_status($entry_id, $ts_entry_previous_status );
 
-            }else{
-                $response['message'][] = __('Access Denied');
-            }
-        }
+			}else{
+				$response['message'][] = __('Access Denied');
+			}
+		}
 
 		if($delete && ! is_wp_error($delete)) {
 			$response['success'] = true;
@@ -2205,20 +2205,20 @@ function ajax_delete_item() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_delete_all() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-delete-item', 'token');
 
 		$ids = $_POST['ids'];
 		$type = $_POST['type'];
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		$has_error = true;
@@ -2235,14 +2235,14 @@ function ajax_delete_all() {
 					if(is_wp_error($deleted)){
 						$error_count++;
 					}else{
-						$success_count++;	
+						$success_count++;
 					}
 				}
 			}
 			if($error_count===0 && $success_count > 0)
 				$has_error = false;
 		}
-		
+
 		if($has_error===true) {
 			$response['message'][] = __('Some items were not deleted.');
 			array_unshift($response['message'], 'Error');
@@ -2255,358 +2255,358 @@ function ajax_delete_all() {
 
 	endif;
 
-    die();		
+	die();
 }
 
 function ajax_pay_invoice() {
-    if($_POST) :
-        check_ajax_referer('ts-default', 'token');
+	if($_POST) :
+		check_ajax_referer('ts-default', 'token');
 
-        $eid	= (int)$_POST['eid'];
-        $url	= $_POST['url'];
+		$eid	= (int)$_POST['eid'];
+		$url	= $_POST['url'];
 
-        $response = array(
-            'success' => false,
-        );
+		$response = array(
+			'success' => false,
+		);
 
-        if(current_user_can('edit_entry', $eid)) {
-            $response['success'] = true;
-            $response['redirect'] = $url;
-        }
+		if(current_user_can('edit_entry', $eid)) {
+			$response['success'] = true;
+			$response['redirect'] = $url;
+		}
 
-        echo json_encode($response);
-    endif;
-    die();
+		echo json_encode($response);
+	endif;
+	die();
 }
 
 function ajax_create_invoice() {
 
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-save-item', 'token');
+		check_ajax_referer('ts-save-item', 'token');
 
-        $id				            = $_POST['entryid'];
-        $ts_entry_invoice_amount 	= $_POST['ts-entry-invoice-amount'];
-        $ts_entry_invoice_note 		= $_POST['ts-entry-invoice-note'];
-        $ts_entry_hidden_post_status= $_POST['ts_entry_hidden_post_status'];
+		$id				            = $_POST['entryid'];
+		$ts_entry_invoice_amount 	= $_POST['ts-entry-invoice-amount'];
+		$ts_entry_invoice_note 		= $_POST['ts-entry-invoice-note'];
+		$ts_entry_hidden_post_status= $_POST['ts_entry_hidden_post_status'];
 
-        $id 			= absint($id);
-        $has_error 		= true;
+		$id 			= absint($id);
+		$has_error 		= true;
 
-        $response = array(
-            'success' => false,
-            'id' => $id,
-            'redirect' => false,
-        );
+		$response = array(
+			'success' => false,
+			'id' => $id,
+			'redirect' => false,
+		);
 
-        $invoice_id = false;
-        if(isset($ts_entry_invoice_amount)) {
-            $ts_entry_invoice_amount = number_format($ts_entry_invoice_amount, 2, '.', '');
-            update_post_meta($id, "ts_entry_invoice_amount", $ts_entry_invoice_amount);
-            $invoice_id = wp_insert_post(array (
-                'post_type' => 'ts_invoice',
-                'post_title' => 'Invoice #' . $id,
-                'post_status' => 'unpaid',
-                'ping_status' => 'closed',
-            ));
-            if ($id) {
-                update_post_meta($invoice_id, 'invoice_amount', $ts_entry_invoice_amount);
-                $has_error = false;
-            }
-        }
-        if(isset($ts_entry_invoice_note)) {
-            $ts_entry_invoice_note = sanitize_textarea_field( $ts_entry_invoice_note );
-            update_post_meta($id, "ts_entry_invoice_note", $ts_entry_invoice_note);
-            if ( $invoice_id ) {
-                update_post_meta($invoice_id, 'invoice_note', $ts_entry_invoice_note);
-            }
-        }
-        if(isset($ts_entry_hidden_post_status)) {
-            $ts_entry_hidden_post_status = sanitize_textarea_field( $ts_entry_hidden_post_status );
-            update_post_meta($id, "ts_entry_hidden_post_status", $ts_entry_hidden_post_status);
-        }
+		$invoice_id = false;
+		if(isset($ts_entry_invoice_amount)) {
+			$ts_entry_invoice_amount = number_format($ts_entry_invoice_amount, 2, '.', '');
+			update_post_meta($id, "ts_entry_invoice_amount", $ts_entry_invoice_amount);
+			$invoice_id = wp_insert_post(array (
+				'post_type' => 'ts_invoice',
+				'post_title' => 'Invoice #' . $id,
+				'post_status' => 'unpaid',
+				'ping_status' => 'closed',
+			));
+			if ($id) {
+				update_post_meta($invoice_id, 'invoice_amount', $ts_entry_invoice_amount);
+				$has_error = false;
+			}
+		}
+		if(isset($ts_entry_invoice_note)) {
+			$ts_entry_invoice_note = sanitize_textarea_field( $ts_entry_invoice_note );
+			update_post_meta($id, "ts_entry_invoice_note", $ts_entry_invoice_note);
+			if ( $invoice_id ) {
+				update_post_meta($invoice_id, 'invoice_note', $ts_entry_invoice_note);
+			}
+		}
+		if(isset($ts_entry_hidden_post_status)) {
+			$ts_entry_hidden_post_status = sanitize_textarea_field( $ts_entry_hidden_post_status );
+			update_post_meta($id, "ts_entry_hidden_post_status", $ts_entry_hidden_post_status);
+		}
 
-        if($has_error === true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            do_action('ts_invoice_created', $id, $invoice_id);
-            $response['success'] = true;
-            $response['redirect'] = admin_url('admin.php?page=ts-invoices');
-        }
-        echo json_encode($response);
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			do_action('ts_invoice_created', $id, $invoice_id);
+			$response['success'] = true;
+			$response['redirect'] = admin_url('admin.php?page=ts-invoices');
+		}
+		echo json_encode($response);
 
-    endif;
+	endif;
 
-    die();
+	die();
 }
 
 function ajax_download_all_music(){
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-default', 'token');
+		check_ajax_referer('ts-default', 'token');
 
-        $id				= intval(sanitize_text_field($_POST['id']));
-        $has_error 		= true;
+		$id				= intval(sanitize_text_field($_POST['id']));
+		$has_error 		= true;
 
-        $response = array(
-            'success' => false,
-            'id' => $id,
-            'redirect' => false,
-        );
+		$response = array(
+			'success' => false,
+			'id' => $id,
+			'redirect' => false,
+		);
 
-        $entry_id 		= $id;
-        $entry = get_post($entry_id);
-        $competition 	= get_post_meta($entry_id, 'competition', true);
-        $routines 		= $competition['routines'];
-        $author 		= $entry->post_author;
-        $user_meta 		= get_userdata($author);
-        $user_roles = $user_meta->roles;
+		$entry_id 		= $id;
+		$entry = get_post($entry_id);
+		$competition 	= get_post_meta($entry_id, 'competition', true);
+		$routines 		= $competition['routines'];
+		$author 		= $entry->post_author;
+		$user_meta 		= get_userdata($author);
+		$user_roles = $user_meta->roles;
 
-        if(in_array('studio', $user_roles)) {
-            $name = get_field('director', 'user_'. $author);
-        }
-        else if(in_array('individual', $user_roles)){
-            $name = get_field('name', 'user_'. $author);
-        }
+		if(in_array('studio', $user_roles)) {
+			$name = get_field('director', 'user_'. $author);
+		}
+		else if(in_array('individual', $user_roles)){
+			$name = get_field('name', 'user_'. $author);
+		}
 
-        $pretty_filename = get_the_title($entry_id);
-        $pretty_filename.=  '-'.$name;
-        if(! empty($routines) ){
-            // Prepare File
-            if ( !is_dir(TS_MUSIC_ZIP_FOLDER) ) {
-                mkdir(TS_MUSIC_ZIP_FOLDER, 0775, true);
-            }
+		$pretty_filename = get_the_title($entry_id);
+		$pretty_filename.=  '-'.$name;
+		if(! empty($routines) ){
+			// Prepare File
+			if ( !is_dir(TS_MUSIC_ZIP_FOLDER) ) {
+				mkdir(TS_MUSIC_ZIP_FOLDER, 0775, true);
+			}
 
-            $file = tempnam(TS_MUSIC_ZIP_FOLDER, "zip");
-            $zip = new ZipArchive();
-            $zip->open($file, ZipArchive::OVERWRITE);
-            foreach( $routines as  $routine ) {
-                // Get the file name
-                $music_id = (int)$routine['music'];
-                if($music_id) {
-                    $name = explode('/', get_attached_file($music_id) );
-                    $name = $name[sizeof($name) - 1];
-                    $zip->addFile(get_attached_file($music_id), $name);
-                }
-            }
-            // Store the filename before closing the file
+			$file = tempnam(TS_MUSIC_ZIP_FOLDER, "zip");
+			$zip = new ZipArchive();
+			$zip->open($file, ZipArchive::OVERWRITE);
+			foreach( $routines as  $routine ) {
+				// Get the file name
+				$music_id = (int)$routine['music'];
+				if($music_id) {
+					$name = explode('/', get_attached_file($music_id) );
+					$name = $name[sizeof($name) - 1];
+					$zip->addFile(get_attached_file($music_id), $name);
+				}
+			}
+			// Store the filename before closing the file
 
-            $filename_array = explode('/', $zip->filename);
-            $filename = $filename_array[sizeof($filename_array) - 1];
+			$filename_array = explode('/', $zip->filename);
+			$filename = $filename_array[sizeof($filename_array) - 1];
 
-            //Close the file
-            $zip->close();
-            $has_error = false;
-        }
+			//Close the file
+			$zip->close();
+			$has_error = false;
+		}
 
-        if($has_error === true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-            $response['redirect'] = TS_ZIP_ATTACHMENTS_URL."/ts-music-download.php?ts_pretty_filename=".sanitize_file_name($pretty_filename)."&ts_real_filename=".$filename."&ts_unlink=".true;
-        }
-        echo json_encode($response);
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+			$response['redirect'] = TS_ZIP_ATTACHMENTS_URL."/ts-music-download.php?ts_pretty_filename=".sanitize_file_name($pretty_filename)."&ts_real_filename=".$filename."&ts_unlink=".true;
+		}
+		echo json_encode($response);
 
-    endif;
+	endif;
 
-    die();
+	die();
 }
 
 function ajax_save_music_info() {
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-save-item', 'token');
+		check_ajax_referer('ts-save-item', 'token');
 
-        $music_id		= $_POST['music-id'];
-        $music_title 	= sanitize_text_field($_POST['music-title']);
+		$music_id		= $_POST['music-id'];
+		$music_title 	= sanitize_text_field($_POST['music-title']);
 
-        $music_id		= absint($music_id);
-        $has_error 		= true;
+		$music_id		= absint($music_id);
+		$has_error 		= true;
 
-        $response = array(
-            'success' => false,
-            'id' => $music_id,
-        );
+		$response = array(
+			'success' => false,
+			'id' => $music_id,
+		);
 
-        if( get_the_title($music_id) && $music_title ) {
-            $file = get_attached_file($music_id);
-            $path = pathinfo($file);
+		if( get_the_title($music_id) && $music_title ) {
+			$file = get_attached_file($music_id);
+			$path = pathinfo($file);
 
-            $newfilename = $music_title;
-            $newfile = $path['dirname']."/".$newfilename.".".$path['extension'];
+			$newfilename = $music_title;
+			$newfile = $path['dirname']."/".$newfilename.".".$path['extension'];
 
-            rename($file, $newfile);
-            $check = update_attached_file( $music_id, $newfile );
-            if( $check ) {
-                $has_error = false;
-                $music_meta = array(
-                    'ID'		=> $music_id,
-                    'post_title'	=> $music_title,
-                );
-                wp_update_post( $music_meta );
-            }
-        }
+			rename($file, $newfile);
+			$check = update_attached_file( $music_id, $newfile );
+			if( $check ) {
+				$has_error = false;
+				$music_meta = array(
+					'ID'		=> $music_id,
+					'post_title'	=> $music_title,
+				);
+				wp_update_post( $music_meta );
+			}
+		}
 
-        if($has_error === true) {
-            $response['message'][] = __('Unable to rename.');
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-        }
-        echo json_encode($response);
+		if($has_error === true) {
+			$response['message'][] = __('Unable to rename.');
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
 
-    endif;
+	endif;
 
-    die();
+	die();
 }
 
 function ajax_save_mark_as_paid() {
-    if($_POST) :
-        check_ajax_referer('ts-default', 'token');
-        $entry_id = (int)$_POST['id'];
-        $response = array(
-            'success' => false,
-            'id' => $entry_id,
-        );
-        $has_error = true;
-        if(current_user_can('edit_post', $entry_id)){
+	if($_POST) :
+		check_ajax_referer('ts-default', 'token');
+		$entry_id = (int)$_POST['id'];
+		$response = array(
+			'success' => false,
+			'id' => $entry_id,
+		);
+		$has_error = true;
+		if(current_user_can('edit_post', $entry_id)){
 			$user_id = get_post_field( 'post_author', $entry_id );
 			$grand_total = get_post_meta( 'grand_total', $entry_id, true );
 			do_action('registration_paid', $entry_id, $user_id, 'mail_in_check', $grand_total,	false, 0);
 			do_action('registration_completed', $entry_id, $user_id, 'mail_in_check');
-            $has_error = false;
-        } 
-        else{
-            $response['message'][] = __('Access Denied');
-        }
-        if($has_error===true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-            $response['message'][] = __('Entry is now mark as paid.');
-        }
-        echo json_encode($response);
-    endif;
-    die();
+			$has_error = false;
+		}
+		else{
+			$response['message'][] = __('Access Denied');
+		}
+		if($has_error===true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+			$response['message'][] = __('Entry is now mark as paid.');
+		}
+		echo json_encode($response);
+	endif;
+	die();
 }
 
 function ajax_save_special_awards() {
 
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-save-item', 'token');
+		check_ajax_referer('ts-save-item', 'token');
 
-        $tour_city 		= $_POST['tour_city'];
-        $special_awards = $_POST['special_awards'];
+		$tour_city 		= $_POST['tour_city'];
+		$special_awards = $_POST['special_awards'];
 
-        $has_error 		= true;
+		$has_error 		= true;
 
-        $response = array(
-            'success' => false,
-        );
+		$response = array(
+			'success' => false,
+		);
 
-        if($tour_city){
-	        update_post_meta($tour_city, 'special_awards', $special_awards);
-	        $has_error = false;
-        }
+		if($tour_city){
+			update_post_meta($tour_city, 'special_awards', $special_awards);
+			$has_error = false;
+		}
 
-        if($has_error === true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-        }
-        echo json_encode($response);
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
 
-    endif;
+	endif;
 
-    die();
+	die();
 }
 
 function ajax_save_scholarships() {
 
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-save-item', 'token');
+		check_ajax_referer('ts-save-item', 'token');
 
-        $tour_city 			= $_POST['tour_city'];
-        $scholarships 		= $_POST['scholarships'];
-        $studio_innovator 	= $_POST['studio_innovator'];
+		$tour_city 			= $_POST['tour_city'];
+		$scholarships 		= $_POST['scholarships'];
+		$studio_innovator 	= $_POST['studio_innovator'];
 
-        $has_error = true;
+		$has_error = true;
 
-        $response = array(
-            'success' => false,
-        );
+		$response = array(
+			'success' => false,
+		);
 
-        if($tour_city){
-			    $scholarshipsArray = array();
-	        foreach ($scholarships as $key => $value) {
-	        	if($value['number']!='' && $value['title']!=''){
-		        	$scholarshipsArray[$key] = $value;
-	        	} 
-	        }
-	        update_post_meta($tour_city, 'scholarships', $scholarshipsArray);
-        	update_post_meta($tour_city, 'studio_innovator_id', absint($studio_innovator));
-	        $has_error = false;
-        }
+		if($tour_city){
+			$scholarshipsArray = array();
+			foreach ($scholarships as $key => $value) {
+				if($value['number']!='' && $value['title']!=''){
+					$scholarshipsArray[$key] = $value;
+				}
+			}
+			update_post_meta($tour_city, 'scholarships', $scholarshipsArray);
+			update_post_meta($tour_city, 'studio_innovator_id', absint($studio_innovator));
+			$has_error = false;
+		}
 
-        if($has_error === true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-        }
-        echo json_encode($response);
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
 
-    endif;
+	endif;
 
-    die();
+	die();
 }
 
 function ajax_load_participant_info() {
 
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-default', 'token');
+		check_ajax_referer('ts-default', 'token');
 
 		$id				= absint($_POST['id']);
 		$temp_id		= absint($_POST['tempid']);
 		$has_error 		= true;
 
-        $response = array(
-            'success' => false,
-            'id' => $id,
-            'temp_id' => $temp_id,
-        );
+		$response = array(
+			'success' => false,
+			'id' => $id,
+			'temp_id' => $temp_id,
+		);
 
-        if(ts_post_exists_by_id($id)){
-        	$response['agediv'] = ts_participant_agediv($id);
-        	$response['studio'] = ts_post_studio($id);
-	        $has_error = false;
-        }
+		if(ts_post_exists_by_id($id)){
+			$response['agediv'] = ts_participant_agediv($id);
+			$response['studio'] = ts_post_studio($id);
+			$has_error = false;
+		}
 
-        if($has_error === true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-        }
-        echo json_encode($response);
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
 
-    endif;
+	endif;
 
-    die();
+	die();
 }
 
 function ajax_publish_results() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$id				= $_POST['id'];
@@ -2614,16 +2614,16 @@ function ajax_publish_results() {
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
-			'id' => $tour_id, 
+			'success' => false,
+			'id' => $tour_id,
 		);
 
 		if($tour_id && current_user_can('edit_tour', $tour_id)){
 			$status = get_post_meta($tour_id, 'results_status', true);
 			$newval = ! $status || $status=='draft' ? 'publish' : 'draft';
-	        update_post_meta($tour_id, 'results_status', $newval);
-	        do_action('publish_results', $tour_id);
-	        $has_error = false;
+			update_post_meta($tour_id, 'results_status', $newval);
+			do_action('publish_results', $tour_id);
+			$has_error = false;
 		}
 
 		if($has_error === true) {
@@ -2637,13 +2637,13 @@ function ajax_publish_results() {
 
 	endif;
 
-    die();	
+	die();
 }
 
 function ajax_publish_critiques() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$id				= $_POST['id'];
@@ -2651,16 +2651,16 @@ function ajax_publish_critiques() {
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
-			'id' => $tour_id, 
+			'success' => false,
+			'id' => $tour_id,
 		);
 
 		if($tour_id && current_user_can('edit_tour', $tour_id)){
 			$status = get_post_meta($tour_id, 'critiques_status', true);
 			$newval = ! $status || $status=='draft' ? 'publish' : 'draft';
-	        update_post_meta($tour_id, 'critiques_status', $newval);
-	        //do_action('publish_critiques', $tour_id);
-	        $has_error = false;
+			update_post_meta($tour_id, 'critiques_status', $newval);
+			//do_action('publish_critiques', $tour_id);
+			$has_error = false;
 		}
 
 		if($has_error === true) {
@@ -2674,13 +2674,13 @@ function ajax_publish_critiques() {
 
 	endif;
 
-    die();	
+	die();
 }
 
 function ajax_add_critique() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$routine_id 	= absint($_POST['routine_id']);
@@ -2688,12 +2688,12 @@ function ajax_add_critique() {
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		if($routine_id && $attachment_id){
 			update_post_meta($routine_id, 'critique', $attachment_id);
-	        $has_error = false;
+			$has_error = false;
 		}
 
 		if($has_error === true) {
@@ -2706,13 +2706,13 @@ function ajax_add_critique() {
 
 	endif;
 
-    die();	
+	die();
 }
 
 function ajax_add_critiques() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$tour_id 		= absint($_POST['tour_id']);
@@ -2720,7 +2720,7 @@ function ajax_add_critiques() {
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		foreach ($attachments as $att) {
@@ -2740,25 +2740,25 @@ function ajax_add_critiques() {
 
 	endif;
 
-    die();	
+	die();
 }
 
 function ajax_remove_critique() {
 
 	if($_POST) :
-	
+
 		check_ajax_referer('ts-default', 'token');
 
 		$post_id 		= absint($_POST['post_id']);
 		$has_error 		= true;
 
 		$response = array(
-			'success' => false, 
+			'success' => false,
 		);
 
 		if($post_id){
 			delete_post_meta($post_id, 'critique');
-	        $has_error = false;
+			$has_error = false;
 		}
 
 		if($has_error === true) {
@@ -2771,30 +2771,30 @@ function ajax_remove_critique() {
 
 	endif;
 
-    die();	
+	die();
 }
 
 function ajax_load_routine_info() {
 
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-default', 'token');
+		check_ajax_referer('ts-default', 'token');
 
 		$routine_number	= absint($_POST['routine_number']);
 		$tour_id		= absint($_POST['tour_id']);
 		$row			= $_POST['row'];
 		$has_error 		= true;
 
-        $response = array(
-            'success' => false,
-            'row' => $row,
-            'routine_id' => '',
-            'name' => '',
-            'studio' => '',
-        );
+		$response = array(
+			'success' => false,
+			'row' => $row,
+			'routine_id' => '',
+			'name' => '',
+			'studio' => '',
+		);
 
-        $tour_routines = ts_tour_routines_ids($tour_id);
-        if(is_array($tour_routines) && ! empty($tour_routines) && $routine_number && ts_post_exists_by_id($routine_number)) {
+		$tour_routines = ts_tour_routines_ids($tour_id);
+		if(is_array($tour_routines) && ! empty($tour_routines) && $routine_number && ts_post_exists_by_id($routine_number)) {
 
 			$args = array(
 				'post__in' => $tour_routines,
@@ -2808,66 +2808,66 @@ function ajax_load_routine_info() {
 				),
 			);
 			$routine = ts_get_posts('ts_routine', -1, $args);
-	        if(ts_post_exists_by_id($routine[0]->ID)){
-	        	$routine_id = $routine[0]->ID;
-	        	$response['routine_id'] = $routine_id;
-	        	$response['name'] = get_the_title($routine_id);
-	        	$response['studio'] = ts_post_studio($routine_id);
-		        $has_error = false;
-	        }
-	    }
-	        
-        if($has_error === true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-        }
-        echo json_encode($response);
+			if(ts_post_exists_by_id($routine[0]->ID)){
+				$routine_id = $routine[0]->ID;
+				$response['routine_id'] = $routine_id;
+				$response['name'] = get_the_title($routine_id);
+				$response['studio'] = ts_post_studio($routine_id);
+				$has_error = false;
+			}
+		}
 
-    endif;
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
 
-    die();
+	endif;
+
+	die();
 }
 
 function ajax_reset_competition_schedule() {
 
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-default', 'token');
+		check_ajax_referer('ts-default', 'token');
 
 		$id			= absint($_POST['id']);
 		$return 	= $_POST['return'];
 		$has_error 	= true;
 
-        $response = array(
-            'success' => false,
-            'redirect' => $return,
-        );
+		$response = array(
+			'success' => false,
+			'redirect' => $return,
+		);
 
-        if(ts_post_exists_by_id($id)){
-        	delete_post_meta($id, 'schedule_saved');
-	        $has_error = false;
-        }
+		if(ts_post_exists_by_id($id)){
+			delete_post_meta($id, 'schedule_saved');
+			$has_error = false;
+		}
 
-        if($has_error === true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-        }
-        echo json_encode($response);
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
 
-    endif;
+	endif;
 
-    die();
+	die();
 }
 
 function ajax_save_routine_scores() {
 
-    if($_POST) :
+	if($_POST) :
 
-        check_ajax_referer('ts-default', 'token');
+		check_ajax_referer('ts-default', 'token');
 
 		$id			= absint($_POST['id']);
 		$judge1		= ($_POST['judge1']);
@@ -2875,30 +2875,30 @@ function ajax_save_routine_scores() {
 		$judge3		= ($_POST['judge3']);
 		$has_error 	= true;
 
-        $response = array(
-            'success' => false,
-            'id' => $id,
-        );
+		$response = array(
+			'success' => false,
+			'id' => $id,
+		);
 
-        if(ts_post_exists_by_id($id)){
-        	$total_score = $judge1+$judge2+$judge3;
+		if(ts_post_exists_by_id($id)){
+			$total_score = $judge1+$judge2+$judge3;
 			$adjudicated = ts_adjudicated_award($total_score);
 			update_post_meta($id, 'judges_scores', array($judge1,$judge2,$judge3));
 			update_post_meta($id, 'total_score', $total_score);
-            $response['total_score'] = $total_score;
-            $response['adjudicated'] = $adjudicated;
-	        $has_error = false;
-        }
+			$response['total_score'] = $total_score;
+			$response['adjudicated'] = $adjudicated;
+			$has_error = false;
+		}
 
-        if($has_error === true) {
-            array_unshift($response['message'], 'Error');
-        }
-        else{
-            $response['success'] = true;
-        }
-        echo json_encode($response);
+		if($has_error === true) {
+			array_unshift($response['message'], 'Error');
+		}
+		else{
+			$response['success'] = true;
+		}
+		echo json_encode($response);
 
-    endif;
+	endif;
 
-    die();	
+	die();
 }

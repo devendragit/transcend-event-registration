@@ -83,7 +83,7 @@
     text-align: center;
     margin-right: 30px;
     margin-top: 15px;
-    margin-bottom: 30px;    
+    margin-bottom: 30px;
     overflow: hidden;
 }
 .modal-dialog .SampleSched .SchedTable {
@@ -156,7 +156,7 @@
     display: none !important;
 }
 .Col_1_2_1_1_1 > div:nth-child(2),
-.Col_1_2_2_1 > div:nth-child(2), 
+.Col_1_2_2_1 > div:nth-child(2),
 .Col_1_2_2_1 > div:nth-child(4) {
     width: 29% !important;
 }
@@ -287,4 +287,9 @@
 .overall-container .row {
     display: flex;
     flex-wrap: wrap;
+}
+
+.SampleSched .SchedTable {
+    margin-top: 15px;
+    margin-bottom: 30px;
 }

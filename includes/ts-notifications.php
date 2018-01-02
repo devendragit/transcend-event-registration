@@ -2,8 +2,8 @@
 function ts_new_entry_admin_notification($entry_id, $user_id, $payment_method='stripe_payment') {
 
 	$args = array(
-		'role' => 'event_organizer', 
-	);	
+		'role' => 'event_organizer',
+	);
 	$admins = get_users($args);
 	$admin_emails = wp_list_pluck($admins, 'user_email');
 	$admin_emails[] = get_option('admin_email');
@@ -26,7 +26,7 @@ function ts_new_entry_admin_notification($entry_id, $user_id, $payment_method='s
 	$studio_contact  = get_post_meta($entry_id, 'studio_contact', true);
 
 	$studio_address  = $studio_address .' '. $studio_city .' '. $studio_state .' '. $studio_zipcode .' '. $studio_country;
-	
+
 	$subject = 'New Registration - '. $studio_name;
 	$payment = $payment_method == 'stripe_payment' ? 'Credit Card (Stripe)' : 'Mail in Check';
 
@@ -38,7 +38,7 @@ function ts_new_entry_admin_notification($entry_id, $user_id, $payment_method='s
 	$body.= '<h2>Summary:</h2>';
 	$body.= ts_display_entry_details($entry_id, $user_id);
 
-	wp_mail($to, $subject, $body, $headers);	
+	wp_mail($to, $subject, $body, $headers);
 }
 
 function ts_new_entry_user_notification($entry_id, $user_id) {
@@ -57,15 +57,15 @@ function ts_new_entry_user_notification($entry_id, $user_id) {
 	$details = ts_display_entry_details($entry_id, $user_id);
 
 	$body.= $details;
-	 
-	wp_mail($to, $subject, $body, $headers);	
+
+	wp_mail($to, $subject, $body, $headers);
 }
 
 function ts_reg_edited_notification($entry_id, $user_id) {
 
 	$args = array(
-		'role' => 'event_organizer', 
-	);	
+		'role' => 'event_organizer',
+	);
 	$admins = get_users($args);
 	$admin_emails = wp_list_pluck($admins, 'user_email');
 	$admin_emails[] = get_option('admin_email');
@@ -86,7 +86,7 @@ function ts_reg_edited_notification($entry_id, $user_id) {
 	$body.= '<h2>Summary:</h2>';
 	$body.= ts_display_entry_details($entry_id, $user_id);
 
-	wp_mail($to, $subject, $body, $headers);	
+	wp_mail($to, $subject, $body, $headers);
 }
 
 function ts_new_invoice_user_notification($entry_id, $invoice_id) {
@@ -96,18 +96,18 @@ function ts_new_invoice_user_notification($entry_id, $invoice_id) {
 	$user 	 = get_user_by('id', $user_id);
 	$to 	 = array($user->user_email);
 
-    $invoice_amount = get_post_meta($invoice_id, 'invoice_amount', true);
-    $invoice_note = get_post_meta($invoice_id, 'invoice_note', true);
-    $pay_now_link = admin_url('admin.php?page=ts-entry-pay-invoice&action=pay_invoice&id='.$entry_id.'&evid='.$invoice_id);;
+	$invoice_amount = get_post_meta($invoice_id, 'invoice_amount', true);
+	$invoice_note = get_post_meta($invoice_id, 'invoice_note', true);
+	$pay_now_link = admin_url('admin.php?page=ts-entry-pay-invoice&action=pay_invoice&id='.$entry_id.'&evid='.$invoice_id);;
 
-    $headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@transcendtour.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: Carl D <carld.projects@gmail.com>');
-    $subject = 'Invoice #'. $invoice_id .' has been created';
+	$headers = array('Content-Type: text/html; charset=UTF-8','From: Transcend <noreply@transcendtour.com>', 'CC: Jasmine R <jr@sitesbycarlos.com>', 'BCC: Carl D <carld.projects@gmail.com>');
+	$subject = 'Invoice #'. $invoice_id .' has been created';
 
-    $body = '
+	$body = '
             <p style="font-size:1.3em; font-weight:bold;">An invoice has been created.</p>
             <p style="font-weight:bold;">Here is the summary:</p>
             ';
-    $body .= '
+	$body .= '
             <table cellpadding="1" cellspacing="0" border="0">
                 <tr>
                     <td><strong>Amount Due:</strong></td>
@@ -123,15 +123,15 @@ function ts_new_invoice_user_notification($entry_id, $invoice_id) {
                 </tr>
             </table>	
         ';
-    wp_mail($to, $subject, $body, $headers);
+	wp_mail($to, $subject, $body, $headers);
 }
 
 function ts_tour_results_notification($tour_id) {
 
 	$ids = ts_tour_studio_ids($tour_id);
 	$args = array(
-		'include' => $ids, 
-	);	
+		'include' => $ids,
+	);
 	$users = get_users($args);
 	$users_emails = wp_list_pluck($users, 'user_email');
 
@@ -145,5 +145,5 @@ function ts_tour_results_notification($tour_id) {
 	<p style="text-align:center; font-size:1.6em; font-weight:bold;"><a href="'. admin_url('admin.php?page=ts-my-results&tour='. $tour_id) .'">Click Here</a></p>
 	';
 
-	//wp_mail($to, $subject, $body, $headers);	
+	//wp_mail($to, $subject, $body, $headers);
 }
