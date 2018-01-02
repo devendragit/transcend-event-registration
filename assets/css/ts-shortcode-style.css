@@ -83,7 +83,7 @@
     text-align: center;
     margin-right: 0;
     margin-top: 15px;
-    margin-bottom: 30px;    
+    margin-bottom: 30px;
     overflow: hidden;
 }
 .modal-dialog .SampleSched .SchedTable {
@@ -156,7 +156,7 @@
     display: none !important;
 }
 .Col_1_2_1_1_1 > div:nth-child(2),
-.Col_1_2_2_1 > div:nth-child(2), 
+.Col_1_2_2_1 > div:nth-child(2),
 .Col_1_2_2_1 > div:nth-child(4) {
     width: 29% !important;
 }
@@ -359,3 +359,8 @@
 .single-tour_stop #tab-4 .dataTables_wrapper tbody tr {
     border-bottom: 1px solid #cecece;
 }
+.SampleSched .SchedTable {
+    margin-top: 15px;
+    margin-bottom: 30px;
+}
+

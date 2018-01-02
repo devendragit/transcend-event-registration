@@ -145,7 +145,7 @@ function ts_view_entry_page() {
 	$munchkin_observer 	= ts_check_value($workshop, 'munchkin_observers');
 	$date_paid 			= get_post_meta($entry_id, 'date_paid', true);
 	$tour_date 			= get_post_meta($tour_id, 'date_from', true);
-	$force_early 		= $date_paid && ts_get_days_before_date($tour_date, $date_paid) > 30 ? true : false; 
+	$force_early 		= $date_paid && ts_get_days_before_date($tour_date, $date_paid) > 30 ? true : false;
 	?>
 	<div id="view-entry-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo $tour_city; ?></h1>
@@ -153,8 +153,8 @@ function ts_view_entry_page() {
 			<div class="row">
 				<div class="entry-status col-md-12"><strong>Status:</strong> <?php echo $status_obj->label; ?></div>
 			</div>
-			<?php 
-			if(in_array('studio', $user_roles)) { 
+			<?php
+			if(in_array('studio', $user_roles)) {
 				?>
 				<h2 class="admin-sub-title">Profile</h2>
 				<div class="" style="max-width:640px;">
@@ -251,7 +251,7 @@ function ts_view_entry_page() {
 				</div>
 				<?php
 			}
-			else if(in_array('individual', $user_roles)) { 
+			else if(in_array('individual', $user_roles)) {
 				$name 		= get_field('name', 'user_'. $user_id);
 				$birth_date = get_field('birth_date', 'user_'. $user_id);
 				$parent 	= get_field('parent', 'user_'. $user_id);
@@ -608,7 +608,7 @@ function ts_view_entry_page() {
 					</div>
 				</div>
 				<?php
-			} 
+			}
 			?>
 			<h2 class="admin-sub-title">Summary</h2>
 			<div class="table-container entry-summary">
@@ -638,94 +638,94 @@ function ts_workshopentries_page() {
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-workshop-entries', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
 			<?php if($tour_id) { ?>
-			<table style="width: 100%;" id="entries-list" class="ts-data-table" data-length="25"  data-filter="true" data-colfilter="[5,2]" data-exporttitle="Workshop Registrations" data-exportcol="0,1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
-				<thead>
-				<tr>
-					<th>#</th>
-					<th>Name</th>
-					<th style="text-align:center;">Age Division</th>
-					<th style="text-align:center;">Type</th>
-					<th style="text-align:center;">Studio</th>
-					<th style="text-align:center;">City</th>
-				</tr>
-				</thead>
-				<tbody>
-				<?php
-				$args = array(
-					'meta_key' => 'tour_city',
-					'meta_value' => $tour_id,
-					'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
-					'orderby'=> 'title',
-					'order' => 'ASC'
-				);
-				$entries = ts_get_posts('ts_entry', -1, $args);
-				if($entries) {
-					$agedivname = '';
-					$roster_posts = array();
-					$participantsArray = array();
-					foreach ($entries as $entry) {
-						setup_postdata($entry);
-						$entry_id 		= $entry->ID;
-						$workshop 		= get_post_meta($entry_id, 'workshop', true);
-						$participants 	= $workshop['participants'];
-						$tour_city 		= $workshop['tour_city'];
-						$city 			= get_post_meta($tour_city, 'city', true);
-						$user_id 		= $entry->post_author;
-						$user_meta 		= get_userdata($user_id);
-						$user_roles 	= $user_meta->roles;
-						$studio 		= get_field('studio', 'user_'. $user_id);
-						if(! empty($participants)) {
-							$participants_ids  = array_keys($participants);
-							$participantsArray = array_merge($participants_ids, $participantsArray);
+				<table style="width: 100%;" id="entries-list" class="ts-data-table" data-length="25"  data-filter="true" data-colfilter="[5,2]" data-exporttitle="Workshop Registrations" data-exportcol="0,1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
+					<thead>
+					<tr>
+						<th>#</th>
+						<th>Name</th>
+						<th style="text-align:center;">Age Division</th>
+						<th style="text-align:center;">Type</th>
+						<th style="text-align:center;">Studio</th>
+						<th style="text-align:center;">City</th>
+					</tr>
+					</thead>
+					<tbody>
+					<?php
+					$args = array(
+						'meta_key' => 'tour_city',
+						'meta_value' => $tour_id,
+						'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
+						'orderby'=> 'title',
+						'order' => 'ASC'
+					);
+					$entries = ts_get_posts('ts_entry', -1, $args);
+					if($entries) {
+						$agedivname = '';
+						$roster_posts = array();
+						$participantsArray = array();
+						foreach ($entries as $entry) {
+							setup_postdata($entry);
+							$entry_id 		= $entry->ID;
+							$workshop 		= get_post_meta($entry_id, 'workshop', true);
+							$participants 	= $workshop['participants'];
+							$tour_city 		= $workshop['tour_city'];
+							$city 			= get_post_meta($tour_city, 'city', true);
+							$user_id 		= $entry->post_author;
+							$user_meta 		= get_userdata($user_id);
+							$user_roles 	= $user_meta->roles;
+							$studio 		= get_field('studio', 'user_'. $user_id);
+							if(! empty($participants)) {
+								$participants_ids  = array_keys($participants);
+								$participantsArray = array_merge($participants_ids, $participantsArray);
+							}
 						}
-					}
-					if(! empty($participantsArray) ){
-						$participantsArray = ts_trim_duplicate($participantsArray);
-						$args = array(
-							'meta_key' => 'age_cat_order',
-							'orderby'=> 'title', 'order' => 'ASC',
-							'include' => $participantsArray,
-						);
-						$roster_posts = ts_get_posts(array('ts_studio_roster', 'ts_sibling'), -1, $args);
+						if(! empty($participantsArray) ){
+							$participantsArray = ts_trim_duplicate($participantsArray);
+							$args = array(
+								'meta_key' => 'age_cat_order',
+								'orderby'=> 'title', 'order' => 'ASC',
+								'include' => $participantsArray,
+							);
+							$roster_posts = ts_get_posts(array('ts_studio_roster', 'ts_sibling'), -1, $args);
 
-						if(! empty($roster_posts)) {
-							$count=0;
-							foreach ($roster_posts as $rp) {
-								$count++;
-								$rid 			= $rp->ID;
-								$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
-								$agediv_name 	= $age_div[0]->name;
-								$name 			= get_the_title($rid);
-								?>
-								<tr id="item-<?php echo $entry_id; ?>">
-									<td><?php echo $count; ?></td>
-									<td><?php echo $name; ?></td>
-									<td style="text-align:center;"><?php echo $agediv_name; ?></td>
-									<td style="text-align:center;"><?php echo ucwords($user_roles[0]); ?></td>
-									<td style="text-align:center;"><?php echo $studio; ?></td>
-									<td style="text-align:center;"><?php echo $city; ?></td>
-								</tr>
-								<?php
+							if(! empty($roster_posts)) {
+								$count=0;
+								foreach ($roster_posts as $rp) {
+									$count++;
+									$rid 			= $rp->ID;
+									$age_div 		= wp_get_object_terms($rid, 'ts_agediv');
+									$agediv_name 	= $age_div[0]->name;
+									$name 			= get_the_title($rid);
+									?>
+									<tr id="item-<?php echo $entry_id; ?>">
+										<td><?php echo $count; ?></td>
+										<td><?php echo $name; ?></td>
+										<td style="text-align:center;"><?php echo $agediv_name; ?></td>
+										<td style="text-align:center;"><?php echo ucwords($user_roles[0]); ?></td>
+										<td style="text-align:center;"><?php echo $studio; ?></td>
+										<td style="text-align:center;"><?php echo $city; ?></td>
+									</tr>
+									<?php
+								}
 							}
 						}
 					}
-				}
-				else{
-					echo '<tr><td colspan="6" align="center">No Workshop Participants Found</td></tr>';
-				}
-				?>
-				</tbody>
-				<tfoot>
-				<tr>
-					<th class="hidden"></th>
-					<th class="hidden"></th>
-					<th>All Age Divisions</th>
-					<th class="hidden"></th>
-					<th class="hidden"></th>
-					<th class="hidden">All Cities</th>
-				</tr>
-				</tfoot>
-			</table>
+					else{
+						echo '<tr><td colspan="6" align="center">No Workshop Participants Found</td></tr>';
+					}
+					?>
+					</tbody>
+					<tfoot>
+					<tr>
+						<th class="hidden"></th>
+						<th class="hidden"></th>
+						<th>All Age Divisions</th>
+						<th class="hidden"></th>
+						<th class="hidden"></th>
+						<th class="hidden">All Cities</th>
+					</tr>
+					</tfoot>
+				</table>
 			<?php } ?>
 		</div>
 	</div>
@@ -741,109 +741,109 @@ function ts_competitionentries_page() {
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-competition-entries', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper entries-wrapper">
-			<?php if($tour_id) { ?>	
-			<table id="entries-list" class="ts-data-table" data-length="25" data-filter="true" data-colfilter="[5,3,4]" data-exporttitle="Competition Registrations" data-exportcol="0,1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
-				<thead>
-				<tr>
-					<th>#</th>
-					<th style="width: 200px;">Routine Name</th>
-					<th>Dancers</th>
-					<th style="text-align:center; width: 180px;">Age Division</th>
-					<th style="text-align:center; width: 90px;">Category</th>
-					<th style="text-align:center; width: 160px;">City</th>
-					<!-- <th style="text-align:center;">Action</th>
-					<th style="text-align:center;">Edit</th> -->
-				</tr>
-				</thead>
-				<tbody>
-				<?php
-				$args = array(
-					'meta_key' => 'tour_city',
-					'meta_value' => $tour_id,
-					'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
-				);
-				$entries = ts_get_posts('ts_entry', -1, $args);
+			<?php if($tour_id) { ?>
+				<table id="entries-list" class="ts-data-table" data-length="25" data-filter="true" data-colfilter="[5,3,4]" data-exporttitle="Competition Registrations" data-exportcol="0,1,2,3,4,5" data-dom="fBrt<'table-footer clearfix'pl>">
+					<thead>
+					<tr>
+						<th>#</th>
+						<th style="width: 200px;">Routine Name</th>
+						<th>Dancers</th>
+						<th style="text-align:center; width: 180px;">Age Division</th>
+						<th style="text-align:center; width: 90px;">Category</th>
+						<th style="text-align:center; width: 160px;">City</th>
+						<!-- <th style="text-align:center;">Action</th>
+						<th style="text-align:center;">Edit</th> -->
+					</tr>
+					</thead>
+					<tbody>
+					<?php
+					$args = array(
+						'meta_key' => 'tour_city',
+						'meta_value' => $tour_id,
+						'post_status' => array('paid', 'paidcheck', 'outstanding_amount'),
+					);
+					$entries = ts_get_posts('ts_entry', -1, $args);
 
-				if($entries) {
-					$routinesArray = array();
-					foreach ($entries as $entry) {
-						setup_postdata($entry);
-						$entry_id 		= $entry->ID;
-						$competition 	= get_post_meta($entry_id, 'competition', true);
-						$routines 		= $competition['routines'];
-						$workshop 		= get_post_meta($entry_id, 'workshop', true);
-						$city 			= get_post_meta($workshop['tour_city'], 'city', true);
-						if(! empty($routines)){
-							$routine_ids  = array_keys($routines);
-							$routinesArray = array_merge($routine_ids, $routinesArray);
-						}	
-					}
-					if(! empty($routinesArray) ){
-						$routine_ids = array_keys($routines);
-						$args = array(
-						    'meta_query' => array(
-						        'relation' => 'AND',
-						        'agedivorder' => array(
-						            'key' => 'agediv_order',
-						            'compare' => 'EXISTS',
-						        ),
-						        'catorder' => array(
-						            'key' => 'cat_order',
-						            'compare' => 'EXISTS',
-						        ), 
-						    ),
-						    'orderby' => array( 
-						        'agedivorder' => 'ASC',
-						        'catorder' => 'ASC',
-						    ),							
-							/*'meta_key' => 'agediv_order',
-							'orderby' => 'meta_value_num',
-							'order' => 'ASC',*/								
-							'include' => $routinesArray,
-						);
-						$routine_posts = ts_get_posts('ts_routine', -1, $args);
-						$count=0;
-						foreach ($routine_posts as $rp) {
-							$count++;
-							$rpid 		= $rp->ID;
-							$name 	 	= get_the_title($rpid);
-							$cat 	 	= get_post_meta($rpid, 'cat', true);
-							$categories = ts_get_competition_categories();
-							$cat_name 	= $categories[$cat]['title'];
-							$dancers 	= get_post_meta($rpid, 'dancers', true);
-							$dancers_array  = is_array($dancers) ? $dancers : explode(",", $dancers);
-							$dancers_string = array();
-							$ids = $dancers_array;
-							$count_d = count($ids);
-							$age_total = 0;
-							if(! empty($ids)){
-								foreach ($ids as $d) {
-									if(ts_post_exists_by_id($d)){
-										$dancers_string[]= get_the_title($d);
-										$birth_date = get_post_meta($d, 'birth_date', true);
-										$age = ts_get_the_age($birth_date);
-										$age_total = $age_total + $age;
-									}
-								}
-								$age_ave = round($age_total / $count_d);
-								$agediv_name = ts_get_routine_agediv_name($age_ave);
+					if($entries) {
+						$routinesArray = array();
+						foreach ($entries as $entry) {
+							setup_postdata($entry);
+							$entry_id 		= $entry->ID;
+							$competition 	= get_post_meta($entry_id, 'competition', true);
+							$routines 		= $competition['routines'];
+							$workshop 		= get_post_meta($entry_id, 'workshop', true);
+							$city 			= get_post_meta($workshop['tour_city'], 'city', true);
+							if(! empty($routines)){
+								$routine_ids  = array_keys($routines);
+								$routinesArray = array_merge($routine_ids, $routinesArray);
 							}
-							$musicid = (int)$routines[$rpid]['music'];
-							$musicurl = $musicid ? wp_get_attachment_url($musicid) : false;
-							$musicoutput = $musicurl ? '<a download class="btn btn-blue btn-downloadmusic" href="'.$musicurl.'">Download Music</a>' : 'No Music';
-							$musictitle = $musicid ? get_the_title($musicid) : false;
-							$agediv = get_term_by('name', $agediv_name, 'ts_agediv');
-							//$num = get_term_meta($agediv->term_id, 'div_order', true);
-							$dancers_string = implode(',', $dancers_string);
-							?>
-							<tr id="item-<?php echo $entry_id; ?>">
-								<td><?php echo $count; ?></td>
-								<td><?php echo $name; ?></td>
-								<td><?php echo $dancers_string; ?></td>
-								<td style="text-align:center; width: 180px;"><?php echo $agediv_name; ?></td>
-								<td style="text-align:center;"><?php echo $cat_name; ?></td>
-								<td style="text-align:center;"><?php echo $city; ?></td>
-								<!-- <td style="text-align:center;"><?php echo $musicoutput;?></td>
+						}
+						if(! empty($routinesArray) ){
+							$routine_ids = array_keys($routines);
+							$args = array(
+								'meta_query' => array(
+									'relation' => 'AND',
+									'agedivorder' => array(
+										'key' => 'agediv_order',
+										'compare' => 'EXISTS',
+									),
+									'catorder' => array(
+										'key' => 'cat_order',
+										'compare' => 'EXISTS',
+									),
+								),
+								'orderby' => array(
+									'agedivorder' => 'ASC',
+									'catorder' => 'ASC',
+								),
+								/*'meta_key' => 'agediv_order',
+								'orderby' => 'meta_value_num',
+								'order' => 'ASC',*/
+								'include' => $routinesArray,
+							);
+							$routine_posts = ts_get_posts('ts_routine', -1, $args);
+							$count=0;
+							foreach ($routine_posts as $rp) {
+								$count++;
+								$rpid 		= $rp->ID;
+								$name 	 	= get_the_title($rpid);
+								$cat 	 	= get_post_meta($rpid, 'cat', true);
+								$categories = ts_get_competition_categories();
+								$cat_name 	= $categories[$cat]['title'];
+								$dancers 	= get_post_meta($rpid, 'dancers', true);
+								$dancers_array  = is_array($dancers) ? $dancers : explode(",", $dancers);
+								$dancers_string = array();
+								$ids = $dancers_array;
+								$count_d = count($ids);
+								$age_total = 0;
+								if(! empty($ids)){
+									foreach ($ids as $d) {
+										if(ts_post_exists_by_id($d)){
+											$dancers_string[]= get_the_title($d);
+											$birth_date = get_post_meta($d, 'birth_date', true);
+											$age = ts_get_the_age($birth_date);
+											$age_total = $age_total + $age;
+										}
+									}
+									$age_ave = round($age_total / $count_d);
+									$agediv_name = ts_get_routine_agediv_name($age_ave);
+								}
+								$musicid = (int)$routines[$rpid]['music'];
+								$musicurl = $musicid ? wp_get_attachment_url($musicid) : false;
+								$musicoutput = $musicurl ? '<a download class="btn btn-blue btn-downloadmusic" href="'.$musicurl.'">Download Music</a>' : 'No Music';
+								$musictitle = $musicid ? get_the_title($musicid) : false;
+								$agediv = get_term_by('name', $agediv_name, 'ts_agediv');
+								//$num = get_term_meta($agediv->term_id, 'div_order', true);
+								$dancers_string = implode(',', $dancers_string);
+								?>
+								<tr id="item-<?php echo $entry_id; ?>">
+									<td><?php echo $count; ?></td>
+									<td><?php echo $name; ?></td>
+									<td><?php echo $dancers_string; ?></td>
+									<td style="text-align:center; width: 180px;"><?php echo $agediv_name; ?></td>
+									<td style="text-align:center;"><?php echo $cat_name; ?></td>
+									<td style="text-align:center;"><?php echo $city; ?></td>
+									<!-- <td style="text-align:center;"><?php echo $musicoutput;?></td>
 								<td style="text-align:center;">
 									<?php if($musicurl) { ?>
 										<a title="edit" href="javascript:void(0);"
@@ -853,19 +853,19 @@ function ts_competitionentries_page() {
 										>Rename Music</a>
 									<?php } ?>
 								</td> -->
-							</tr>
-							<?php
+								</tr>
+								<?php
+							}
 						}
+						?>
+						<?php
+					}
+					else{
+						echo '<tr><td colspan="6" align="center">No Routines Found</td></tr>';
 					}
 					?>
-					<?php
-				}
-				else{
-					echo '<tr><td colspan="6" align="center">No Routines Found</td></tr>';
-				}
-				?>
-				</tbody>
-				<tfoot>
+					</tbody>
+					<tfoot>
 					<tr>
 						<th class="hidden"></th>
 						<th class="hidden"></th>
@@ -876,8 +876,8 @@ function ts_competitionentries_page() {
 						<!-- <th class="hidden"></th>
 						<th class="hidden"></th> -->
 					</tr>
-				</tfoot>
-			</table>
+					</tfoot>
+				</table>
 			<?php } ?>
 			<div id="popup-save-music-info" class="modal fade" role="dialog">
 				<div class="modal-dialog">
@@ -941,7 +941,7 @@ function ts_tours_page() {
 						$venue 		= get_post_meta($tour_id, 'venue', true);
 						$city 		= get_post_meta($tour_id, 'city', true);
 						$workshop 	= get_post_meta($tour_id, 'workshop', true);
-                        $competition= get_post_meta($tour_id, 'competition', true);
+						$competition= get_post_meta($tour_id, 'competition', true);
 						$list_id 	= get_post_meta($tour_id, 'list_id', true);
 						$wstattext  = $workshop==2 ? 'Closed' : 'Open';
 						$stattext 	= $status==2 ? 'Closed' : 'Open';
@@ -968,7 +968,7 @@ function ts_tours_page() {
 								   data-venue="<?php echo $venue; ?>"
 								   data-city="<?php echo $city; ?>"
 								   data-workshop="<?php echo $workshop; ?>"
-                                   data-competition="<?php echo $competition; ?>"
+								   data-competition="<?php echo $competition; ?>"
 								   data-listid="<?php echo $list_id; ?>"
 								><small>Edit</small></a>
 								<a title="<?php echo $btntext; ?>" href="javascript:void(0);"
@@ -1004,7 +1004,7 @@ function ts_tours_page() {
 						<input type="hidden" name="tour-id" id="tour-id" value="" />
 						<p><label><input type="checkbox" name="tour-status" id="tour-status" value="1" checked="true" /> Enable Tour</label></p>
 						<p><label><input type="checkbox" name="tour-workshop" id="tour-workshop" value="1" checked="true" /> Enable Workshop</label></p>
-                        <p><label><input type="checkbox" name="tour-competition" id="tour-competition" value="1" checked="true" /> Enable Competition</label></p>
+						<p><label><input type="checkbox" name="tour-competition" id="tour-competition" value="1" checked="true" /> Enable Competition</label></p>
 						<p>Title <br /><input type="text" name="tour-title" id="tour-title" value="" /></p>
 						<p>City <br /><input type="text" name="tour-city" id="tour-city" value="" /></p>
 						<p>Venue <br /><input type="text" name="tour-venue" id="tour-venue" value="" /></p>
@@ -1040,7 +1040,7 @@ function ts_schedules_page() {
 				<?php
 				$args = array(
 					'post_status' => 'any',
-				);				
+				);
 				$schedules = ts_get_posts('ts_event', -1, $args);
 				if($schedules) {
 					foreach ($schedules as $schedule) {
@@ -1064,7 +1064,7 @@ function ts_schedules_page() {
 							<td style="text-align:center;" class="schedule-status"><?php echo $status === 'publish' ? 'Published' : 'Draft'; ?></td>
 							<td style="text-align:center;">
 								<a title="Edit" href="<?php echo admin_url('admin.php?page='.$schedule_action.'&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>"
-									class="btn btn-blue"
+								   class="btn btn-blue"
 								><small>Edit</small></a>
 								<a title="<?php echo $btnstatus_label; ?>" href="javascript:void(0);"
 								   class="btn btn-green btn-publish"
@@ -1087,7 +1087,7 @@ function ts_schedules_page() {
 			</table>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_workshopschedules_page() {
@@ -1138,7 +1138,7 @@ function ts_workshopschedules_page() {
 							<td style="text-align:center;" class="schedule-status"><?php echo $status === 'publish' ? 'Published' : 'Draft'; ?></td>
 							<td style="text-align:center;">
 								<a title="Edit" href="<?php echo admin_url('admin.php?page=ts-edit-workshop-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>"
-									class="btn btn-blue"
+								   class="btn btn-blue"
 								><small>Edit</small></a>
 								<a title="<?php echo $btnstatus_label; ?>" href="javascript:void(0);"
 								   class="btn btn-green btn-publish"
@@ -1212,7 +1212,7 @@ function ts_competitionschedules_page() {
 							<td style="text-align:center;" class="schedule-status"><?php echo $status === 'publish' ? 'Published' : 'Draft'; ?></td>
 							<td style="text-align:center;">
 								<a title="Edit" href="<?php echo admin_url('admin.php?page=ts-edit-competition-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>"
-									class="btn btn-blue"
+								   class="btn btn-blue"
 								><small>Edit</small></a>
 								<a title="<?php echo $btnstatus_label; ?>" href="javascript:void(0);"
 								   class="btn btn-green btn-publish"
@@ -1250,70 +1250,70 @@ function ts_post_workshop_schedule() {
 		<div id="view-schedule-page" class="wrap">
 			<h1 class="admin-page-title"><?php echo $title; ?><a class="btn btn-blue btn-addschedule" href="<?php echo admin_url('admin.php?page=ts-new-workshop-schedule'); ?>">Add New</a></h1>
 			<div class="ts-admin-wrapper schedule-wrapper">
-                <div class="row">
-                    <div class="col-md-12 t-right">
-                        <a href="javascript:void(0)" class="btn btn-green btn-previewworkshopschedule">Preview</a>
-                    </div>
-                </div>
-	        	<?php
-                $options = array(
-                    'post_id'  => $schedule_id,
-                    'form_attributes'  => array(
-                        'class'  => 'schedule_settings'
-                    ),
-                    'html_field_open'  => '<div class="field">',
-                    'html_field_close'  => '</div>',
-                    'html_before_fields'  => '',
-                    'html_after_fields'  => '',
-                    'submit_value'  => 'Update Schedule',
-                    'updated_message'  => 'Schedule Updated.',
-                );
-                acf_form($options);
-                ?>  
+				<div class="row">
+					<div class="col-md-12 t-right">
+						<a href="javascript:void(0)" class="btn btn-green btn-previewworkshopschedule">Preview</a>
+					</div>
+				</div>
+				<?php
+				$options = array(
+					'post_id'  => $schedule_id,
+					'form_attributes'  => array(
+						'class'  => 'schedule_settings'
+					),
+					'html_field_open'  => '<div class="field">',
+					'html_field_close'  => '</div>',
+					'html_before_fields'  => '',
+					'html_after_fields'  => '',
+					'submit_value'  => 'Update Schedule',
+					'updated_message'  => 'Schedule Updated.',
+				);
+				acf_form($options);
+				?>
 			</div>
-            <div id="popup-workshopsched-preview" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Workshop Schedule Preview</h4>
-                        </div>
-                        <div id="downloadschedule" class="modal-body">
-                            <?php
-                            $schedule = get_post($schedule_id);
-                            ts_display_workshop_schedules(array($schedule));
-                            ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
+			<div id="popup-workshopsched-preview" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Workshop Schedule Preview</h4>
+						</div>
+						<div id="downloadschedule" class="modal-body">
+							<?php
+							$schedule = get_post($schedule_id);
+							ts_display_workshop_schedules(array($schedule));
+							?>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		<?php	
+		<?php
 	}
 	else {
 		?>
 		<div id="view-schedule-page" class="wrap">
 			<h1 class="admin-page-title">New Schedule</h1>
 			<div class="ts-admin-wrapper schedule-wrapper">
-	        	<?php
-                $options = array(
-                    'post_id'  => 'new_schedule',
-                    'form_attributes'  => array(
-                        'class'  => 'schedule_settings'
-                    ),
-                    'field_groups' => array('group_59c21e47cc2b5'),
-                    'html_field_open'  => '<div class="field">',
-                    'html_field_close'  => '</div>',
-                    'html_before_fields'  => '',
-                    'html_after_fields'  => '',
-                    'submit_value'  => 'Save Schedule',
-                    'updated_message'  => 'Schedule Saved.',
-                );
-                acf_form($options);
-                ?>  
+				<?php
+				$options = array(
+					'post_id'  => 'new_schedule',
+					'form_attributes'  => array(
+						'class'  => 'schedule_settings'
+					),
+					'field_groups' => array('group_59c21e47cc2b5'),
+					'html_field_open'  => '<div class="field">',
+					'html_field_close'  => '</div>',
+					'html_before_fields'  => '',
+					'html_after_fields'  => '',
+					'submit_value'  => 'Save Schedule',
+					'updated_message'  => 'Schedule Saved.',
+				);
+				acf_form($options);
+				?>
 			</div>
 		</div>
-		<?php		
+		<?php
 	}
 }
 
@@ -1333,6 +1333,7 @@ function ts_post_competition_schedule() {
 					<div class="col-md-12 t-right">
 						<button class="btn btn-red btn-resetschedule" data-id="<?php echo $schedule_id; ?>" data-return="<?php echo admin_url('admin.php?page=ts-edit-competition-schedule&schedule_id='. $schedule_id .'&tour='. $tour_id); ?>">Reset</button>&nbsp;&nbsp;
 						<a href="javascript:void(0)" class="btn btn-green btn-previewschedule">Preview</a>&nbsp;&nbsp;
+						<a href="javascript:void(0)" class="btn btn-green btn-downloadschedule">Print</a>
 					</div>
 				</div>
 				<?php
@@ -1360,8 +1361,8 @@ function ts_post_competition_schedule() {
 							<h4 class="modal-title">Competition Schedule Preview</h4>
 						</div>
 						<div id="downloadschedule" class="modal-body">
-							<?php 
-							ts_display_competition_schedules2(array($schedule)); 
+							<?php
+							ts_display_competition_schedules2(array($schedule));
 							?>
 						</div>
 					</div>
@@ -1375,7 +1376,7 @@ function ts_post_competition_schedule() {
 		<div id="view-schedule-page" class="wrap">
 			<h1 class="admin-page-title">New Schedule</h1>
 			<div class="ts-admin-wrapper schedule-wrapper">
-				<?php 
+				<?php
 				$off = ts_tours_with_competition_schedule();
 				ts_select_tour_city(admin_url('admin.php') .'?page=ts-edit-competition-schedule', $tour_id, $off);
 				?>
@@ -1412,7 +1413,7 @@ function ts_scores_page() {
 	<div id="scores-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-competition-scores', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper scores-wrapper">
-			<?php 
+			<?php
 			if($tour_id) {
 				?>
 				<div id="routine-scores">
@@ -1476,13 +1477,13 @@ function ts_scores_page() {
 						}
 						?>
 						</tbody>
-					</table>	
-				</div>	
-			<?php
+					</table>
+				</div>
+				<?php
 			} ?>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_special_awards_page() {
@@ -1495,8 +1496,8 @@ function ts_special_awards_page() {
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-specialty-awards', $tour_id); ?></h1>
 		<div class="ts-admin-wrapper awards-wrapper">
 			<form name="form-special-awards" id="form-special-awards" class="validate" method="post" action="">
-				<?php 
-				if($tour_id) { 
+				<?php
+				if($tour_id) {
 					$special_awards 		= get_post_meta($tour_id, 'special_awards', true);
 					$choreo12below_id 		= isset($special_awards['twelve_below']['choreography']['routine_id']) ? $special_awards['twelve_below']['choreography']['routine_id'] : '';
 					$choreo12below_num 		= get_post_meta($choreo12below_id, 'routine_number', true);
@@ -1547,7 +1548,7 @@ function ts_special_awards_page() {
 								<div class="col-md-3 t-center routine-name"><?php echo get_the_title($standwin12below_id);?></div>
 								<div class="col-md-3 t-center routine-studio"><?php echo ts_post_studio($standwin12below_id);?></div>
 							</div>
-						</div>	
+						</div>
 					</div>
 					<h3>For all 13 and above:</h3>
 					<div class="table-container">
@@ -1585,18 +1586,18 @@ function ts_special_awards_page() {
 								<div class="col-md-3 t-center routine-name"><?php echo get_the_title($standwin13above_id);?></div>
 								<div class="col-md-3 t-center routine-studio"><?php echo ts_post_studio($standwin13above_id);?></div>
 							</div>
-						</div>	
+						</div>
 					</div>
 					<div class="form-footer-btns">
 						<input type="hidden" name="tour_city" value="<?php echo $tour_id; ?>">
 						<input class="btn btn-green" type="submit" value="Save Changes" />
 					</div>
-				<?php 
+					<?php
 				} ?>
 			</form>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_scholarships_page() {
@@ -1616,8 +1617,8 @@ function ts_scholarships_page() {
 				</div>
 			</div>
 			<form name="form-scholarships" id="form-scholarships" class="validate" method="post" action="">
-				<?php 
-				if($tour_id) { 
+				<?php
+				if($tour_id) {
 					$scholarships = get_post_meta($tour_id, 'scholarships', true);
 					?>
 					<h3>Scholarships:</h3>
@@ -1652,19 +1653,21 @@ function ts_scholarships_page() {
 										<div class="col-sm-1 participant-number">
 											<input type="text" class="scholarship-num t-center" name="scholarships[<?php echo $id; ?>][number]" value="<?php echo $val['number']; ?>">
 										</div>
-										<div class="col-sm-2 participant-name">
+										<div class="col-sm-3 participant-name">
 											<select class="scholarship" data-id="<?php echo $id; ?>">
 												<option value="">Select Name</option>
 												<?php
+												$counter = 1;
 												foreach ($participantsArray as $key=>$value) {
-													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';                    
+													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $counter .' - '.$value .'</option>';
+													$counter++;
 												}
 												?>
 											</select>
 										</div>
 										<div class="col-sm-2 age-division"><?php echo ts_participant_agediv($id); ?></div>
 										<div class="col-sm-2 studio-name"><?php echo ts_post_studio($id); ?></div>
-                    					<div class="col-sm-3 participant-scholarship">
+										<div class="col-sm-2 participant-scholarship">
 											<input type="text" name="scholarships[<?php echo $id; ?>][title]" value="<?php echo $val['title']; ?>">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1684,7 +1687,7 @@ function ts_scholarships_page() {
 								<div class="col-sm-2"><strong>Name</strong></div>
 								<div class="col-sm-2"><strong>Age Division</strong></div>
 								<div class="col-sm-2"><strong>Studio</strong></div>
-								<div class="col-sm-3"><strong>Scholarship</strong></div>                
+								<div class="col-sm-3"><strong>Scholarship</strong></div>
 								<div class="col-sm-2 t-center"><strong>Delete</strong></div>
 							</div>
 							<div class="scholarship-container table-body">
@@ -1696,19 +1699,21 @@ function ts_scholarships_page() {
 										<div class="col-sm-1 participant-number">
 											<input type="text" class="scholarship-num t-center" name="scholarships[][number]" value="">
 										</div>
-										<div class="col-sm-2 participant-name">
+										<div class="col-sm-3 participant-name">
 											<select class="scholarship" data-id="<?php echo $id; ?>">
 												<option value="">Select Name</option>
 												<?php
+												$counter = 1;
 												foreach ($participantsArray as $key=>$value) {
-													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $value .'</option>';                    
+													echo '<option value="'. $key .'" '. ( $id==$key ? 'selected' : '' ) .'>'. $counter .' - '.$value . .'</option>';
+													$counter++;
 												}
 												?>
 											</select>
 										</div>
 										<div class="col-sm-2 age-division"></div>
 										<div class="col-sm-2 studio-name"></div>
-                    					<div class="col-sm-3 participant-scholarship">
+										<div class="col-sm-2 participant-scholarship">
 											<input type="text" class="scholarship-item" name="scholarships[][title]" value="">
 										</div>
 										<div class="col-sm-2 t-center">
@@ -1733,7 +1738,7 @@ function ts_scholarships_page() {
 						'orderby' => 'meta_value',
 						'meta_key' => 'studio',
 					 ); 
-					$users = get_users($args);
+					$users = get_users($args);          
 					?>
 					<br /><br />
 					<h3>Studio Innovator:</h3>
@@ -1749,20 +1754,30 @@ function ts_scholarships_page() {
 						    }
 						}							
 						?>
-					</select>	          
+					</select>
 					<div class="form-footer-btns">
 						<input type="hidden" name="tour_city" value="<?php echo $tour_id; ?>">
 						<input class="btn btn-green" type="submit" value="Save Changes" />
 					</div>
-				<?php 
+					<?php
 				} ?>
 			</form>
-			<div style="display: none;">
-				<?php ts_scholarships_preview($scholarships, $studio_innovator_id); ?>
-			</div>	      
+			<div id="popup-scholarships-preview" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+								<h4 class="modal-title">Scholarships</h4>
+						</div>
+						<?php ts_scholarships_preview($scholarships, $studio_innovator); ?>
+						</div>
+					</div>
+				</div>
+				</div>
+			</div>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_results_page() {
@@ -1775,7 +1790,7 @@ function ts_results_page() {
 		$status = get_post_meta($tour_id, 'results_status', true);
 		$btn_label = ! $status || $status == 'draft' ? 'Publish Results' : 'Unpublish Results';
 		$publish_button = '<button class="btn btn-blue btn-publishresults" data-id="'. $tour_id .'">'. $btn_label .'</button>';
-	}	
+	}
 	?>
 	<div id="results-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php?page=ts-results'), $tour_id); ?> <?php echo $publish_button; ?></h1>
@@ -1783,7 +1798,7 @@ function ts_results_page() {
 			<?php ts_display_results($tour_id); ?>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_critiques_page() {
@@ -1796,7 +1811,7 @@ function ts_critiques_page() {
 		$status = get_post_meta($tour_id, 'critiques_status', true);
 		$btn_label = ! $status || $status == 'draft' ? 'Publish Critiques' : 'Unpublish Critiques';
 		$publish_button = '<button class="btn btn-blue btn-publishcritiques" data-id="'. $tour_id .'">'. $btn_label .'</button>';
-	}	
+	}
 	wp_enqueue_media();
 	?>
 	<div id="critiques-page" class="wrap">
@@ -1809,8 +1824,8 @@ function ts_critiques_page() {
 				<div class="row">
 					<div class="col-md-12 t-right">
 						<a href="javascript:void(0);" class="btn-uploadcritiques btn btn-green">Upload Critiques</a>
-					</div>				
-				</div>	
+					</div>
+				</div>
 				<div class="table-container table-pad table-critiques">
 					<div class="row table-head">
 						<div class="col-md-1 t-center">Routine #</div>
@@ -1853,11 +1868,11 @@ function ts_critiques_page() {
 					</div>
 				</div>
 				<?php
-			}	
-			?>			
+			}
+			?>
 		</div>
 	</div>
-	<?php	
+	<?php
 }
 
 function ts_vouchers_page() {
@@ -2048,105 +2063,105 @@ function ts_score_page() {
 }
 
 function ts_view_scores_page() {
-    $score_id 	= $_GET['score_id'];
+	$score_id 	= $_GET['score_id'];
 
-    if (isset($score_id) && $score_id != '') {
-        $score 		= get_post($score_id);
-        $title 		= $score->post_title;
-        ?>
-        <div id="view-score-page" class="wrap">
-            <h1 class="admin-page-title"><?php echo $title; ?></h1>
-            <div class="ts-admin-wrapper score-wrapper">
-                <?php
-                $options = array(
-                    'post_id'  => $score_id,
-                    'form_attributes'  => array(
-                        'class'  => 'score_settings'
-                    ),
-                    'field_groups' => array('group_19d2674ac404f'),
-                    'html_field_open'  => '<div class="field">',
-                    'html_field_close'  => '</div>',
-                    'html_before_fields'  => '',
-                    'html_after_fields'  => '',
-                    'submit_value'  => 'Update Score',
-                    'updated_message'  => 'Score Updated.',
-                );
-                acf_form($options);
-                ?>
-            </div>
-        </div>
-        <?php
-    }
-    else {
-        ?>
-        <div id="view-score-page" class="wrap">
-            <h1 class="admin-page-title">New Score</h1>
-            <div class="ts-admin-wrapper score-wrapper">
-                <?php
-                $options = array(
-                    'post_id'  => 'new_score',
-                    'form_attributes'  => array(
-                        'class'  => 'score_settings'
-                    ),
-                    'field_groups' => array('group_19d2674ac404f'),
-                    'html_field_open'  => '<div class="field">',
-                    'html_field_close'  => '</div>',
-                    'html_before_fields'  => '',
-                    'html_after_fields'  => '',
-                    'submit_value'  => 'Update Score',
-                    'updated_message'  => 'Score Updated.',
-                );
-                acf_form($options);
-                ?>
-            </div>
-        </div>
-        <?php
-    }
+	if (isset($score_id) && $score_id != '') {
+		$score 		= get_post($score_id);
+		$title 		= $score->post_title;
+		?>
+		<div id="view-score-page" class="wrap">
+			<h1 class="admin-page-title"><?php echo $title; ?></h1>
+			<div class="ts-admin-wrapper score-wrapper">
+				<?php
+				$options = array(
+					'post_id'  => $score_id,
+					'form_attributes'  => array(
+						'class'  => 'score_settings'
+					),
+					'field_groups' => array('group_19d2674ac404f'),
+					'html_field_open'  => '<div class="field">',
+					'html_field_close'  => '</div>',
+					'html_before_fields'  => '',
+					'html_after_fields'  => '',
+					'submit_value'  => 'Update Score',
+					'updated_message'  => 'Score Updated.',
+				);
+				acf_form($options);
+				?>
+			</div>
+		</div>
+		<?php
+	}
+	else {
+		?>
+		<div id="view-score-page" class="wrap">
+			<h1 class="admin-page-title">New Score</h1>
+			<div class="ts-admin-wrapper score-wrapper">
+				<?php
+				$options = array(
+					'post_id'  => 'new_score',
+					'form_attributes'  => array(
+						'class'  => 'score_settings'
+					),
+					'field_groups' => array('group_19d2674ac404f'),
+					'html_field_open'  => '<div class="field">',
+					'html_field_close'  => '</div>',
+					'html_before_fields'  => '',
+					'html_after_fields'  => '',
+					'submit_value'  => 'Update Score',
+					'updated_message'  => 'Score Updated.',
+				);
+				acf_form($options);
+				?>
+			</div>
+		</div>
+		<?php
+	}
 }
 
 function ts_award_page() {
-    ?>
-    <div id="awards-page" class="wrap">
-        <h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
-        <div class="ts-admin-wrapper awards-wrapper">
-            <table id="awards-list" class="ts-data-table" data-length="10" data-sort="asc">
-                <thead>
-                <tr>
-                    <th style="text-align:left;">Title</th>
-                    <th style="text-align:center;">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                $awards = ts_get_posts('ts_award');
-                if ($awards) {
-                    foreach ($awards as $award) {
-                        setup_postdata($award);
-                        $award_id = $award->ID;
-                        $title = $award->post_title;
-                        ?>
-                        <tr id="item-<?php echo $award_id; ?>">
-                            <td style="text-align:left;"><?php echo $title; ?></td>
-                            <td style="text-align:center;">
-                                <a title="edit"
-                                   href="<?php echo admin_url('admin.php?page=ts-view-awards&award_id=' . $award_id); ?>"
-                                   class="btn btn-blue btn-editaward"
-                                >
-                                    <small>View</small>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php
-                    }
-                } else {
-                    echo '<tr><td colspan="5">No Awards Generated</td></tr>';
-                }
-                ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <?php
+	?>
+	<div id="awards-page" class="wrap">
+		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?></h1>
+		<div class="ts-admin-wrapper awards-wrapper">
+			<table id="awards-list" class="ts-data-table" data-length="10" data-sort="asc">
+				<thead>
+				<tr>
+					<th style="text-align:left;">Title</th>
+					<th style="text-align:center;">Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+				<?php
+				$awards = ts_get_posts('ts_award');
+				if ($awards) {
+					foreach ($awards as $award) {
+						setup_postdata($award);
+						$award_id = $award->ID;
+						$title = $award->post_title;
+						?>
+						<tr id="item-<?php echo $award_id; ?>">
+							<td style="text-align:left;"><?php echo $title; ?></td>
+							<td style="text-align:center;">
+								<a title="edit"
+								   href="<?php echo admin_url('admin.php?page=ts-view-awards&award_id=' . $award_id); ?>"
+								   class="btn btn-blue btn-editaward"
+								>
+									<small>View</small>
+								</a>
+							</td>
+						</tr>
+						<?php
+					}
+				} else {
+					echo '<tr><td colspan="5">No Awards Generated</td></tr>';
+				}
+				?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<?php
 }
 
 function ts_view_awards_page() {

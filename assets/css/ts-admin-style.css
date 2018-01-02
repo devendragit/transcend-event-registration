@@ -199,7 +199,7 @@ table.dataTable tfoot td select {
     max-width: none;
 }
 .btn-addvoucher {
-   margin: -7px 0 0 10px;
+    margin: -7px 0 0 10px;
 }
 .agediv-sep td {
     background-color: #f9f9f9;
@@ -253,7 +253,7 @@ table.dataTable tfoot td select {
     z-index: 200;
     text-align: right;
     margin-right: 123px;
-    top: 3px;   
+    top: 3px;
 }
 .export-range input {
     display: inline;
@@ -268,7 +268,7 @@ table.dataTable tfoot td select {
     font-family: 'Omnes-Bold';
     font-size: 1.2em;
 }*/
-table.dataTable thead th, 
+table.dataTable thead th,
 table.dataTable thead td {
     border-bottom: 1px solid #ccc;
 }
@@ -280,7 +280,7 @@ table.dataTable thead td {
 }
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover,
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-    background-color:#0082d5 !important; 
+    background-color:#0082d5 !important;
     color: #fff !important;
 }
 .display-individual-day-awards .ui-state-active,
@@ -421,7 +421,7 @@ html .display-individual-day-awards .ui-button.ui-state-disabled:active {
 .btn-removeroutinecritique {
     color: red;
     margin-left: 10px;
-    text-decoration: underline;    
+    text-decoration: underline;
 }
 /*.schedule_settings .acf-field-59d2674f77f7b .acf-row-handle:last-child,*/
 .schedule_settings .acf-field-59d2674f97bd8 .select2-selection__placeholder,
@@ -489,7 +489,7 @@ tr.acf-field[data-name="email"] {
 }
 .acf-field-59d2674f98ba4 select {
     -webkit-border-radius: 5px;
-    border-radius: 5px;    
+    border-radius: 5px;
     box-shadow: none;
 }
 .acf-field-59d2674f98ba4 select option,
@@ -569,8 +569,8 @@ tr.acf-field[data-name="email"] {
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;  
-    text-decoration: none !important;  
+    -moz-osx-font-smoothing: grayscale;
+    text-decoration: none !important;
 }
 .custom-combobox-toggle:before {
     content:"\f0d7";
@@ -614,5 +614,5 @@ tr.acf-field[data-name="email"] {
         float: none;
         text-align: center;
         margin: -5px 0 10px;
-    }    
-} 
+    }
+}

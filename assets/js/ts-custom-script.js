@@ -298,7 +298,7 @@ jQuery(document).ready(function($) {
 		var venue = $(this).attr('data-venue');
 		var listid = $(this).attr('data-listid');
 		var workshop = $(this).attr('data-workshop');
-        var competition = $(this).attr('data-competition');
+		var competition = $(this).attr('data-competition');
 		var status = $(this).attr('data-status');
 		$('#tour-id').val(id);
 		$('#tour-title').val(title);
@@ -319,12 +319,12 @@ jQuery(document).ready(function($) {
 		else {
 			$('#tour-workshop').prop('checked',false);
 		}
-        if(competition!=2) {
-            $('#tour-competition').prop('checked',true);
-        }
-        else {
-            $('#tour-competition').prop('checked',false);
-        }
+		if(competition!=2) {
+			$('#tour-competition').prop('checked',true);
+		}
+		else {
+			$('#tour-competition').prop('checked',false);
+		}
 		$('#popup-save-tour .modal-title').text('Edit Tour');
 		$('#popup-save-tour').modal('show');
 	});
@@ -341,11 +341,11 @@ jQuery(document).ready(function($) {
 		e.preventDefault();
 		$('#popup-create-invoice').modal('show');
 	});
-    $('.btn-previewschedule').on('click', function(e) {
-        e.preventDefault();
-        $('#popup-competitionsched-preview').modal('show');
-    });
-    $('.btn-editmusicinfo').on('click', function(e) {
+	$('.btn-previewschedule').on('click', function(e) {
+		e.preventDefault();
+		$('#popup-competitionsched-preview').modal('show');
+	});
+	$('.btn-editmusicinfo').on('click', function(e) {
 		e.preventDefault();
 		var id = $(this).attr('data-id');
 		var title = $(this).attr('data-title');
@@ -353,7 +353,7 @@ jQuery(document).ready(function($) {
 		$('#music-title').val(title);
 		$('#popup-save-music-info').modal('show');
 	});
-  	$('.critiques-wrapper').on('click', '.btn-addroutinecritique', function(e){
+	$('.critiques-wrapper').on('click', '.btn-addroutinecritique', function(e){
 		e.preventDefault();
 		var button = $(this);
 		var id = button.attr('data-id');
@@ -398,9 +398,9 @@ jQuery(document).ready(function($) {
 		clone.appendTo('.scholarship-container');
 	});
 	$('.acf-field-59ce7b5b2bdcf select').selectmenu({
-  		change: function( event, ui ) {
-  			$(this).next('span').find('.ui-selectmenu-text').attr('class', '').addClass('ui-selectmenu-text '+ui.item.value);
-  		},
+		change: function( event, ui ) {
+			$(this).next('span').find('.ui-selectmenu-text').attr('class', '').addClass('ui-selectmenu-text '+ui.item.value);
+		},
 	});
 	$('#critiques-page').on('click', '.btn-uploadcritiques', function(e){
 		e.preventDefault();
@@ -521,151 +521,151 @@ jQuery(document).ready(function($) {
 		$('#popup-workshopsched-preview').modal('show');
 	});
 
-    $.widget( "custom.combobox", {
-      _create: function() {
-        this.wrapper = $( "<span>" )
-          .addClass( "custom-combobox" )
-          .insertAfter( this.element );
- 
-        this.element.hide();
-        this._createAutocomplete();
-        this._createShowAllButton();
-      },
- 
-      _createAutocomplete: function() {
-        var selected = this.element.children( ":selected" ),
-          value = selected.val() ? selected.text() : "";
- 
-        this.input = $( "<input>" )
-          .appendTo( this.wrapper )
-          .val( value )
-          .attr( "title", "" )
-          .addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
-          .autocomplete({
-            delay: 0,
-            minLength: 0,
-            source: $.proxy( this, "_source" )
-          })
-          .tooltip({
-            classes: {
-              "ui-tooltip": "ui-state-highlight"
-            }
-          });
- 
-        this._on( this.input, {
-          autocompleteselect: function( event, ui ) {
-            ui.item.option.selected = true;
-            this._trigger( "select", event, {
-              item: ui.item.option
-            });
-          },
- 
-          autocompletechange: "_removeIfInvalid"
-        });
-      },
- 
-      _createShowAllButton: function() {
-        var input = this.input,
-          wasOpen = false;
- 
-        $( "<a>" )
-          .attr( "tabIndex", -1 )
-          .attr( "title", "" )
-          .tooltip()
-          .appendTo( this.wrapper )
-          .button({
-            icons: {
-              primary: "ui-icon-triangle-1-s"
-            },
-            text: false
-          })
-          .removeClass( "ui-corner-all" )
-          .addClass( "custom-combobox-toggle ui-corner-right" )
-          .on( "mousedown", function() {
-            wasOpen = input.autocomplete( "widget" ).is( ":visible" );
-          })
-          .on( "click", function() {
-            input.trigger( "focus" );
- 
-            // Close if already visible
-            if ( wasOpen ) {
-              return;
-            }
- 
-            // Pass empty string as value to search for, displaying all results
-            input.autocomplete( "search", "" );
-          });
-      },
- 
-      _source: function( request, response ) {
-        var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
-        response( this.element.children( "option" ).map(function() {
-          var text = $( this ).text();
-          if ( this.value && ( !request.term || matcher.test(text) ) )
-            return {
-              label: text,
-              value: text,
-              option: this
-            };
-        }) );
-      },
- 
-      _removeIfInvalid: function( event, ui ) {
- 
-        // Selected an item, nothing to do
-        if ( ui.item ) {
-          return;
-        }
- 
-        // Search for a match (case-insensitive)
-        var value = this.input.val(),
-          valueLowerCase = value.toLowerCase(),
-          valid = false;
-        this.element.children( "option" ).each(function() {
-          if ( $( this ).text().toLowerCase() === valueLowerCase ) {
-            this.selected = valid = true;
-            return false;
-          }
-        });
- 
-        // Found a match, nothing to do
-        if ( valid ) {
-          return;
-        }
- 
-        // Remove invalid value
-        this.input
-          .val( "" )
-          .attr( "title", value + " didn't match any item" )
-          .tooltip( "open" );
-        this.element.val( "" );
-        this._delay(function() {
-          this.input.tooltip( "close" ).attr( "title", "" );
-        }, 2500 );
-        this.input.autocomplete( "instance" ).term = "";
-      },
- 
-      _destroy: function() {
-        this.wrapper.remove();
-        this.element.show();
-      }
-    });
+	$.widget( "custom.combobox", {
+		_create: function() {
+			this.wrapper = $( "<span>" )
+				.addClass( "custom-combobox" )
+				.insertAfter( this.element );
 
-    $('.scholarship-wrapper select').combobox({
-  		select: function( event, ui ) {
+			this.element.hide();
+			this._createAutocomplete();
+			this._createShowAllButton();
+		},
+
+		_createAutocomplete: function() {
+			var selected = this.element.children( ":selected" ),
+				value = selected.val() ? selected.text() : "";
+
+			this.input = $( "<input>" )
+				.appendTo( this.wrapper )
+				.val( value )
+				.attr( "title", "" )
+				.addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+				.autocomplete({
+					delay: 0,
+					minLength: 0,
+					source: $.proxy( this, "_source" )
+				})
+				.tooltip({
+					classes: {
+						"ui-tooltip": "ui-state-highlight"
+					}
+				});
+
+			this._on( this.input, {
+				autocompleteselect: function( event, ui ) {
+					ui.item.option.selected = true;
+					this._trigger( "select", event, {
+						item: ui.item.option
+					});
+				},
+
+				autocompletechange: "_removeIfInvalid"
+			});
+		},
+
+		_createShowAllButton: function() {
+			var input = this.input,
+				wasOpen = false;
+
+			$( "<a>" )
+				.attr( "tabIndex", -1 )
+				.attr( "title", "" )
+				.tooltip()
+				.appendTo( this.wrapper )
+				.button({
+					icons: {
+						primary: "ui-icon-triangle-1-s"
+					},
+					text: false
+				})
+				.removeClass( "ui-corner-all" )
+				.addClass( "custom-combobox-toggle ui-corner-right" )
+				.on( "mousedown", function() {
+					wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+				})
+				.on( "click", function() {
+					input.trigger( "focus" );
+
+					// Close if already visible
+					if ( wasOpen ) {
+						return;
+					}
+
+					// Pass empty string as value to search for, displaying all results
+					input.autocomplete( "search", "" );
+				});
+		},
+
+		_source: function( request, response ) {
+			var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+			response( this.element.children( "option" ).map(function() {
+				var text = $( this ).text();
+				if ( this.value && ( !request.term || matcher.test(text) ) )
+					return {
+						label: text,
+						value: text,
+						option: this
+					};
+			}) );
+		},
+
+		_removeIfInvalid: function( event, ui ) {
+
+			// Selected an item, nothing to do
+			if ( ui.item ) {
+				return;
+			}
+
+			// Search for a match (case-insensitive)
+			var value = this.input.val(),
+				valueLowerCase = value.toLowerCase(),
+				valid = false;
+			this.element.children( "option" ).each(function() {
+				if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+					this.selected = valid = true;
+					return false;
+				}
+			});
+
+			// Found a match, nothing to do
+			if ( valid ) {
+				return;
+			}
+
+			// Remove invalid value
+			this.input
+				.val( "" )
+				.attr( "title", value + " didn't match any item" )
+				.tooltip( "open" );
+			this.element.val( "" );
+			this._delay(function() {
+				this.input.tooltip( "close" ).attr( "title", "" );
+			}, 2500 );
+			this.input.autocomplete( "instance" ).term = "";
+		},
+
+		_destroy: function() {
+			this.wrapper.remove();
+			this.element.show();
+		}
+	});
+
+	$('.scholarship-wrapper select').combobox({
+		select: function( event, ui ) {
 			id = ui.item.value;
 			tempid = $(this).attr('data-id');
 			selectParticipant(id, tempid);
-		}  	
-    });
+		}
+	});
 
-    $('#studio_innovator').combobox();
+	$('#studio_innovator').combobox();
 
 	$('body').on('click', '.buttons-pdf', function(){
 		setTimeout(function(){
 			$('.buttons-pdf').removeClass('processing');
 		}, 3400);
-	});	
+	});
 });
 
 var updateRoutineTimes = function() {
@@ -747,13 +747,13 @@ function callbackSaveRoutineScores(data) {
 }
 function callbackChangeRoutine(data) {
 	//if(data.success==true) {
-		var routine_id = data.routine_id;
-		var name = data.name;
-		var studio = data.studio;
-		var row = data.row;
-		jQuery('#'+row+' .routine-id').val(routine_id);
-		jQuery('#'+row+' .routine-name').html(name);
-		jQuery('#'+row+' .routine-studio').html(studio);
+	var routine_id = data.routine_id;
+	var name = data.name;
+	var studio = data.studio;
+	var row = data.row;
+	jQuery('#'+row+' .routine-id').val(routine_id);
+	jQuery('#'+row+' .routine-name').html(name);
+	jQuery('#'+row+' .routine-studio').html(studio);
 	//}
 }
 function callbackChangeScholar(data) {
@@ -1115,19 +1115,19 @@ function callbackMarkAsPaid(data) {
 }
 var trim_filter = function(value, table, table_el, select_val) {
 	//jQuery.each(JSON.parse(colfilter), function( index, value ) {
-		var column;
-		if(select_val!=''){
-			column = table.column(value, {search:'applied'});
-		}
-		else {
-			column = table.column(value);
-		}
-		var select = table_el.parent().find('#filter-'+value);
-		select.find('option').not(':first').remove();
-		column.data().unique().sort().each( function ( d, j ) {
-			d = d.replace(/(<([^>]+)>)/ig,"");
-			select.append( '<option value="'+d+'">'+d+'</option>' )
-		});
+	var column;
+	if(select_val!=''){
+		column = table.column(value, {search:'applied'});
+	}
+	else {
+		column = table.column(value);
+	}
+	var select = table_el.parent().find('#filter-'+value);
+	select.find('option').not(':first').remove();
+	column.data().unique().sort().each( function ( d, j ) {
+		d = d.replace(/(<([^>]+)>)/ig,"");
+		select.append( '<option value="'+d+'">'+d+'</option>' )
+	});
 	//});
 }
 Number.prototype.formatMoney = function(c, d, t){
