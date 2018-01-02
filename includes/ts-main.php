@@ -48,9 +48,9 @@ add_action('registration_edited', 'ts_reg_edited_notification', 10, 2);
 add_action('registration_edited', 'ts_set_remaining_amount_meta', 10, 3);
 add_action('registration_paid', 'ts_mark_as_paid', 10, 3);
 add_action('registration_paid', 'ts_save_paid_amount', 10, 4);
-add_action('registration_paid', 'ts_clear_remaining_amount', 10, 6);
 add_action('registration_paid', 'ts_copy_meta_data', 10, 1);
 add_action('registration_paid', 'ts_clear_payment_error', 10, 1);
+add_action('registration_clear_remaining', 'ts_clear_remaining_amount', 10, 6);
 add_action('registration_payment_failed', 'ts_set_payment_error_meta', 10, 2);
 add_action('registration_recompleted', 'ts_set_entry_meta', 10, 1);
 add_action('registration_amount_credited', 'ts_create_credit_post', 10, 2);
@@ -73,14 +73,14 @@ add_action('competition_schedule_updated', 'ts_save_routine_number', 10, 1);
 //add_action('init', 'ts_import_individual');
 //add_action('init', 'ts_create_terms', 11);
 //add_action('init', 'ts_create_tour_posts');
-//add_action('init', 'ts_update_entry');
-//add_action('init', 'ts_update_agedivs');
-//add_action('init', 'ts_update_agediv_fees');
-//add_action('init', 'ts_update_agediv_order');
-//add_action('init', 'ts_update_roster_agedivs');
-//add_action('init', 'ts_update_roster_order');
-//add_action('init', 'ts_update_tour_posts');
-//add_action('init', 'ts_update_entries');
+add_action('init', 'ts_update_entry');
+add_action('init', 'ts_update_agedivs');
+add_action('init', 'ts_update_agediv_fees');
+add_action('init', 'ts_update_agediv_order');
+add_action('init', 'ts_update_roster_agedivs');
+add_action('init', 'ts_update_roster_order');
+add_action('init', 'ts_update_tour_posts');
+add_action('init', 'ts_update_entries');
 add_action('init', 'ts_update_routines');
 
 /* Remove */
@@ -126,7 +126,7 @@ add_shortcode('ts-results', 'ts_results_shortcode');
 
 function ts_register_ts_scripts() {
 
-    if(current_user_can('is_custom_user')) {
+    //if(current_user_can('is_custom_user')) {
 
         /*CSS*/
         wp_register_style('jquery-ui-css', TS_URI .'assets/css/jquery-ui.css');
@@ -166,7 +166,7 @@ function ts_register_ts_scripts() {
 		wp_register_script('jspdf', TS_URI .'assets/js/jspdf.min.js', array('jquery'), '', false);
         wp_register_script('ts-custom-script', TS_URI .'assets/js/ts-custom-script.js', array('jquery', 'jquery-ui-core'), '', false);
         wp_register_script('ts-shortcode-script', TS_URI .'assets/js/ts-shortcode-script.js', array('jquery','jquery-ui-core','jquery-dataTables','dataTables-buttons','buttons-html5','buttons-print','buttons-flash','jszip','pdfmake','vfs-fonts'), '', false);
-    }
+    //}
 }
 
 function ts_enqueue_admin_scripts() {

@@ -239,7 +239,11 @@
     padding: 10px;
     display: block;
 }
-
+.CompetitionSched .dancer_name {
+    display: block;
+    font-size: 12px;
+    font-style: italic;    
+}
 .Results .TableBody > .clearfix > div {
     width: 25% !important;
 }
@@ -294,4 +298,64 @@
 .CompetitionSched .dt-buttons,
 .CompetitionSched .dataTables_filter {
     float: right;
+}
+.single-tour_stop .dt-buttons button,
+.single-tour_stop .ui-widget {
+    font-family: 'Omnes-Semibold';
+}
+.single-tour_stop .ts-data-table {
+    width: 100%;
+}
+.single-tour_stop #tab-4 .ui-tabs,
+.single-tour_stop #main-tabs {
+    border: 0;
+}
+.single-tour_stop #main-tabs > ul {
+    padding: 0;
+}
+.single-tour_stop #tab-4 .ui-tabs-nav {
+    padding: 0;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    background: transparent; 
+}
+.single-tour_stop #tab-4 .ui-tabs-nav > li {
+    background: #fff;
+    border-color: #999;
+}
+.single-tour_stop #tab-4 .ui-tabs-nav > li > a {
+    color: #333;
+}
+.single-tour_stop #main-tabs > ul > li {
+    margin: 0 !important;
+    background-color: transparent;
+    border: 0;
+}
+.single-tour_stop #main-tabs > ul > li > a {
+    display: block;
+    float: none;
+    line-height: 28px;
+    vertical-align: middle;    
+    border: 0;
+}
+.single-tour_stop #tab-4 .ui-tabs-panel,
+.single-tour_stop #main-tabs > .ui-tabs-panel {
+    padding: 20px 0;
+}
+.single-tour_stop .CompetitionSched.SchedTable:first-child {
+    margin-top: 0;
+}
+.single-tour_stop #tab-4 .dataTables_wrapper {
+    border: 3px solid #cecece;
+    -webkit-border-radius: 16px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+.single-tour_stop #tab-4 .dataTables_wrapper th {
+    background: #3d3d3d;
+    color: #fff;
+}
+.single-tour_stop #tab-4 .dataTables_wrapper tbody tr {
+    border-bottom: 1px solid #cecece;
 }

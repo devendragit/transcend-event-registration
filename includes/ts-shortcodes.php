@@ -562,28 +562,28 @@ function ts_get_competition_html($entry_data, $entry_id, $eid, $prev_step, $next
 											<input name="routinecurr[<?php echo $rpid; ?>][name]" value="<?php echo $name; ?>" id="routine-name-<?php echo $rpid; ?>" class="routine-name validate[required]" type="text">
 										</div>
 										<div class="col-sm-2 t-center">
-									<span class="routine-dancers-preview" id="routine-dancers-preview-<?php echo $rpid; ?>">
-										<?php
-										$ids = $dancersArray;
-										$count_d = count($ids);
-										$age_total = 0;
-										if(! empty($ids)){
-											$count=0;
-											foreach ($ids as $d) {
-												if(ts_post_exists_by_id($d)){
-													if($count>0) echo ', ';
-													echo get_the_title($d);
-													$birth_date = get_post_meta($d, 'birth_date', true);
-													$age = ts_get_the_age($birth_date);
-													$age_total = $age_total + $age;
-													$count++;
+											<span class="routine-dancers-preview" id="routine-dancers-preview-<?php echo $rpid; ?>">
+												<?php
+												$ids = $dancersArray;
+												$count_d = count($ids);
+												$age_total = 0;
+												if(! empty($ids)){
+													$count=0;
+													foreach ($ids as $d) {
+														if(ts_post_exists_by_id($d)){
+															if($count>0) echo ', ';
+															echo get_the_title($d);
+															$birth_date = get_post_meta($d, 'birth_date', true);
+															$age = ts_get_the_age($birth_date);
+															$age_total = $age_total + $age;
+															$count++;
+														}
+													}
+													$age_ave = round($age_total / $count_d);
+													$age_div_name = ts_get_routine_agediv_name($age_ave);
 												}
-											}
-											$age_ave = round($age_total / $count_d);
-											$age_div_name = ts_get_routine_agediv_name($age_ave);
-										}
-										?>
-									</span>
+												?>
+											</span>
 											<input class="routine-dancers validate[required]" id="routine-dancers-<?php echo $rpid; ?>" name="routinecurr[<?php echo $rpid; ?>][dancers]" value="<?php echo $age_total !==0 ? $dancersString : ''; ?>" type="text">
 											<a href="javascript:void(0);" class="btn-addroutinedancers btn btn-green" data-id="<?php echo $rpid; ?>"><small>Edit</small></a>
 										</div>
@@ -1151,6 +1151,7 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 
 	$confirmation = $steps['confirmation']['id'];
 	$form_action = ts_get_form_action();
+	$user_id = get_current_user_id();
 
 	if( $entry_id && get_post_meta($entry_id, 'comfirmed', true)) {
 
@@ -1246,8 +1247,11 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 			if($grand_total<=0) {
 				?>
 				<div class="form-container-2 t-center boxed-container">
-					<h1>Your changes have been saved.</h1>
-					<?php do_action('registration_recompleted',$entry_id); ?>
+					<h1>Thank you for registering for Transcend - we can’t wait to dance with you! You will be receiving a confirmation email shortly.</h1>
+					<?php 
+					do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total);
+					do_action('registration_completed', $entry_id, $user_id, 'stripe_payment', $grand_total);
+					?>
 				</div>
 				<script type="text/javascript">
 					setTimeout(function(){
@@ -1350,8 +1354,9 @@ function ts_get_results_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 					'amount'   => $charge_amount * 100,
 					'currency' => 'usd'
 				));
-				do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total,	$remaining, $remaining_amount);
-				do_action('registration_completed', $entry_id, $user_id, 'stripe_payment');
+				do_action('registration_paid', $entry_id, $user_id, 'stripe_payment', $grand_total);
+				do_action('registration_completed', $entry_id, $user_id, 'stripe_payment'); 
+				do_action('registration_clear_remaining', $entry_id, 'stripe_payment', $remaining, $remaining_amount);
 			}
 			catch(\Stripe\Error\Card $e) {
 				$body = $e->getJsonBody();
@@ -1657,14 +1662,14 @@ function ts_competition_schedules_shortcode($atts) {
 	return $output;
 }
 
-function ts_results_shortcode() {
+function ts_results_shortcode($atts) {
 
 	ob_start();
 
 	wp_enqueue_style('ts-shortcode-style');
 	wp_enqueue_script('ts-shortcode-script');
 	
-	$tour_id = ts_get_param('tour');
+	$tour_id = $atts['tour'];
 	if(! $tour_id) {
 		$tour_id = ts_upcoming_tour();
 	}
