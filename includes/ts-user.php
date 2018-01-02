@@ -297,9 +297,8 @@ function ts_competitionsched_preview() {
 			);
 
 			$schedules = ts_get_posts('ts_event', -1, $args);
-
-			ts_display_competition_schedules($schedules);
-			?>
+			ts_display_competition_schedules2($schedules);
+		    ?>
 		</div>
 	</div>
 	<?php

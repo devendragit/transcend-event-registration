@@ -48,9 +48,9 @@ add_action('registration_edited', 'ts_reg_edited_notification', 10, 2);
 add_action('registration_edited', 'ts_set_remaining_amount_meta', 10, 3);
 add_action('registration_paid', 'ts_mark_as_paid', 10, 3);
 add_action('registration_paid', 'ts_save_paid_amount', 10, 4);
-add_action('registration_paid', 'ts_clear_remaining_amount', 10, 6);
 add_action('registration_paid', 'ts_copy_meta_data', 10, 1);
 add_action('registration_paid', 'ts_clear_payment_error', 10, 1);
+add_action('registration_clear_remaining', 'ts_clear_remaining_amount', 10, 6);
 add_action('registration_paid', 'ts_clear_voucher_code', 10, 1);
 add_action('registration_payment_failed', 'ts_set_payment_error_meta', 10, 2);
 add_action('registration_recompleted', 'ts_set_entry_meta', 10, 1);
@@ -75,14 +75,14 @@ add_action('credit_added', 'ts_custom_voucher', 10, 3);
 //add_action('init', 'ts_import_individual');
 //add_action('init', 'ts_create_terms', 11);
 //add_action('init', 'ts_create_tour_posts');
-//add_action('init', 'ts_update_entry');
-//add_action('init', 'ts_update_agedivs');
-//add_action('init', 'ts_update_agediv_fees');
-//add_action('init', 'ts_update_agediv_order');
-//add_action('init', 'ts_update_roster_agedivs');
-//add_action('init', 'ts_update_roster_order');
-//add_action('init', 'ts_update_tour_posts');
-//add_action('init', 'ts_update_entries');
+add_action('init', 'ts_update_entry');
+add_action('init', 'ts_update_agedivs');
+add_action('init', 'ts_update_agediv_fees');
+add_action('init', 'ts_update_agediv_order');
+add_action('init', 'ts_update_roster_agedivs');
+add_action('init', 'ts_update_roster_order');
+add_action('init', 'ts_update_tour_posts');
+add_action('init', 'ts_update_entries');
 add_action('init', 'ts_update_routines');
 
 /* Remove */
@@ -127,48 +127,47 @@ add_shortcode('ts-competition-schedules', 'ts_competition_schedules_shortcode');
 add_shortcode('ts-results', 'ts_results_shortcode');
 
 function ts_register_ts_scripts() {
+    //if(current_user_can('is_custom_user')) {
 
-	if(current_user_can('is_custom_user')) {
+        /*CSS*/
+        wp_register_style('jquery-ui-css', TS_URI .'assets/css/jquery-ui.css');
+        wp_register_style('jquery-dataTables-style', TS_URI .'assets/js/jquery.dataTables/css/jquery.dataTables.min.css');
+        wp_register_style('buttons-dataTables', TS_URI .'assets/js/jquery.dataTables/css/buttons.dataTables.min.css');
+        wp_register_style('rowReorder-dataTables', TS_URI .'assets/js/jquery.dataTables/css/rowReorder.dataTables.min.css');
+        wp_register_style('jquery-validationEngine-style', TS_URI .'assets/js/jquery.validationEngine/css/validationEngine.jquery.css');
+        wp_register_style('grid12', TS_URI .'assets/css/grid12.css');
+        wp_register_style('bootstrap', TS_URI .'assets/css/bootstrap.min.css');
+        wp_register_style('font-awesome', TS_URI .'assets/css/font-awesome.min.css');
+        wp_register_style('ts-admin-style', TS_URI .'assets/css/ts-admin-style.css');
+        wp_register_style('ts-custom-style', TS_URI .'assets/css/ts-custom-style.css');
+        wp_register_style('ts-frontend-style', TS_URI .'assets/css/ts-frontend-style.css');
+        wp_register_style('ts-shortcode-style', TS_URI .'assets/css/ts-shortcode-style.css');
+        wp_register_style('ts-fonts', TS_URI .'assets/fonts/fonts.css');
 
-		/*CSS*/
-		wp_register_style('jquery-ui-css', TS_URI .'assets/css/jquery-ui.css');
-		wp_register_style('jquery-dataTables-style', TS_URI .'assets/js/jquery.dataTables/css/jquery.dataTables.min.css');
-		wp_register_style('buttons-dataTables', TS_URI .'assets/js/jquery.dataTables/css/buttons.dataTables.min.css');
-		wp_register_style('rowReorder-dataTables', TS_URI .'assets/js/jquery.dataTables/css/rowReorder.dataTables.min.css');
-		wp_register_style('jquery-validationEngine-style', TS_URI .'assets/js/jquery.validationEngine/css/validationEngine.jquery.css');
-		wp_register_style('grid12', TS_URI .'assets/css/grid12.css');
-		wp_register_style('bootstrap', TS_URI .'assets/css/bootstrap.min.css');
-		wp_register_style('font-awesome', TS_URI .'assets/css/font-awesome.min.css');
-		wp_register_style('ts-admin-style', TS_URI .'assets/css/ts-admin-style.css');
-		wp_register_style('ts-custom-style', TS_URI .'assets/css/ts-custom-style.css');
-		wp_register_style('ts-frontend-style', TS_URI .'assets/css/ts-frontend-style.css');
-		wp_register_style('ts-shortcode-style', TS_URI .'assets/css/ts-shortcode-style.css');
-		wp_register_style('ts-fonts', TS_URI .'assets/fonts/fonts.css');
-
-		/*JS*/
-		if( !wp_script_is('jquery-ui') ) {
-			//wp_register_script('jquery-ui' , TS_URI .'assets/js/jquery-ui.js' );
-		}
-		wp_register_script('jquery-dataTables', TS_URI .'assets/js/jquery.dataTables/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core'), '', true);
-		wp_register_script('dataTables-rowReorder', TS_URI .'assets/js/jquery.dataTables/js/dataTables.rowReorder.min.js', array('jquery'), '', true);
-		wp_register_script('dataTables-buttons', TS_URI .'assets/js/jquery.dataTables/js/dataTables.buttons.min.js', array('jquery'), '', true);
-		wp_register_script('buttons-html5', TS_URI .'assets/js/jquery.dataTables/js/buttons.html5.min.js', array('jquery'), '', true);
-		wp_register_script('buttons-print', TS_URI .'assets/js/jquery.dataTables/js/buttons.print.min.js', array('jquery'), '', true);
-		wp_register_script('buttons-flash', TS_URI .'assets/js/jquery.dataTables/js/buttons.flash.min.js', array('jquery'), '', true);
-		wp_register_script('vfs-fonts', TS_URI .'assets/js/jquery.dataTables/js/vfs_fonts.js', array('jquery'), '', true);
-		wp_register_script('jszip', TS_URI .'assets/js/jquery.dataTables/js/jszip.min.js', array('jquery'), '', true);
-		wp_register_script('pdfmake', TS_URI .'assets/js/jquery.dataTables/js/pdfmake.min.js', array('jquery'), '', true);
-		wp_register_script('jquery-validationEngine-languages', TS_URI .'assets/js/jquery.validationEngine/languages/jquery.validationEngine-en.js', array('jquery'), '', true);
-		wp_register_script('jquery-validationEngine', TS_URI .'assets/js/jquery.validationEngine/jquery.validationEngine.js', array('jquery'), '', true);
-		wp_register_script('jquery-maskedinput', TS_URI .'assets/js/jquery.maskedinput.js', array('jquery'), '', true);
-		wp_register_script('jquery-moment', TS_URI .'assets/js/moment.min.js', array('jquery'), '', true);
-		wp_register_script('bootstrap', TS_URI .'assets/js/bootstrap.min.js', array('jquery'), '', true);
-		wp_register_script('printThis', TS_URI .'assets/js/printThis.js', array('jquery'), '', true);
-		wp_register_script('html2canvas', TS_URI .'assets/js/html2canvas.min.js', array('jquery'), '', false);
-		wp_register_script('jspdf', TS_URI .'assets/js/jspdf.min.js', array('jquery'), '', false);
-		wp_register_script('ts-custom-script', TS_URI .'assets/js/ts-custom-script.js', array('jquery', 'jquery-ui-core'), '', false);
-		wp_register_script('ts-shortcode-script', TS_URI .'assets/js/ts-shortcode-script.js', array('jquery', 'jquery-ui-core'), '', false);
-	}
+        /*JS*/
+        if( !wp_script_is('jquery-ui') ) {
+           //wp_register_script('jquery-ui' , TS_URI .'assets/js/jquery-ui.js' );
+        }
+        wp_register_script('jquery-dataTables', TS_URI .'assets/js/jquery.dataTables/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core'), '', true);
+        wp_register_script('dataTables-rowReorder', TS_URI .'assets/js/jquery.dataTables/js/dataTables.rowReorder.min.js', array('jquery'), '', true);
+        wp_register_script('dataTables-buttons', TS_URI .'assets/js/jquery.dataTables/js/dataTables.buttons.min.js', array('jquery'), '', true);
+        wp_register_script('buttons-html5', TS_URI .'assets/js/jquery.dataTables/js/buttons.html5.min.js', array('jquery'), '', true);
+        wp_register_script('buttons-print', TS_URI .'assets/js/jquery.dataTables/js/buttons.print.min.js', array('jquery'), '', true);
+        wp_register_script('buttons-flash', TS_URI .'assets/js/jquery.dataTables/js/buttons.flash.min.js', array('jquery'), '', true);
+        wp_register_script('vfs-fonts', TS_URI .'assets/js/jquery.dataTables/js/vfs_fonts.js', array('jquery'), '', true);
+        wp_register_script('jszip', TS_URI .'assets/js/jquery.dataTables/js/jszip.min.js', array('jquery'), '', true);
+        wp_register_script('pdfmake', TS_URI .'assets/js/jquery.dataTables/js/pdfmake.min.js', array('jquery'), '', true);
+        wp_register_script('jquery-validationEngine-languages', TS_URI .'assets/js/jquery.validationEngine/languages/jquery.validationEngine-en.js', array('jquery'), '', true);
+        wp_register_script('jquery-validationEngine', TS_URI .'assets/js/jquery.validationEngine/jquery.validationEngine.js', array('jquery'), '', true);
+        wp_register_script('jquery-maskedinput', TS_URI .'assets/js/jquery.maskedinput.js', array('jquery'), '', true);
+        wp_register_script('jquery-moment', TS_URI .'assets/js/moment.min.js', array('jquery'), '', true);
+        wp_register_script('bootstrap', TS_URI .'assets/js/bootstrap.min.js', array('jquery'), '', true);
+        wp_register_script('printThis', TS_URI .'assets/js/printThis.js', array('jquery'), '', true);
+		    wp_register_script('html2canvas', TS_URI .'assets/js/html2canvas.min.js', array('jquery'), '', false);
+		    wp_register_script('jspdf', TS_URI .'assets/js/jspdf.min.js', array('jquery'), '', false);
+        wp_register_script('ts-custom-script', TS_URI .'assets/js/ts-custom-script.js', array('jquery', 'jquery-ui-core'), '', false);
+        wp_register_script('ts-shortcode-script', TS_URI .'assets/js/ts-shortcode-script.js', array('jquery','jquery-ui-core','jquery-dataTables','dataTables-buttons','buttons-html5','buttons-print','buttons-flash','jszip','pdfmake','vfs-fonts'), '', false);
+    //}
 }
 
 function ts_enqueue_admin_scripts() {

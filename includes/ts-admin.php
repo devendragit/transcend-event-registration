@@ -630,6 +630,9 @@ function ts_view_entry_page() {
 
 function ts_workshopentries_page() {
 	$tour_id = ts_get_param('tour');
+	if(! $tour_id) {
+		$tour_id = ts_upcoming_tour();
+	}
 	?>
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-workshop-entries', $tour_id); ?></h1>
@@ -731,6 +734,9 @@ function ts_workshopentries_page() {
 
 function ts_competitionentries_page() {
 	$tour_id = ts_get_param('tour');
+	if(! $tour_id) {
+		$tour_id = ts_upcoming_tour();
+	}
 	?>
 	<div id="entries-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-competition-entries', $tour_id); ?></h1>
@@ -1400,6 +1406,9 @@ function ts_post_competition_schedule() {
 
 function ts_scores_page() {
 	$tour_id = ts_get_param('tour');
+	if(! $tour_id) {
+		$tour_id = ts_upcoming_tour();
+	}	
 	?>
 	<div id="scores-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-competition-scores', $tour_id); ?></h1>
@@ -1479,6 +1488,9 @@ function ts_scores_page() {
 
 function ts_special_awards_page() {
 	$tour_id = ts_get_param('tour');
+	if(! $tour_id) {
+		$tour_id = ts_upcoming_tour();
+	}	
 	?>
 	<div id="awards-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-specialty-awards', $tour_id); ?></h1>
@@ -1592,6 +1604,9 @@ function ts_scholarships_page() {
 
 	wp_enqueue_script('jquery-ui-autocomplete');
 	$tour_id = ts_get_param('tour');
+	if(! $tour_id) {
+		$tour_id = ts_upcoming_tour();
+	}	
 	?>
 	<div id="scholarships-page" class="wrap">
 		<h1 class="admin-page-title"><?php echo get_admin_page_title(); ?> <?php ts_select_tour_city(admin_url('admin.php') .'?page=ts-scholarships', $tour_id); ?></h1>
@@ -1611,11 +1626,13 @@ function ts_scholarships_page() {
 						<?php
 						$scholarships = get_post_meta($tour_id, 'scholarships', true);
 						$participants = ts_tour_participants($tour_id);
-						$participantsArray = array();
-						foreach ($participants as $p) {
-							$participantsArray[$p] =  get_the_title($p);
+						if(! empty($participants)){
+							$participantsArray = array();
+							foreach ($participants as $p) {
+								$participantsArray[$p] =  get_the_title($p);
+							}
+							asort($participantsArray);
 						}
-						asort($participantsArray);
 						if(! empty($scholarships)) {
 							?>
 							<div class="row table-head">
@@ -1714,24 +1731,28 @@ function ts_scholarships_page() {
 					</div>
 					<?php
 					$studio_innovator_id = get_post_meta($tour_id, 'studio_innovator_id', true);
-					$studio_innovator = $studio_innovator_id ? get_field('studio', 'user_' . $studio_innovator_id) : '';
+					$studio_ids = ts_tour_studio_ids($tour_id);
+					$args = array(
+						'role' => 'studio',
+						'include' => $studio_ids,
+						'orderby' => 'meta_value',
+						'meta_key' => 'studio',
+					 ); 
+					$users = get_users($args);          
 					?>
 					<br /><br />
 					<h3>Studio Innovator:</h3>
 					<select name="studio_innovator" id="studio_innovator">
 						<option value="">Select Studio</option>
 						<?php
-						$args = array(
-							'role' => 'studio',
-						);
-						$users = get_users($args);
 						if($users) {
-							foreach ($users as $key => $user) {
-								$user_id = $user->ID;
-								$studio = get_field('studio', 'user_'. $user_id);
-								echo '<option value="'. $user_id .'" '. ( $user_id==$studio_innovator_id ? 'selected' : '' ) .'>'. $studio .'</option>';
-							}
-						}
+						     foreach ($users as $key => $user) {
+						     	$user_id = $user->ID;
+						     	$user_login = $user->user_login;
+						        $studio = get_field('studio', 'user_'. $user_id);
+								echo '<option value="'. $user_id .'" '. ( $user_id==$studio_innovator_id ? 'selected' : '' ) .'>'. $studio .' ('. $user_login .')</option>';
+						    }
+						}							
 						?>
 					</select>
 					<div class="form-footer-btns">
@@ -1761,6 +1782,9 @@ function ts_scholarships_page() {
 
 function ts_results_page() {
 	$tour_id = ts_get_param('tour');
+	if(! $tour_id) {
+		$tour_id = ts_upcoming_tour();
+	}	
 	$publish_button = '';
 	if($tour_id) {
 		$status = get_post_meta($tour_id, 'results_status', true);
@@ -1779,6 +1803,9 @@ function ts_results_page() {
 
 function ts_critiques_page() {
 	$tour_id = ts_get_param('tour');
+	if(! $tour_id) {
+		$tour_id = ts_upcoming_tour();
+	}	
 	$publish_button = '';
 	if($tour_id) {
 		$status = get_post_meta($tour_id, 'critiques_status', true);
