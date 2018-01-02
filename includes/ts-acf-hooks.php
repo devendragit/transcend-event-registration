@@ -119,6 +119,9 @@ function ts_load_schedules( $value, $post_id, $field ) {
 			        'agedivorder' => 'ASC',
 			        'catorder' => 'ASC',
 			    ),							
+		        /*'orderby' => 'meta_value_num',
+				'meta_key' => 'agediv_order',
+		        'order' => 'ASC',*/
 		    );
 		    $routines = ts_get_posts('ts_routine',-1,$args);
 			if($routines){
@@ -160,7 +163,7 @@ function ts_load_schedules( $value, $post_id, $field ) {
 
 				$newvalue = array(
 					array(
-						//'field_59d2674f77b98' => $timeday1,
+						'field_59d2674f77b98' => $timeday1,
 						'field_59d2674f77f7b' => $day1,
 					),
 				);
@@ -168,52 +171,15 @@ function ts_load_schedules( $value, $post_id, $field ) {
 		}
 		else {
 			$newvalue = $value;
-			$last = end($value[0]['field_59d2674f77f7b']);
-		    $args = array(
-		        'include' => ts_tour_routines_ids($tour_id),
-			    'meta_query' => array(
-			        array(
-			            'key' => 'routine_number',
-			            'compare' => 'NOT EXISTS',
-			        ),
-			    ),
-		    );
-		    $routines = ts_get_posts('ts_routine',-1,$args);
-			if($routines){
-				$count = $last['field_59d2674f9703c'];
-				$strtotime = strtotime($last['field_5a0aecd9b6bb4']);
-				foreach ($routines as $r) {
-					$count++;
-					$id = $r->ID;
-					$studio = ts_post_studio($id);
-					$author_role = ts_post_author_role($id);
-					if($studio=='' && $author_role=='individual') {
-						$studio = 'Independent';
-					}
-					$agediv = get_post_meta($id, 'agediv', true);
-					$cat = get_post_meta($id, 'cat', true);
-					$cat_name = $categories[$cat]['title'];
-					$genre = get_post_meta($id, 'genre', true);
-					$genre_name = $genres[$genre]['title'];
-					$time_limit = $categories[$cat]['time_limit'];
-
-					$time_start = $strtotime;
-					$time_end = $strtotime+$time_limit;
-					$strtotime = $time_end;
-					$day = array(
-					    'field_59d2674f9703c' => $count,
-					    'field_59d2674f973fa' => date('h:i a', $time_start),
-					    'field_5a0aecd9b6bb4' => date('h:i a', $time_end),
-					    'field_59d2674f977de' => $studio,
-					    'field_59d2674f97bd8' => $id,
-					    'field_59d2674f97fbb' => $agediv,
-					    'field_59d2674f9839c' => $cat_name,
-					    'field_59d2674f9878a' => $genre_name,
-					    'field_59d2674f98ba4' => 'Normal',
-					);
-					$newvalue[0]['field_59d2674f77f7b'][] = $day;
+			/*$count = 0;
+			foreach ($value as $a => $b) {
+				foreach ($lineup as $c => $d) {
+					if($d['field_59d2674f98ba4']=='Normal') {
+						$count++;
+						$newvalue[$a]['field_59d2674f77f7b'][$c]['field_59d2674f9703c'] = $count;
+					}	
 				}
-			}			
+			}*/			
 		}
 		$value = $newvalue;
 	}

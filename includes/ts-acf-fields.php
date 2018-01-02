@@ -641,8 +641,8 @@ if( function_exists('acf_add_local_field_group') ) {
 					'id' => '',
 				),
 				'collapsed' => '',
-				'min' => 1,
-				'max' => 0,
+				'min' => 3,
+				'max' => 3,
 				'layout' => 'block',
 				'button_label' => 'Add Day',
 				'sub_fields' => array (
@@ -655,7 +655,7 @@ if( function_exists('acf_add_local_field_group') ) {
 						'required' => 0,
 						'conditional_logic' => 0,
 						'wrapper' => array (
-              'width' => '17',
+							'width' => '16',
 							'class' => '',
 							'id' => '',
 						),
@@ -666,7 +666,7 @@ if( function_exists('acf_add_local_field_group') ) {
 						'maxlength' => '',
 					),
                     array (
-                        'key' => 'field_34ce7b4a2bdcf',
+                        'key' => 'field_34ce7b4a2bdce',
                         'label' => 'Headers',
                         'name' => 'column_1',
                         'type' => 'text',
@@ -674,7 +674,7 @@ if( function_exists('acf_add_local_field_group') ) {
                         'required' => 0,
                         'conditional_logic' => 0,
                         'wrapper' => array (
-                            'width' => '13.2',
+                            'width' => '13',
                             'class' => '',
                             'id' => '',
                         ),
@@ -685,15 +685,15 @@ if( function_exists('acf_add_local_field_group') ) {
                         'maxlength' => '',
                     ),
                     array (
-                        'key' => 'field_74ce7b4a2bdcg',
-                        'label' => '&nbsp;',
+                        'key' => 'field_74ce7b4a2bdce',
+                        'label' => '',
                         'name' => 'column_2',
                         'type' => 'text',
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => 0,
                         'wrapper' => array (
-                            'width' => '13.3',
+                            'width' => '13',
                             'class' => '',
                             'id' => '',
                         ),
@@ -704,15 +704,15 @@ if( function_exists('acf_add_local_field_group') ) {
                         'maxlength' => '',
                     ),
                     array (
-                        'key' => 'field_44ce7b4a2bdch',
-                        'label' => '&nbsp;',
+                        'key' => 'field_44ce7b4a2bdce',
+                        'label' => '',
                         'name' => 'column_3',
                         'type' => 'text',
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => 0,
                         'wrapper' => array (
-                            'width' => '13.3',
+                            'width' => '13',
                             'class' => '',
                             'id' => '',
                         ),
@@ -723,15 +723,15 @@ if( function_exists('acf_add_local_field_group') ) {
                         'maxlength' => '',
                     ),
                     array (
-                        'key' => 'field_54ce7b4a2bdci',
-                        'label' => '&nbsp;',
+                        'key' => 'field_54ce7b4a2bdce',
+                        'label' => '',
                         'name' => 'column_4',
                         'type' => 'text',
                         'instructions' => '',
                         'required' => 0,
                         'conditional_logic' => 0,
                         'wrapper' => array (
-                            'width' => '13.3',
+                            'width' => '13',
                             'class' => '',
                             'id' => '',
                         ),
@@ -742,8 +742,8 @@ if( function_exists('acf_add_local_field_group') ) {
                         'maxlength' => '',
                     ),
                     array (
-                        'key' => 'field_64ce7b4a2bdcj',
-                        'label' => '&nbsp;',
+                        'key' => 'field_64ce7b4a2bdce',
+                        'label' => '',
                         'name' => 'column_5',
                         'type' => 'text',
                         'instructions' => '',
@@ -800,7 +800,7 @@ if( function_exists('acf_add_local_field_group') ) {
 							),
 							array (
 								'key' => 'field_59ce7cd1f7a31',
-								'label' => ' ',
+								'label' => 'Seniors',
 								'name' => 'seniors',
 								'type' => 'text',
 								'instructions' => '',
@@ -819,7 +819,7 @@ if( function_exists('acf_add_local_field_group') ) {
 							),
 							array (
 								'key' => 'field_59ce7cd8f7a32',
-								'label' => ' ',
+								'label' => 'Teens',
 								'name' => 'teens',
 								'type' => 'text',
 								'instructions' => '',
@@ -838,7 +838,7 @@ if( function_exists('acf_add_local_field_group') ) {
 							),
 							array (
 								'key' => 'field_59ce7cdef7a33',
-								'label' => ' ',
+								'label' => 'Juniors',
 								'name' => 'juniors',
 								'type' => 'text',
 								'instructions' => '',
@@ -857,7 +857,7 @@ if( function_exists('acf_add_local_field_group') ) {
 							),
 							array (
 								'key' => 'field_59ce7ce3f7a34',
-								'label' => ' ',
+								'label' => 'Minis',
 								'name' => 'minis',
 								'type' => 'text',
 								'instructions' => '',
@@ -876,7 +876,7 @@ if( function_exists('acf_add_local_field_group') ) {
 							),
 							array (
 								'key' => 'field_59ce7ce9f7a35',
-								'label' => ' ',
+								'label' => 'Munchkins/Pro/Teachers',
 								'name' => 'munchkinsproteachers',
 								'type' => 'text',
 								'instructions' => '',
@@ -1016,7 +1016,7 @@ if( function_exists('acf_add_local_field_group') ) {
                 'layout' => 'block',
                 'button_label' => 'Add Day',
                 'sub_fields' => array (
-                    /*array (
+                    array (
                         'key' => 'field_59d2674f77b98',
 						'label' => 'Start Date/Time',
 						'name' => 'day',
@@ -1032,7 +1032,7 @@ if( function_exists('acf_add_local_field_group') ) {
 						'display_format' => 'F j, Y g:i a',
 						'return_format' => 'F j, Y g:i a',
 						'first_day' => 0,
-                    ),*/
+                    ),
                     array (
                         'key' => 'field_59d2674f77f7b',
                         'label' => 'Schedule',
@@ -1237,6 +1237,7 @@ if( function_exists('acf_add_local_field_group') ) {
 		                        'placeholder' => '',
 		                    ),
 		                ),
+
                     ),
                 ),
             ),

@@ -1300,7 +1300,7 @@ function ajax_add_routine_dancers() {
 			$age_div_name = '';
 			$routine_cat_id = '';
 			$routine_cat_name = '';
-			$count = count($dancers);
+			$count = 0;
 			$fee = 0;
 
 			if(get_post_status($eid)=='paid' || get_post_status($eid)=='paidcheck') {
@@ -1314,6 +1314,9 @@ function ajax_add_routine_dancers() {
 					}
 					update_post_meta($id, 'dancers_count_edited', $count);
 				}
+			}
+			else {
+				$count = count($dancers);
 			}
 
 			$cat = ts_get_competition_categories();
@@ -1379,9 +1382,9 @@ function ajax_add_routine_dancers() {
 			}
 				
 			if($routine_id && !is_wp_error($routine_id)) {
-				//if(get_post_status($eid)!='paid' && get_post_status($eid)!='paidcheck' && ! get_post_meta($routine_id, 'dancers_count', true)) {
+				if(get_post_status($eid)!='paid' && get_post_status($eid)!='paidcheck') {
 					update_post_meta($routine_id, 'dancers_count', $count);
-				//}
+				}
 				update_post_meta($routine_id, 'dancers', $dancer_ids);
 				update_post_meta($routine_id, 'agediv', $age_div_name);
 				update_post_meta($routine_id, 'cat', $routine_cat_id);
@@ -2150,26 +2153,15 @@ function ajax_delete_item() {
 				$response['message'][] = __('Access Denied');
 			}
 		}
-		else if($type=='tour') {
-			if(current_user_can('edit_tour', $id)){
-				$tour = array(
-					'ID' => $id,
-					'post_status' => 'trash',
-				);
-				$delete = wp_update_post($tour);
-			}else{
-				$response['message'][] = __('Access Denied');
-			}
-		}
 		else if($type=='roster') {
 			if(current_user_can('delete_post', $id)){
 				$delete = wp_delete_post($id, true);
-				/*if($delete && ! is_wp_error($delete)) {
+				if($delete && ! is_wp_error($delete)) {
 					$entry_data = ts_get_session_entry_data($eid);
 					$temp_data = $entry_data;
-					unset($temp_data['workshop']['participants'][$id]);
+					$temp_data['workshop']['participants'][$id] = $participant;
 					ts_set_session_entry_data($temp_data, $eid);
-				}*/
+				}
 			}else{
 				$response['message'][] = __('Access Denied');
 			}
@@ -2544,14 +2536,26 @@ function ajax_save_scholarships() {
         );
 
         if($tour_city){
-			    $scholarshipsArray = array();
+	        if($studio_innovator!==''){
+				$args = array(
+					'role'         => 'studio',
+					'meta_key'     => 'studio',
+					'meta_value'   => $studio_innovator,
+					'meta_compare' => 'LIKE',
+					'number'       => 1,
+				 ); 
+				$users = get_users($args);
+	        	update_post_meta($tour_city, 'studio_innovator_id', $users[0]->ID);
+			}
+
+			$scholarshipsArray = array();
 	        foreach ($scholarships as $key => $value) {
 	        	if($value['number']!='' && $value['title']!=''){
 		        	$scholarshipsArray[$key] = $value;
 	        	} 
 	        }
+
 	        update_post_meta($tour_city, 'scholarships', $scholarshipsArray);
-        	update_post_meta($tour_city, 'studio_innovator_id', absint($studio_innovator));
 	        $has_error = false;
         }
 
@@ -2794,8 +2798,8 @@ function ajax_load_routine_info() {
         );
 
         $tour_routines = ts_tour_routines_ids($tour_id);
-        if(is_array($tour_routines) && ! empty($tour_routines) && $routine_number && ts_post_exists_by_id($routine_number)) {
 
+        if(is_array($tour_routines) && ! empty($tour_routines) && $routine_number) {
 			$args = array(
 				'post__in' => $tour_routines,
 				'posts_per_page' => 1,

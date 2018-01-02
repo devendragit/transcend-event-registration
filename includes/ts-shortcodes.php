@@ -1241,65 +1241,48 @@ function ts_get_payment_html($entry_data, $entry_id, $eid, $prev_step, $next_ste
 		}
 		else {
 
-			$grand_total = get_post_meta($entry_id, 'grand_total', true);
+			require_once(TS_LIBRARIES .'config.php');
 
-			if($grand_total<=0) {
-				?>
-				<div class="form-container-2 t-center boxed-container">
-					<h1>Your changes have been saved.</h1>
-					<?php do_action('registration_recompleted',$entry_id); ?>
-				</div>
-				<script type="text/javascript">
-					setTimeout(function(){
-						window.location.replace("<?php echo admin_url('admin.php?page=ts-my-entries'); ?>");
-					}, 5000);
-				</script>
-				<?php
+			$grand_total = ts_grand_total($eid, $entry_data);
+
+			if(isset($entry_data['discount_code']) && $entry_data['discount_code']!='') {
+				$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
 			}
-			else {
-				require_once(TS_LIBRARIES .'config.php');
-
-				$grand_total = ts_grand_total($eid, $entry_data);
-
-				if(isset($entry_data['discount_code']) && $entry_data['discount_code']!='') {
-					$grand_total = ts_discounted_grand_total($grand_total, $entry_data['discount_code'], $entry_id);
-				}
-				$current_user = wp_get_current_user();
-				?>
-				<div class="studio-payment-container payment-form-container form-container-1">
-					<div class="row">
-						<div class="col-md-12 t-center">OR</div>
-					</div>
-					<div class="row">
-						<div class="col-md-6 t-center stripe-payment-form-container">
-							<form action="<?php echo $base_url .'&step='. $next_step .'&completed=1'; ?>" method="post" class="stripe-payment-form">
-								<script src="https://checkout.stripe.com/checkout.js"
-										class="stripe-button"
-										data-key="<?php echo $stripe['publishable_key']; ?>"
-										data-amount="<?php echo $grand_total * 100; ?>"
-										data-name="<?php echo get_bloginfo('name'); ?>"
-										data-billing-address="true"
-										data-email="<?php echo $current_user->user_email; ?>"
-										data-description="Payment for Entry #<?php echo $entry_id; ?>">
-								</script>
-							</form>
-						</div>
-						<div class="col-md-6 t-center mail-payment-form-container">
-							<form name="studio-payment" id="studio-payment" class="studio-registration registration-form validate mail-payment-form" method="post" action="">
-								<input type="hidden" name="entry_id" value="<?php echo $entry_id; ?>">
-								<input type="hidden" name="eid" value="<?php echo $eid; ?>">
-								<input type="hidden" name="tab" value="payment">
-								<input type="hidden" name="action" value="<?php echo $form_action;?>">
-								<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
-								<label><input type="checkbox" name="" class="validate[required]"> Mail in Check</label><br />
-								<input class="btn btn-green" type="submit" value="Submit Registration">
-							</form>
-						</div>
-					</div>
-					<p class="foot-note">Registration is not complete without full payment, <br>or until check is received in the mail.</p>
+			$current_user = wp_get_current_user();
+			?>
+			<div class="studio-payment-container payment-form-container form-container-1">
+				<div class="row">
+					<div class="col-md-12 t-center">OR</div>
 				</div>
-				<?php
-			}
+				<div class="row">
+					<div class="col-md-6 t-center stripe-payment-form-container">
+						<form action="<?php echo $base_url .'&step='. $next_step .'&completed=1'; ?>" method="post" class="stripe-payment-form">
+							<script src="https://checkout.stripe.com/checkout.js"
+									class="stripe-button"
+									data-key="<?php echo $stripe['publishable_key']; ?>"
+									data-amount="<?php echo $grand_total * 100; ?>"
+									data-name="<?php echo get_bloginfo('name'); ?>"
+									data-billing-address="true"
+									data-email="<?php echo $current_user->user_email; ?>"
+									data-description="Payment for Entry #<?php echo $entry_id; ?>">
+							</script>
+						</form>
+					</div>
+					<div class="col-md-6 t-center mail-payment-form-container">
+						<form name="studio-payment" id="studio-payment" class="studio-registration registration-form validate mail-payment-form" method="post" action="">
+							<input type="hidden" name="entry_id" value="<?php echo $entry_id; ?>">
+							<input type="hidden" name="eid" value="<?php echo $eid; ?>">
+							<input type="hidden" name="tab" value="payment">
+							<input type="hidden" name="action" value="<?php echo $form_action;?>">
+							<input type="hidden" name="next_step" value="<?php echo $next_step; ?>">
+							<label><input type="checkbox" name="" class="validate[required]"> Mail in Check</label><br />
+							<input class="btn btn-green" type="submit" value="Submit Registration">
+						</form>
+					</div>
+				</div>
+				<p class="foot-note">Registration is not complete without full payment, <br>or until check is received in the mail.</p>
+			</div>
+			<?php
 		}
 
 	}
@@ -1642,12 +1625,7 @@ function ts_results_shortcode() {
 	wp_enqueue_style('ts-shortcode-style');
 	wp_enqueue_script('ts-shortcode-script');
 	
-	$tour_id = ts_get_param('tour');
-	if(! $tour_id) {
-		$tour_id = ts_upcoming_tour();
-	}
-
-	ts_display_results_frontend($tour_id);
+	ts_display_results_frontend();
 
 	$output = ob_get_contents();
 	ob_end_clean();

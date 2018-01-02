@@ -145,5 +145,5 @@ function ts_tour_results_notification($tour_id) {
 	<p style="text-align:center; font-size:1.6em; font-weight:bold;"><a href="'. admin_url('admin.php?page=ts-my-results&tour='. $tour_id) .'">Click Here</a></p>
 	';
 
-	//wp_mail($to, $subject, $body, $headers);	
+	wp_mail($to, $subject, $body, $headers);	
 }
