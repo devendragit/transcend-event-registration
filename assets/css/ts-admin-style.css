@@ -443,6 +443,7 @@ tr.acf-field[data-name="email"] {
 .schedule_settings .acf-field-59d2674f98ba4 .acf-input{ /* Row Type */
     position: relative;
 }
+.schedule_settings .day-separator .acf-field-5a0aecd9b6bb4 .acf-input:before,
 .schedule_settings .acf-field-59d2674f9703c .acf-input:before,
 .schedule_settings .acf-field-59d2674f9878a .acf-input:before,
 .schedule_settings .acf-field-59d2674f9839c .acf-input:before,
@@ -467,13 +468,14 @@ tr.acf-field[data-name="email"] {
     border: 1px solid #e6e6e6;
     background-color: #fcfcfc;
 }
-/*.schedule_settings .break-separator .acf-field-59d2674f977de input[type="text"],
+/*
+.schedule_settings .acf-field-5a0aecd9b6bb4 input[type="text"],
+.schedule_settings .break-separator .acf-field-59d2674f977de input[type="text"],
 .schedule_settings .awards-separator .acf-field-59d2674f977de input[type="text"],*/
 .schedule_settings .break-separator .acf-field-59d2674f973fa input[type="text"],
 .schedule_settings .awards-separator .acf-field-59d2674f973fa input[type="text"],
 .schedule_settings .acf-field-59d2674f973fa input[type="text"],
-.schedule_settings .acf-field-59d2674f77b98 input[type="text"],
-.schedule_settings .acf-field-5a0aecd9b6bb4 input[type="text"] {
+.schedule_settings .acf-field-59d2674f77b98 input[type="text"] {
     background-color: #fff;
     border: 1px solid #aaa;
 }

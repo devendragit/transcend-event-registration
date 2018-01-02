@@ -1350,7 +1350,6 @@ function ts_display_workshop_schedules($schedules) {
 	foreach ($schedules as $schedule) {
 		$schedule_id = $schedule->ID;
 		$counter = 1;
-		/*echo '<h3 class="t-center">'. $schedule->post_title .'</h3>';*/
         while(has_sub_field('event_schedules', $schedule_id)):
             $column_1 = get_sub_field('column_1');
             $column_2 = get_sub_field('column_2');
@@ -1420,6 +1419,7 @@ function ts_display_workshop_schedules($schedules) {
 	echo '
 	</div>';
 }
+
 function ts_display_competition_schedules($schedules, $routines_array=array()) {
 	if(! empty($schedules)) {
 		echo '
@@ -1486,7 +1486,8 @@ function ts_display_competition_schedules($schedules, $routines_array=array()) {
 					$c++;
 					endwhile;
       
-      ts_compsched_footer();
+      			ts_compsched_footer();
+
 				$counter++;
 			endwhile;
 		}
@@ -1526,11 +1527,11 @@ function ts_compsched_header($day) {
 						<span>Genre</span>
 					</div>
 				</div>
-	<?php	
+				<?php	
 }
 
 function ts_compsched_footer() {
-	?>
+			?>
 			</div>
 		</div>
 	</div>
@@ -1542,12 +1543,10 @@ function ts_display_competition_schedules2($schedules, $routines_array=array()) 
 		foreach ($schedules as $schedule) {
 			$schedule_id = $schedule->ID;
 			$tour_id = get_post_meta($schedule_id, 'event_city', true);
-			$tour_date = get_post_meta($tour_id, 'date_from', true);
-			$first_day = date('l, F jS', strtotime($tour_date));
 			$daycount = 0;
-			/*echo '
-			<h3 class="t-center">'. $schedule->post_title .'</h3>';*/
 			while(has_sub_field('competition_event_schedules', $schedule_id)):
+				$tour_date = get_sub_field('day', $schedule_id);
+				$first_day = date('l, F jS', strtotime($tour_date));
 				ts_compsched_header2($first_day);
 					while(has_sub_field('lineup')):
 						$highlight = in_array(get_sub_field('routine'), $routines_array) ? 'highlighted-row' : '';
@@ -1616,6 +1615,7 @@ function ts_display_competition_schedules2($schedules, $routines_array=array()) 
 		}
 	}
 }
+
 function ts_compsched_header2($day) {
 	?>
 	<div class="CompetitionSched SchedTable">
@@ -1627,36 +1627,27 @@ function ts_compsched_header2($day) {
 				<thead class="RowHeading">
 					<tr>
 						<th style="text-align: center;"><span>#</span></th>
-						<th><span>Time</span></th>
-						<th><span>Studio</span></th>
-						<th><span>Routine</span></th>
-						<th><span>Age Division</span></th>
-						<th><span>Category</span></th>
-						<th><span>Genre</span></th>
+						<th style="text-align: center;"><span>Time</span></th>
+						<th style="text-align: center;"><span>Studio</span></th>
+						<th style="text-align: center;"><span>Routine</span></th>
+						<th style="text-align: center;"><span>Age Division</span></th>
+						<th style="text-align: center;"><span>Category</span></th>
+						<th style="text-align: center;"><span>Genre</span></th>
 					</tr>
 				</thead>
 				<tbody>
-	<?php	
+				<?php	
 }
+
 function ts_compsched_footer2() {
-	?>
+				?>
 				</tbody>
-				<tfoot>
-					<tr>
-						<th class="hidden">#</th>
-						<th class="hidden">Time</th>
-						<th>Studios</th>
-						<th class="hidden">Routine</th>
-						<th class="hidden">Age Division</th>
-						<th class="hidden">Category</th>
-						<th class="hidden">Genre</th>
-					</tr>
-				</tfoot>
 			</table>
 		</div>
 	</div>
 	<?php	
 }
+
 function ts_display_user_competition_schedules($schedules, $routines_array=array()) {
 	if(! empty($schedules)) {
 		foreach ($schedules as $schedule) {
@@ -1748,6 +1739,7 @@ function ts_save_routine_number($schedule_id) {
 		}
 	}
 }
+
 function ts_adjudicated_award($score) {
 	$award = '';
     if((200 <= $score) && ($score <= 234)) {
@@ -1773,6 +1765,7 @@ function ts_adjudicated_award($score) {
     }
     return $award;
 }
+
 function ts_routine_cat_hs($routine_id, $tour_id) {
 	$agediv = get_post_meta($routine_id, 'agediv', true);
 	$cat = get_post_meta($routine_id, 'cat', true);
@@ -1784,6 +1777,7 @@ function ts_routine_cat_hs($routine_id, $tour_id) {
 		return ts_add_suffix($key+1) .' Place';
 	}
 }
+
 function ts_routine_overall_hs($routine_id, $tour_id) {
 	$agediv = get_post_meta($routine_id, 'agediv', true);
 	$winners = ts_overallwinners_posts($tour_id, $agediv, 3);
@@ -1793,6 +1787,7 @@ function ts_routine_overall_hs($routine_id, $tour_id) {
 		return ts_add_suffix($key+1) .' Place';
 	}
 }
+
 function ts_winners_posts($tour_id, $agediv, $cat, $limit=5) {
 	$args = array(
 		'posts_per_page' => $limit,

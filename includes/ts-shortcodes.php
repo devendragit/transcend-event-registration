@@ -1583,11 +1583,12 @@ function ts_display_invoice_content_html( $entry_id, $invoice_id, $user_id ) {
 	}
 }
 
-function ts_workshop_schedules_shortcode() {
+function ts_workshop_schedules_shortcode($atts) {
 
 	ob_start();
 
 	wp_enqueue_style('ts-shortcode-style');
+	wp_enqueue_script('ts-shortcode-script');
 	
 	$args = array(
 		'tax_query' => array(
@@ -1599,6 +1600,16 @@ function ts_workshop_schedules_shortcode() {
 		),
 	);
 
+	if($atts['tour']) {
+		$args['meta_query'] = array(
+	        array(
+	            'key'     => 'event_city',
+	            'value'   => $atts['tour'],
+	            'compare' => '=',
+	        )
+    	);
+	}
+
 	$schedules = ts_get_posts('ts_event', -1, $args);
 
 	ts_display_workshop_schedules($schedules);
@@ -1609,11 +1620,12 @@ function ts_workshop_schedules_shortcode() {
 	return $output;
 }
 
-function ts_competition_schedules_shortcode() {
+function ts_competition_schedules_shortcode($atts) {
 
 	ob_start();
 
 	wp_enqueue_style('ts-shortcode-style');
+	wp_enqueue_script('ts-shortcode-script');
 	
 	$args = array(
 		'tax_query' => array(
@@ -1625,9 +1637,19 @@ function ts_competition_schedules_shortcode() {
 		),
 	);
 
+	if($atts['tour']) {
+		$args['meta_query'] = array(
+	        array(
+	            'key'     => 'event_city',
+	            'value'   => $atts['tour'],
+	            'compare' => '=',
+	        )
+    	);
+	}
+
 	$schedules = ts_get_posts('ts_event', -1, $args);
 
-	ts_display_competition_schedules($schedules);
+	ts_display_competition_schedules2($schedules);
 
 	$output = ob_get_contents();
 	ob_end_clean();

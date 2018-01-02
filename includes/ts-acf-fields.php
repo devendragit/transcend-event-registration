@@ -655,7 +655,7 @@ if( function_exists('acf_add_local_field_group') ) {
 						'required' => 0,
 						'conditional_logic' => 0,
 						'wrapper' => array (
-              'width' => '17',
+              				'width' => '17',
 							'class' => '',
 							'id' => '',
 						),
@@ -1016,7 +1016,7 @@ if( function_exists('acf_add_local_field_group') ) {
                 'layout' => 'block',
                 'button_label' => 'Add Day',
                 'sub_fields' => array (
-                    /*array (
+                    array (
                         'key' => 'field_59d2674f77b98',
 						'label' => 'Start Date/Time',
 						'name' => 'day',
@@ -1032,7 +1032,7 @@ if( function_exists('acf_add_local_field_group') ) {
 						'display_format' => 'F j, Y g:i a',
 						'return_format' => 'F j, Y g:i a',
 						'first_day' => 0,
-                    ),*/
+                    ),
                     array (
                         'key' => 'field_59d2674f77f7b',
                         'label' => 'Schedule',

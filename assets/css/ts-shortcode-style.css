@@ -81,7 +81,7 @@
 .SampleSched .SchedTable {
     font-size: 14px;
     text-align: center;
-    margin-right: 30px;
+    margin-right: 0;
     margin-top: 15px;
     margin-bottom: 30px;    
     overflow: hidden;
@@ -287,4 +287,11 @@
 .overall-container .row {
     display: flex;
     flex-wrap: wrap;
+}
+.CompetitionSched .ts-data-table {
+    width: 100%;
+}
+.CompetitionSched .dt-buttons,
+.CompetitionSched .dataTables_filter {
+    float: right;
 }
